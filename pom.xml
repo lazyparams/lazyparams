@@ -482,8 +482,8 @@
             <properties>
                 <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
                 <!-- Compile Dependencies: -->
-                <version.junit5>5.11.0-M1</version.junit5>
-                <version.platform>1.11.0-M1</version.platform>
+                <version.junit5>5.10.2</version.junit5>
+                <version.platform>1.10.2</version.platform>
             </properties>
         </profile>
 
