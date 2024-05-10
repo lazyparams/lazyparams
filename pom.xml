@@ -1,0 +1,999 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.lazyparams</groupId>
+    <artifactId>lazyparams</artifactId>
+    <version>1.0.0-beta-7-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>LazyParams</name>
+    <url>http://lazyparams.org</url>
+    <description>
+        /* One-line parametrization of unit tests ...*/ 
+        int parameterValue = pickValue("parameterName", 1,2,3);
+    </description>
+    <inceptionYear>2024</inceptionYear>
+    <licenses>
+        <license>
+            <name>Eclipse Public License v2.0</name>
+            <url>https://www.eclipse.org/legal/epl-v20.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Henrik Kaipe</name>
+            <url>https://github.com/kaipe</url>
+        </developer>
+    </developers>
+
+    <properties>
+        <version.platform>[1.7.2,2)</version.platform>
+        <version.junit5>[5.7.2,6)</version.junit5>
+        <version.bytebuddy>1.14.13</version.bytebuddy>
+        <version.mockito>4.11.0</version.mockito>
+        <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+            Reliable support for Jupiter @TestFactory starts at version 5.8.x
+        </exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+        <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+            Jupiter support for specifying parameter resolver on method
+            parameter annotation starts at version 5.8.x
+        </exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+        <profile.junit5.unsupported>false</profile.junit5.unsupported>
+        <version.test.jdk>8</version.test.jdk>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+
+        <!--
+        Mandatory dependency on Byte-Buddy
+        -->
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy-agent</artifactId>
+            <version>${version.bytebuddy}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${version.bytebuddy}</version>
+        </dependency>
+
+        <!--
+        Dependency on JUnit-4 is optional.
+        It is assumed projects with JUnit-3/4 tests will specify JUnit-4
+        or vintage dependency anyway. Likewise it is also assumed projects
+        will have dependency on PowerMock JUnit-4 module specified.
+        (LazyParams JUnit-5 compatibility does not break if dependency on
+        JUnit-4 and PowerMock is missing - as is verified by surefire
+        test execution "Test_without_JUnit-4".)
+        -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                    <!--
+                    Hamcrest is in fact used by this project but
+                    only with scope=test.
+                    -->
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>2.0.9</version>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                    <!--
+                    Hamcrest is in fact used by this project but
+                    only with scope=test.
+                    -->
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--
+        Dependency on JUnit-5 (platform engine and jupiter engine) is optional.
+        It is assumed projects that use JUnit Jupiter will specify test
+        dependencies properly anyway. (LazyParams JUnit-4 compatibility does
+        not break if dependency on JUnit-5 is missing - as is verified by
+        failsafe integration-test execution "Test_JUnit-4".)
+        -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-engine</artifactId>
+            <version>${version.platform}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${version.junit5}</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!--
+        This test dependency is for regression tests that verify LazyParams
+        compatibility with "junit-jupiter-params". Need for this compatibility
+        concerns situations when an old "junit-jupiter-params" test is
+        enhanced with additional parameters from LazyParams.
+        -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${version.junit5}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        JUnit-5 technical test dependencies that Surefire require for running
+        tests with its default JUnit-5 provider. Classes from the
+        junit-platform-launcher dependency are also explicitly used by
+        regression tests that verify compatibility with JUnit Jupiter.
+        -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${version.junit5}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${version.platform}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        Test dependencies on APIs that are used by JUnit-4 PowerMock tests.
+        -->
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-easymock</artifactId>
+            <version>2.0.9</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        Other (regular) test dependencies:
+        -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${version.mockito}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+            <version>1.3</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>1.7.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!--
+        Test dependencies to verify some 3rd-party compatibility
+        -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>5.3.31</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.31</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.testparameterinjector</groupId>
+            <artifactId>test-parameter-injector-junit5</artifactId>
+            <version>1.15</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.auto.value</groupId>
+                    <artifactId>auto-value-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.code.findbugs</groupId>
+                    <artifactId>jsr305</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.errorprone</groupId>
+                    <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.google.j2objc</groupId>
+                    <artifactId>j2objc-annotations</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.checkerframework</groupId>
+                    <artifactId>checker-qual</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                  <include>LICENSE</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <artifactId>maven-toolchains-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <execution><goals><goal>toolchain</goal></goals></execution>
+                </executions>
+                <!--
+                Force Surefire and Failsafe to run tests with toolchain JDK,
+                which version can be overridden by profiles.
+                -->
+                <configuration>
+                    <toolchains>
+                        <jdk>
+                            <version>${version.test.jdk}</version>
+                        </jdk>
+                    </toolchains>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <id>compile-jdk6-tests</id>
+                        <phase>process-test-sources</phase>
+                        <configuration>
+                            <testSource>6</testSource>
+                            <testTarget>6</testTarget>
+                            <testIncludes>
+                                <testInclude>org/lazyparams/internal/AssertNoJUnit5onClasspath.java</testInclude>
+                                <testInclude>org/lazyparams/internal/MaxTotalCountAtOneMustNotLeakParametersTest.java</testInclude>
+                                <testInclude>org/lazyparams/TestLazyParamsCore*</testInclude>
+                                <testInclude>org/lazyparams/HierarchialVintage*</testInclude>
+                                <testInclude>org/lazyparams/EnsemblesLegacy*</testInclude>
+                                <testInclude>org/lazyparams/demo/DependentOrNotTest.java</testInclude>
+                            </testIncludes>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <source>6</source>
+                    <target>6</target>
+                    <testSource>8</testSource>
+                    <testTarget>8</testTarget>
+
+                    <parameters>true</parameters>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+                    <!--
+                    All compilation with JDK-8
+                    -->
+                    <jdkToolchain><version>8</version></jdkToolchain>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <!--
+                Use Surefire's sibling plugin ...
+                -->
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.22.2</version>
+                <!--
+                ... to execute JUnit tests that ensure compatibility with JDK-6.
+                Due to Surefire's JunitPlatformProvider dependency on JDK-8 or
+                later, this plugin is used so that JDK-6 tests can run on a
+                separate Surefire-provider (surefire-junit47), which needs to
+                be explicitly specified as a plugin dependency ...
+                -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit47</artifactId>
+                        <version>2.22.2</version>
+                    </dependency>
+                </dependencies>
+                <!--
+                ... but adding this plugin dependency directly to the regular
+                Surefire plugin would impact all its test executions, therewith
+                breaking all JUnit-5 tests.
+                -->
+                <configuration>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-engine</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.platform:junit-platform-engine</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.platform:junit-platform-commons</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.vintage:junit-vintage-engine</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.platform:junit-platform-launcher</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
+                    <includes>
+                        <include>AssertNoJUnit5onClasspath</include>
+                        <include>MaxTotalCountAtOneMustNotLeakParametersTest</include>
+                        <include>org/lazyparams/TestLazyParamsCore*</include>
+                        <include>org/lazyparams/HierarchialVintageTest*</include>
+                        <include>org/lazyparams/EnsemblesLegacyTest*</include>
+                        <include>org/lazyparams/demo/DependentOrNot*</include>
+                    </includes>
+
+                    <reportNameSuffix>JUnit4provider_with_bytebuddy-${version.bytebuddy}_on_JDK-${version.test.jdk}</reportNameSuffix>
+                    <trimStackTrace>false</trimStackTrace>
+                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                    <failIfNoTests>true</failIfNoTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>Test_JUnit-4</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <phase>test</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.2.5</version>
+                <configuration>
+                    <skip>${profile.junit5.unsupported}</skip>
+                    <trimStackTrace>false</trimStackTrace>
+                    <failIfNoTests>true</failIfNoTests>
+                    <excludes>
+                        <exclude>${exclude.testfactory-tests.on.jupiter.5.7.or.earlier}</exclude>
+                        <exclude>${exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier}</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>Test_without_JUnit-4</id>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>AssertNoVintageOnClasspath</include>
+                                <include>MaxTotalCountAtOneMustNotLeakParametersTest</include>
+                                <include>AnonymousLambdasTest</include>
+                                <include>ExampleEnsemblesTest</include>
+                                <include>ConditionallyUncombinedAgeAs3rd</include>
+                            </includes>
+                            <classpathDependencyExcludes>
+                                <classpathDependencyExclude>org.junit.vintage:junit-vintage-engine</classpathDependencyExclude>
+                                <classpathDependencyExclude>junit:junit</classpathDependencyExclude>
+                                <classpathDependencyExclude>org.powermock:powermock-module-junit4</classpathDependencyExclude>
+                            </classpathDependencyExcludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.10</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report_coverage</id>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property><name>!test</name></property>
+            </activation>
+            <id>default build</id>
+            <properties>
+                <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
+                <!-- Compile Dependencies: -->
+                <version.junit5>5.11.0-M1</version.junit5>
+                <version.platform>1.11.0-M1</version.platform>
+            </properties>
+        </profile>
+
+        <profile>
+            <activation>
+                <property><name>test</name></property>
+            </activation>
+            <id>
+            Separate profile for running singluar tests with latest versions of
+            all dependencies that have version ranges.
+            By not specifying Surefire report-name suffix this is also a
+            workaround for NetBeans IDE, which otherwise gets confused and fails
+            to present results of its test-executions.
+            </id>
+        </profile>
+
+        <profile>
+            <id>enableInstallScenarios</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+<!--
+This profile sets value "true" on system-property "lazyparams.test.installscenarios",
+which is a signal for test-utility class "org.lazyparams.InstallScenario" to
+provide test-class with tweaks for all available install scenarios:
+-->
+<systemPropertyVariables>
+    <lazyparams.test.installscenarios>true</lazyparams.test.installscenarios>
+</systemPropertyVariables>
+<!--
+To have these install scenarios enabled will make the test-class of concern
+(org.lazyparams.LeafParameterizedJupiterTest) take much longer to execute (minutes)
+and that is not so good for unit-test suites that must run fast. Therefore these
+scenarios are disabled as default - but it's still a good idea to have them
+reevaluated once-in-while by running tests with this profile enabled!
+-->
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+        Version alternatives for depencencies org.junit.jupiter:junit-jupiter-engine
+        and org.junit.vintage:junit-vintage-engine
+        These profiles also specify version for JUnit Platform to match the
+        Jupiter release or - for a couple of old Jupiter releases - somewhat
+        later version, because LazyParams JUnit Platform support starts at
+        version 1.7
+        -->
+        <profile>
+            <id>junit_latest</id>
+        </profile>
+        <profile>
+            <id>junit_5.10.2</id>
+            <properties>
+                <version.junit5>5.10.2</version.junit5>
+                <version.platform>1.10.2</version.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>junit_5.9.3</id>
+            <properties>
+                <version.junit5>5.9.3</version.junit5>
+                <version.platform>1.9.3</version.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>junit_5.8.2</id>
+            <properties>
+                <version.junit5>5.8.2</version.junit5>
+                <version.platform>1.8.2</version.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>junit_5.7.2</id>
+            <properties>
+                <version.junit5>5.7.2</version.junit5>
+                <version.platform>1.7.2</version.platform>
+                <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+                <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+            </properties>
+        </profile>
+        <profile>
+            <id>junit_5.6.3</id>
+            <properties>
+                <version.junit5>5.6.3</version.junit5>
+                <!--
+                Compatibility with JUnit Platform starts at version 1.7, because
+                it introduces Node.DynamicTestRunner#execute(Context,TestListener).
+                I.e. the ability to specify a customized listener for a dynamic test!
+                -->
+                <version.platform>1.7.2</version.platform>
+                <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+                <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+            </properties>
+        </profile>
+
+        <!--
+        Version alternatives for depencency net.bytebuddy:byte-buddy[-agent]
+        The test execution script clean_package_testall.sh will only try
+        bytebuddy profiles with name on format "bytebuddy_*". The other
+        bytebuddy profiles have format "bytebuddy###*" and are only here to
+        document their Mockito compatibility.
+        -->
+        <profile>
+            <id>bytebuddy_default</id>
+            <!-- Placeholder for sticking to ByteBuddy version that is specified
+                 by default (non-profile) properties declaration! -->
+        </profile>
+        <profile>
+            <id>bytebuddy_1.14.11</id><!-- Introduced at Mockito-5.9 -->
+            <properties><version.bytebuddy>1.14.11</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.14.10</id><!-- Introduced at Mockito-5.8 -->
+            <properties><version.bytebuddy>1.14.10</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.14.9</id><!-- Introduced at Mockito-5.7 -->
+            <properties><version.bytebuddy>1.14.9</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.14.8</id><!-- Introduced at Mockito-5.6 -->
+            <properties><version.bytebuddy>1.14.8</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.14.6</id><!-- Introduced at Mockito-5.5 -->
+            <properties><version.bytebuddy>1.14.6</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.14.5</id><!-- Introduced at Mockito-5.4 -->
+            <properties><version.bytebuddy>1.14.5</version.bytebuddy></properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.14.4</id><!-- Introduced at Mockito-5.3 -->
+            <properties><version.bytebuddy>1.14.4</version.bytebuddy></properties>
+        </profile>
+        <!--
+        bytebuddy-1.14.1 was introduced as Mockito dependency at version 5.2.
+        Unfortunatelly it is not very compatible with LazyParams, so it is not tested here!
+        -->
+        <!-- Bytebuddy-4.13 has never been used much -->
+        <profile>
+            <id>bytebuddy_1.12.22</id><!-- Introduced at Mockito-5.0 -->
+            <properties>
+                <version.bytebuddy>1.12.22</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.12.19</id><!-- Introduced at Mockito-4.10 -->
+            <properties>
+                <version.bytebuddy>1.12.19</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.12.16</id><!-- Introduced at Mockito-4.8.1 -->
+            <properties>
+                <version.bytebuddy>1.12.16</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.12.13</id><!-- Introduced at Mockito-4.7 -->
+            <properties>
+                <version.bytebuddy>1.12.13</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.12.10</id><!-- Introduced at Mockito-4.6 -->
+            <properties>
+                <version.bytebuddy>1.12.10</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.12.9</id><!-- Introduced at Mockito-4.5 -->
+            <properties>
+                <version.bytebuddy>1.12.9</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.12.8</id><!-- Introduced at Mockito-4.4 -->
+            <properties>
+                <version.bytebuddy>1.12.8</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.12.7</id><!-- Introduced at Mockito-4.3 -->
+            <properties>
+                <version.bytebuddy>1.12.7</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.12.4</id><!-- Introduced at Mockito-4.2 -->
+            <properties>
+                <version.bytebuddy>1.12.4</version.bytebuddy>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.12.1</id><!-- Introduced at Mockito-4.1 -->
+            <properties>
+                <version.bytebuddy>1.12.1</version.bytebuddy>
+            </properties>
+        </profile>
+        <!--
+        Byte-Buddy versions 11.x and earlier do not work well with Mockito-4.x,
+        so the Byte-Buddy profiles below do also specify an alternative
+        Mockito version:
+        -->
+        <profile>
+            <id>bytebuddy_1.11.19</id><!-- Introduced at Mockito-4.0 -->
+            <properties>
+                <version.bytebuddy>1.11.19</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.11.13</id><!-- Introduced at Mockito-3.12.1 -->
+            <properties>
+                <version.bytebuddy>1.11.13</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.11.3</id><!-- Introduced at Mockito-3.11.2 -->
+            <properties>
+                <version.bytebuddy>1.11.3</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.11.0</id><!-- Introduced at Mockito-3.10 -->
+            <properties>
+                <version.bytebuddy>1.11.0</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.10.20</id><!-- Introduced at Mockito-3.8 -->
+            <properties>
+                <version.bytebuddy>1.10.20</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.10.19</id><!-- Introduced at Mockito-3.7 -->
+            <properties>
+                <version.bytebuddy>1.10.19</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.10.18</id><!-- Introduced at Mockito-3.6.28 -->
+            <properties>
+                <version.bytebuddy>1.10.18</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.10.15</id><!-- Introduced at Mockito-3.5.13 -->
+            <properties>
+                <version.bytebuddy>1.10.15</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.10.13</id><!-- Introduced at Mockito-3.4.2 -->
+            <properties>
+                <version.bytebuddy>1.10.13</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.10.5</id><!-- Introduced at Mockito-3.2.4 -->
+            <properties>
+                <version.bytebuddy>1.10.5</version.bytebuddy>
+                <version.mockito>3.12.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.9.10</id><!-- Introduced at Mockito-2.26 -->
+            <properties>
+                <version.bytebuddy>1.9.10</version.bytebuddy>
+                <version.mockito>2.28.2</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.9.7</id><!-- Introduced at Mockito-2.24 -->
+            <properties>
+                <version.bytebuddy>1.9.7</version.bytebuddy>
+                <version.mockito>2.28.2</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.9.3</id><!-- Introduced at Mockito-2.23.4 -->
+            <properties>
+                <version.bytebuddy>1.9.3</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.9.0</id><!-- Introduced at Mockito-2.23 -->
+            <properties>
+                <version.bytebuddy>1.9.0</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.8.21</id><!-- Introduced at Mockito-2.22 -->
+            <properties>
+                <version.bytebuddy>1.8.21</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.8.15</id><!-- Introduced at Mockito-2.21 -->
+            <properties>
+                <version.bytebuddy>1.8.15</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.8.10</id><!-- Introduced at Mockito-2.19 -->
+            <properties>
+                <version.bytebuddy>1.8.10</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy###1.8.5</id><!-- Introduced at Mockito-2.18.3 -->
+            <properties>
+                <version.bytebuddy>1.8.5</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.7.9</id><!-- Introduced at Mockito-2.12 -->
+            <properties>
+                <version.bytebuddy>1.7.9</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>bytebuddy_1.7.4</id><!-- Introduced at Mockito-2.10 -->
+            <!--
+            Framework can run with Byte-Buddy as old as version 1.7.4 that
+            introduced AgengBuilder.RedefinitionStrategy.DiscoveryStrategy,
+            on which LazyParams is dependent.
+            -->
+            <properties>
+                <version.bytebuddy>1.7.4</version.bytebuddy>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+        <profile>
+            <id>brokenbuddy</id>
+            <!--
+            Bytebuddy release that is too old and does not include all necessary
+            LazyParams dependencies. This entry is a reminder to once-in-a-while
+            make sure the Maven test-suite works and actually fails when this
+            alternative is part of the regression test profiles.
+            -->
+            <properties>
+                <version.bytebuddy>1.7.0</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <version.mockito>2.23.4</version.mockito>
+            </properties>
+        </profile>
+
+        <!--
+        Profiles for executing tests on different JDK versions.
+        -->
+        <profile>
+            <id>jdk_6</id>
+            <properties>
+                <version.test.jdk>6</version.test.jdk>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_7</id>
+            <properties>
+                <version.test.jdk>7</version.test.jdk>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_8</id>
+            <properties>
+                <version.test.jdk>8</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_9</id>
+            <properties>
+                <version.test.jdk>9</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_10</id>
+            <properties>
+                <version.test.jdk>10</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_11</id>
+            <properties>
+                <version.test.jdk>11</version.test.jdk>
+            </properties>
+        </profile>
+        <!--
+        JDKs on above profiles are expected to be compatible with all Byte-Buddy
+        editions that allow LazyParams to compile, i.e. Byte-Buddy version 1.7.4
+        or later!
+        However, for JDK-12 or later the test-exeuction script
+        "clean_package_testall" has restricted compatibility to Byte-Buddy
+        versions 1.11.x or later.
+        -->
+        <profile>
+            <id>jdk_12</id>
+            <properties>
+                <version.test.jdk>12</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_13</id>
+            <properties>
+                <version.test.jdk>13</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_14</id>
+            <properties>
+                <version.test.jdk>14</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_15</id>
+            <properties>
+                <version.test.jdk>15</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_16</id>
+            <properties>
+                <version.test.jdk>16</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_17</id>
+            <properties>
+                <version.test.jdk>17</version.test.jdk>
+            </properties>
+        </profile>
+        <!--
+        For JDK-18 or later the test-script "clean_package_testall" will only
+        try compatibility with Byte-Buddy version 1.14.4 or later!
+        -->
+        <profile>
+            <id>jdk_18</id>
+            <properties>
+                <version.test.jdk>18</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_19</id>
+            <properties>
+                <version.test.jdk>19</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_20</id>
+            <properties>
+                <version.test.jdk>20</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_21</id>
+            <properties>
+                <version.test.jdk>21</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_22</id>
+            <properties>
+                <version.test.jdk>22</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_23</id>
+            <properties>
+                <version.test.jdk>23</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_24</id>
+            <properties>
+                <version.test.jdk>24</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_25</id>
+            <properties>
+                <version.test.jdk>25</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_26</id>
+            <properties>
+                <version.test.jdk>26</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_27</id>
+            <properties>
+                <version.test.jdk>27</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_28</id>
+            <properties>
+                <version.test.jdk>28</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_29</id>
+            <properties>
+                <version.test.jdk>29</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_30</id>
+            <properties>
+                <version.test.jdk>30</version.test.jdk>
+            </properties>
+        </profile>
+    </profiles>
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/lazyparams/lazyparams</url>
+        </repository>
+    </distributionManagement>
+    <scm>
+        <connection>scm:git:https://github.com/lazyparams/lazyparams.git</connection>
+        <developerConnection>scm:git:https://github.com/lazyparams/lazyparams.git</developerConnection>
+        <url>https://github.com/lazyparams/lazyparams</url>
+    </scm>
+</project>
