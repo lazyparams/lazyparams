@@ -124,7 +124,8 @@ public abstract class AdviceFor<T> {
             /* Special case that implies this method must be overridden: */
             try {
                 StackTraceElement[] trace = Thread.currentThread().getStackTrace();
-                assert trace[0].getMethodName().equals(trace[1].getMethodName());
+                assert trace[0].getMethodName().equals(trace[1].getMethodName())
+                        || trace[1].getMethodName().equals(trace[2].getMethodName());
             } catch (RuntimeException ignoreCheck) {
             } catch (AssertionError badState) {
                 System.err.println(getClass() + " has java.lang.Object as "
