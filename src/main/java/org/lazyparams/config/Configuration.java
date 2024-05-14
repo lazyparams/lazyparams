@@ -56,7 +56,7 @@ public abstract class Configuration implements ReadableConfiguration {
                     : parentConfiguration().getValueDisplaySeparator();
         }
         @Override
-        public Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
+        public boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
             return null != alsoUseValueDisplaySeparatorBeforeToDisplayFunction
                     ? alsoUseValueDisplaySeparatorBeforeToDisplayFunction
                     : parentConfiguration()
@@ -93,7 +93,7 @@ public abstract class Configuration implements ReadableConfiguration {
         this.valueDisplaySeparator = valueDisplaySeparator;
     }
     @Override
-    public Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
+    public boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
         return virtualScopeConfiguration
                 .alsoUseValueDisplaySeparatorBeforeToDisplayFunction();
     }

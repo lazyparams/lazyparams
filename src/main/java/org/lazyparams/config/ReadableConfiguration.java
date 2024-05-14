@@ -19,7 +19,7 @@ public interface ReadableConfiguration {
         @Override public int getMaxFailureCount() { return 5; }
         @Override public int getMaxTotalCount() { return 100; }
         @Override public String getValueDisplaySeparator() {return " "; }
-        @Override public Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
+        @Override public boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
             return true;
         }
     };
@@ -27,5 +27,5 @@ public interface ReadableConfiguration {
     int getMaxFailureCount();
     int getMaxTotalCount();
     String getValueDisplaySeparator();
-    Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction();
+    boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction();
 }
