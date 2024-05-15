@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lazyparams</groupId>
     <artifactId>lazyparams</artifactId>
-    <version>1.0.0-rc-2-SNAPSHOT</version>
+    <version>1.0.0-rc-1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>LazyParams</name>
     <url>http://lazyparams.org</url>
