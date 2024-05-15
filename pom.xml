@@ -263,6 +263,9 @@
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
+                <configuration>
+                    <useBuildFilters>false</useBuildFilters>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
