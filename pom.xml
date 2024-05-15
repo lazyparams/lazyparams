@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lazyparams</groupId>
     <artifactId>lazyparams</artifactId>
-    <version>1.0.0-rc-1</version>
+    <version>1.0.0-rc-2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>LazyParams</name>
     <url>http://lazyparams.org</url>
@@ -1044,6 +1044,6 @@ reevaluated once-in-while by running tests with this profile enabled!
         <connection>scm:git:https://github.com/lazyparams/lazyparams.git</connection>
         <developerConnection>scm:git:https://github.com/lazyparams/lazyparams.git</developerConnection>
         <url>https://github.com/lazyparams/lazyparams</url>
-      <tag>lazyparams-1.0.0-rc-1</tag>
+      <tag>HEAD</tag>
   </scm>
 </project>
