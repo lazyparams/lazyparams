@@ -17,7 +17,7 @@ import org.lazyparams.ToDisplayFunction;
  * value-pick is not appended to test-name if test passes.
  * I.e. the picked value is made part of test-name only if the test fails. This
  * can be very useful for tests with many parameters!
- * <br/><br/>
+ * <br><br>
  * This strategy for hiding parameter for successful test is achieved by making
  * use of {@link ScopedLazyParameter.Silencer#qronicly()} when creating a
  * parameter.
@@ -100,7 +100,7 @@ public class Qronicly {
      * it is sufficient to use statements like these:<pre><code>
      *   Qronicly.&lt;MyEnum&gt;pickValue()
      *   MyEnum value = Qronicly.pickValue()
-     * <code></pre>
+     * </code></pre>
      * Parameter value toString() result will be displayed. (Default
      * {@link Enum#toString()} implementation returns constant name.)
      *

@@ -10,6 +10,8 @@
 package org.lazyparams;
 
 /**
+ * @see LazyParams#pickValue(ToDisplayFunction,Object,Object...)
+ * @see LazyParams#pickValue(ToDisplayFunction,Object[])
  * @author Henrik Kaipe
  */
 @FunctionalInterface

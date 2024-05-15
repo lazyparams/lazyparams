@@ -32,7 +32,7 @@ import org.lazyparams.config.Configuration;
  * CartesianProductHub instance, which is specified by being argument to
  * {@link ScopedLazyParameter.Combiner#fullyCombinedOn(CartesianProductHub)}
  * when a value is picked from one of the parameters of concern.
- * <br/>
+ * <br>
  * Parameter values that are picked being fully combined on same
  * {@link CartesianProductHub} will be treated as a separate unit by
  * LazyParams when other, pairwise-combined values from other parameters are
@@ -40,7 +40,7 @@ import org.lazyparams.config.Configuration;
  * of parameters, which values are fully combined between themselves but
  * pairwise combined with values from other parameters.
  * 
- * @see ScopedLazyParameter.Combiner#fullyCombinedOn(CartesianProduct)
+ * @see ScopedLazyParameter.Combiner#fullyCombinedOn(CartesianProductHub)
  * @author Henrik Kaipe
  */
 public abstract class CartesianProductHub {
@@ -99,7 +99,7 @@ public abstract class CartesianProductHub {
      * subsequent parameters until a first parameter-value has walked through
      * all its combinations with second parameter, and so on - therewith
      * requiring many repetitions before evaluating anything but primary value
-     * for last parameter to have been combined on this hub.<br/>
+     * for last parameter to have been combined on this hub.<br>
      * The poor distribution would not be much of a problem if all parameters
      * of the test were combined in this manner on a common hub. But the
      * intention here is to support a pocket, in which a subset of parameters

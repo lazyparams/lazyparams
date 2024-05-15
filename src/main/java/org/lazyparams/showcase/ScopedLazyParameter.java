@@ -37,7 +37,7 @@ import org.lazyparams.config.Configuration;
  * scope. This means after a parameter value was retrieved from
  * {@link #pickValue()} then {@link #pickValue()} will continue to return the
  * same value for as long as execution stays in the same repetition scope.
- * <br/>
+ * <br>
  * A special feature is how {@link #pickValue()} will also return the same value
  * as execution runs through sub-scopes of the repetition scope that introduced
  * the parameter value. This is unlike
@@ -48,7 +48,7 @@ import org.lazyparams.config.Configuration;
  * because it does not hold on to its ScopedLazyParameter instance, so instead
  * {@link #pickValue()} is invoked on a new instance whenever a parameter
  * value-pick is made with {@link LazyParams LazyParams.pickValue(...)}.
- * <br/><br/>
+ * <br><br>
  * An instance of ScopedLazyParameter is created by using a fluent progressive
  * factory that is initiated by method {@link #from(Object[]) from(T[] values)}
  * or {@link #from(Object,Object[]) from(T primaryValue, T... otherValues)}).
@@ -201,30 +201,30 @@ public abstract class ScopedLazyParameter<T> {
      * LazyParams' ability to combine parameter values in a lazy pairwise manner
      * is crucially dependent on the ability to identify each parameter
      * every time it is being reintroduced in a repeated test-execution.
-     * <br/><br/>
+     * <br><br>
      * Parameter identification is achieved by producing a parameter ID
      * every time a parameter value is picked. Default is to produce a
      * parameter ID-string by combining parameter-name (or ToDisplayFunction
      * class-name) with each of its values' class-name and (if implemented)
      * toString(). (On enum name() is used instead of toString())
-     * <br/>
+     * <br>
      * Thereafter the factory progression path for this particular
      * pick is combined with the ID-string to form a core parameter ID,
      * which will ultimately define the parameter. I.e. plenty of effort is
-     * invested to make sure parameter value-picks such as ...<code>
+     * invested to make sure parameter value-picks such as ...<pre><code>
      * ScopedLazyParameter.from(false,true).as("foo");
-     * </code>... will not be confused with neither ...<code>
+     * </code></pre>... will not be confused with neither ...<pre><code>
      * ScopedLazyParameter.from(false,true).notCombined().as("foo")
-     * </code>... nor ...<code>
+     * </code></pre>... nor ...<pre><code>
      * LazyParams.pickValue("foo", false, true);
-     * </code>
+     * </code></pre>
      * ... where the latter only separates itself because the
      * LazyParams#pickValue(...)-methods make sure to further distinguish the
      * parameter ID of their value-picks by internal use of method
      * {@link #withExtraIdDetails(Object...)}, which purpose is to achieve
      * stronger identification by further separating a particular value-pick
      * from others.
-     * <br/><br/>
+     * <br><br>
      * If the above procedure for producing a parameter ID is unreliable
      * then {@link #withExplicitParameterId(Object)} offers a way to have it
      * completely skipped and instead use argument as parameter-ID, without
@@ -246,7 +246,7 @@ public abstract class ScopedLazyParameter<T> {
          * parameter values are false or true, as is the case for showcase
          * feature {@link FalseOrTrue} that makes special effort to enforce
          * reliable parameter identification.)
-         * <br/><br/>
+         * <br><br>
          * It is important the parameter-ID can uniquely identify a parameter
          * repeatedly as a parameterized test is repeated. This is not
          * very hard to achieve but if this somehow goes wrong then it can
@@ -255,7 +255,7 @@ public abstract class ScopedLazyParameter<T> {
          * usually better not to bother about this opportunity and instead
          * trust LazyParams to produce good parameter IDs with its default
          * functionality.
-         * <br/>
+         * <br>
          * It would of course make sense to use this method when faced with a
          * situation where LazyParams default parameter-ID is somehow
          * unreliable. This could happen if toString() implementations
@@ -274,16 +274,16 @@ public abstract class ScopedLazyParameter<T> {
          * for test frameworks or reusable test-functionality that wish to
          * introduce their own parameters and avoid confusion with
          * parameters from elsewhere.
-         * <br/><br/>
+         * <br><br>
          * This method is used internally by the best practice API of
          * {@link LazyParams} to make sure that parameter requested with ...
-         * <ode>
+         * <pre><code>
          * LazyParams.pickValue("foobar", EnumType.FOO, EnumType.BAR);
-         * </code> ... will not be confused with ... <code>
-         * LazyParams.pickValue("foo", EnumType.values())
-         * </code> ... in case <code>FOO</code> and <code>BAR</code> are all the
+         * </code></pre> ... will not be confused with ... <pre><code>
+         * LazyParams.pickValue("foobar", EnumType.values())
+         * </code></pre> ... in case <code>FOO</code> and <code>BAR</code> are all the
          * constants of enum <code>EnumType</code>.
-         * <br/>
+         * <br>
          * Do observe how repeated usage of one of the above statements will
          * yield the same value every time during an isolated test-repetition,
          * as core {@link org.lazyparams.core.Lazer} will notice the same
@@ -295,8 +295,7 @@ public abstract class ScopedLazyParameter<T> {
          * and
          * {@link LazyParams#pickValue(String, Object[])
          * pickValue(String parameterName, T[] values)} (even though they
-         * overload one another) will internally provide different ID-details
-         * to this method!
+         * overload one another) will internally provide different extra ID-details.
          */
         returns_Factory_with_Identifier_selected withExtraIdDetails(Object... extraIdDetails);
     }
@@ -315,7 +314,7 @@ public abstract class ScopedLazyParameter<T> {
          * parameters of a technical nature that will not describe the test very
          * well in a test-report but could still be useful for a developer that
          * investigates a test failure.
-         * <br/>
+         * <br>
          * (The name of this method is inspired by the tools "cronic" and
          * "chronic" that can be used for having cron job output communicated
          * only in case of error. The method name here starts with 'q',
@@ -750,7 +749,7 @@ public abstract class ScopedLazyParameter<T> {
                 CombiningCollector<? super T,C> combiningCollector);
     }
 
-    /***********************************************************************
+    /* **********************************************************************
      * Below are definitions for the fluent factory progression interfaces
      * that secure the progressive fluent factory patterns for creating
      * well-defined ScopedLazyParameter instances.
@@ -758,7 +757,7 @@ public abstract class ScopedLazyParameter<T> {
      * These interface definitions are not edited manually!
      * Instead they are generated by script
      * "explode_factory_progression_path_definitions.pl".
-     ***************************************************/
+     * **************************************************/
 
     /**@see BasicFactory
      * @see Identifier

@@ -70,7 +70,7 @@ public class LazyParams {
      * it is sufficient to use statements like these:<pre><code>
      *   LazyParams.&lt;MyEnum&gt;pickValue()
      *   MyEnum value = LazyParams.pickValue()
-     * <code></pre>
+     * </code></pre>
      * Parameter value toString() result will be displayed. (Default
      * {@link Enum#toString()} implementation returns constant name.)
      */
@@ -111,12 +111,12 @@ public class LazyParams {
      * necessary, because it will be implicitly installed anyway on initial
      * usage as soon as the very first parameter value is picked.
      * But separate installation with this method has a couple of benefits:<ul>
-     * <il>
+     * <li>
      * Installation requires a small but noticeable amount of time. If test
      * execution times are examined then isolated installation with this method
      * during static initialization of test-class is recommended.
-     * </il>
-     * <il>
+     * </li>
+     * <li>
      * LazyParams can support multi-threaded test executions if the concurrency
      * does not effect the order by which the parameter values are picked.
      * But this only works as long as LazyParams can successfully associate a
@@ -125,12 +125,12 @@ public class LazyParams {
      * main thread starts the test (e.g. during static
      * initialization of test-class) then there is a greater chance to
      * successfully associate the main test-execution thread with parameter
-     * values that are picked from child threads.<br/>
+     * values that are picked from child threads.<br>
      * A situation of concern is when test is executed with a timeout that fails
      * the test if it takes too long, because this is usually supported
      * by having the actual test execute on a child thread, while the main
      * test-execution thread sits waiting for the specified amount of time.
-     * </il>
+     * </li>
      * </ul>
      * @see #uninstall()
      */

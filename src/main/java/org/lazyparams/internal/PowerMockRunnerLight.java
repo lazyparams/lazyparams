@@ -36,11 +36,11 @@ import org.powermock.reflect.internal.WhiteboxImpl;
  * breaks modularity in ways that are not accepted by recent JVMs (e.g. version
  * 17 and later). This hack works around some of these issues by disabling a few
  * PowerMock features. Therewith it's possible to use PowerMock on newer JVMs.
- * <br/>
+ * <br>
  * Of course, it breaks some PowerMock functionality but this breakage concerns
  * corner-case functionality that is not used very often (e.g. exception
  * stubbing and whiteboxing internal functionality of module "java.base").
- * <br/>
+ * <br>
  * Functionality on this runner is only tested for the PowerMock features that
  * are used by the regression tests of this framework. E.g. test-executions
  * on separate class-loaders and static mocking with the EasyMock API.

@@ -25,7 +25,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.FactoryRoot;
 /**
  * Provides static method {@link #from()} as a mean to help create parameters
  * from streams.
- * <br/>
+ * <br>
  * Here are also other methods that provide collector implementations
  * that achieve elegant parametrization from streams with even less syntax.
  * But these other methods are deprecated, because their reliability need
@@ -131,13 +131,13 @@ public class ToPick {
      * {@link java.util.stream.Stream#sorted(java.util.Comparator)} or
      * {@link java.util.stream.Stream#sorted()} on stream before parameter
      * value is picked by this collector.
-     * <br/>
+     * <br>
      * But don't these demands on having stream values repeatedly recreated
      * (with same encounter order) challenge the primary incentives for picking
      * parameter values from a stream? E.g. to stream a limited number of
      * more-or-less randomly selected values from a large pool of available
      * test-data.
-     * <br/>
+     * <br>
      * For such and similar situations it is probably better to stream values
      * only once, before test is started (e.g. during @BeforeAll), and have
      * them stored as a {@link ScopedLazyParameter} that can be discarded after
@@ -166,13 +166,13 @@ public class ToPick {
      * {@link java.util.stream.Stream#sorted(java.util.Comparator)} or
      * {@link java.util.stream.Stream#sorted()} on stream before parameter
      * value is picked by this collector.
-     * <br/>
+     * <br>
      * But don't these demands on having stream values repeatedly recreated
      * (with same encounter order) challenge the primary incentives for picking
      * parameter values from a stream? E.g. to stream a limited number of
      * more-or-less randomly selected values from a large pool of available
      * test-data.
-     * <br/>
+     * <br>
      * For such and similar situations it is probably better to stream values
      * only once, before test is started (e.g. during @BeforeAll), and have
      * them stored as a {@link ScopedLazyParameter} that can be discarded after
@@ -205,13 +205,13 @@ public class ToPick {
      * {@link java.util.stream.Stream#sorted(java.util.Comparator)} or
      * {@link java.util.stream.Stream#sorted()} on stream before parameter
      * value is picked by this collector.
-     * <br/>
+     * <br>
      * But don't these demands on having stream values repeatedly recreated
      * (with same encounter order) challenge the primary incentives for picking
      * parameter values from a stream? E.g. to stream a limited number of
      * more-or-less randomly selected values from a large pool of available
      * test-data.
-     * <br/>
+     * <br>
      * For such and similar situations it is probably better to stream values
      * only once, before test is started (e.g. during @BeforeAll), and have
      * them stored as a {@link ScopedLazyParameter} that can be discarded after
@@ -241,13 +241,13 @@ public class ToPick {
      * {@link java.util.stream.Stream#sorted(java.util.Comparator)} or
      * {@link java.util.stream.Stream#sorted()} on stream before parameter
      * value is picked by this collector.
-     * <br/>
+     * <br>
      * But don't these demands on having stream values repeatedly recreated
      * (with same encounter order) challenge the primary incentives for picking
      * parameter values from a stream? E.g. to stream a limited number of
      * more-or-less randomly selected values from a large pool of available
      * test-data.
-     * <br/>
+     * <br>
      * For such and similar situations it is probably better to stream values
      * only once, before test is started (e.g. during @BeforeAll), and have
      * them stored as a {@link ScopedLazyParameter} that can be discarded after
@@ -269,7 +269,7 @@ public class ToPick {
      * Functionality of this class, when being ...
      * ... used within {@link #as(String, BiFunction, Object...)} is
      *     tested by {@link org.lazyparams.showcase.ToListDefaultPairwise#oneOrPermutationOfTwo()}
-     * <br/>
+     * <br>
      * ... used within {@link #as(ToDisplayFunction, BiFunction, Object...)} is
      *     tested by {@link org.lazyparams.showcase.ToListLessCombined#permutations()}
      */

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.lazyparams.ToDisplayFunction;
+import org.lazyparams.showcase.ScopedLazyParameter.CombiningCollector;
 import org.lazyparams.showcase.ScopedLazyParameter.FactoryRoot;
 import org.lazyparams.showcase.ScopedLazyParameter.Identifier;
 
@@ -22,7 +23,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.Identifier;
  * that achieve parametrization of lists.
  * The purpose is to have an implementation as argument to
  * {@link ScopedLazyParameter.BasicFactory#asParameter(String,CombiningCollector)} (or
- * {@link ScopedLazyParameter.BasicFactory#asParameter(org.lazyparams.ToDisplayFunction,CombiningCollector)})
+ * {@link ScopedLazyParameter.BasicFactory#asParameter(ToDisplayFunction,CombiningCollector)})
  * in order to choose resulting list elements from the parameter values
  * specified when fluent parametrization was rooted with
  * {@link ScopedLazyParameter#from(Object[]) ScopedLazyParameter.from(T[])} (or
@@ -33,7 +34,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.Identifier;
  * for using itself in this manner with a best practice combine strategy that
  * is applied by
  * {@link #applyRecommendedDeviationFromDefaultPairwiseCombining(ScopedLazyParameter.FactoryRoot)}.
- * <br/><br/>
+ * <br><br>
  * Static factory methods {@link #combineOneOrTwo()},
  * {@link #combineOneOrPermutationOfTwo()}, {@link #combinePermutation()}
  * and {@link #combineElementsIndividually()}
@@ -44,8 +45,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.Identifier;
  *
  * @author Henrik Kaipe
  */
-public abstract class ToList<T>
-implements ScopedLazyParameter.CombiningCollector<T,List<T>> {
+public abstract class ToList<T> implements CombiningCollector<T,List<T>> {
 
     /**
      * Produces a list that contains one or two of the parameter input values.
@@ -122,7 +122,7 @@ implements ScopedLazyParameter.CombiningCollector<T,List<T>> {
      * combine degrading that is in effect for trailing seeds as more parameter
      * input values causes higher bounds on initial two seeds, which will
      * cut away pending allowance for pairwise combining.)
-     * <br/>
+     * <br>
      * If default pairwise combined with ...
      * <ul>
      * <li>... 2 or 3 element input-values then all permutations
@@ -133,7 +133,7 @@ implements ScopedLazyParameter.CombiningCollector<T,List<T>> {
      * values because of combine algorithm defects when an extra parameter
      * (in this case extra seed) is conditioned. I.e. 3rd seed only enabled when
      * result list has two elements.
-     * <br/>
+     * <br>
      * Each element will occur at least once in two-element result list of
      * having elements order as in parameter input-values array and at least
      * once in reversed order. Roughly half of the
@@ -187,7 +187,7 @@ implements ScopedLazyParameter.CombiningCollector<T,List<T>> {
      * {@link #combineElementsIndividually()}) this one will produce a list
      * that will always contain the exact same elements no matter how many times
      * repeated. Only the element order will differ.
-     * <br/><br/>
+     * <br><br>
      * It is assumed unlikely for a permutation pick to cause failure because
      * of a certain combination with another parameter. This is a reason
      * to why default
@@ -252,7 +252,7 @@ implements ScopedLazyParameter.CombiningCollector<T,List<T>> {
      * Default implementation does nothing - and just returns its argument. I.e.
      * the default pairwise combine strategy will prevail unless this method is
      * overridden.
-     * <br/><br/>
+     * <br><br>
      * This default implementation is overridden by {@link #combinePermutation()},
      * which applies {@link ScopedLazyParameter.Combiner#notCombined()}.
      *
