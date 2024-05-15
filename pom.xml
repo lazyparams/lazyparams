@@ -8,8 +8,15 @@
     <name>LazyParams</name>
     <url>http://lazyparams.org</url>
     <description>
-        /* One-line parametrization of unit tests ...*/ 
-        int parameterValue = pickValue("parameterName", 1,2,3);
+        /* One-liner parametrization of unit tests ...*/
+
+        int parameterValue = pickValue("myData", 1,2,3);
+
+        /*   myTest() ✔
+         *   ├─ myTest myData=1 ✔
+         *   ├─ myTest myData=2 ✔
+         *   └─ myTest myData=3 ✔
+         */
     </description>
     <inceptionYear>2024</inceptionYear>
     <licenses>
