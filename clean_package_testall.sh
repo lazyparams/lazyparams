@@ -106,7 +106,7 @@ runbuilds() {
     if [ "$cmdLine" ] && rmdir "target/surefire-reports/$cmdLine" 2> /dev/null \
         && ! [ -f $failedBuildLog ]; then
       linePrefix="$(echo $cmdLine | perl -pe 's/\D*-P +/_/g; s/^_//;')"
-      $cmdLine -Dmaven.main.skip=true -DtempDir=test-thread$1.tmp -ff &> >(tee "$buildThreadLog" | sed "s/^/$linePrefix/")
+      $cmdLine -Dmaven.main.skip=true -Dmaven.resources.skip=true -DtempDir=test-thread$1.tmp -ff &> >(tee "$buildThreadLog" | sed "s/^/$linePrefix/")
       if [ 0 -ne $? ]; then
         {
           {
