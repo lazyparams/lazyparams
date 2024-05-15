@@ -1,0 +1,40 @@
+name: Release
+on:
+  workflow_dispatch:
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Action
+        uses: actions/checkout@v4
+      - name: 'Set up Java 6'
+        uses: actions/setup-java@v4
+        with:
+          java-version: 6
+          distribution: 'zulu'
+      - name: 'Set up Java 8 & 17 & 21'
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            21
+            17
+            8
+          distribution: 'temurin'
+      - name: Maven version
+        run: mvn --version
+      - name: Regular test on jdk-8
+        run: mvn test | grep --line-buffered -v Download
+      - name: Test on jdk-21 - install-scenarios included
+        run: mvn test -o -P jdk_21 -P enableInstallScenarios
+      - name: Test on jdk-6 - with recent bytebuddy
+        run: mvn test -o -P jdk_6
+      - name: Test on jdk-6 - with old bytebuddy
+        run: mvn test -P jdk_6 -P bytebuddy_1.9.10
+      - name: Configure Git User
+        run: |
+          git config user.email "${GITHUB_ACTOR}"
+          git config user.name "GitHub Actions"
+      - name: Maven Release
+        run: mvn --batch-mode clean release:prepare release:perform | grep --line-buffered -v Download
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
