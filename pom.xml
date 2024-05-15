@@ -255,11 +255,35 @@
             <resource>
                 <directory>${basedir}</directory>
                 <includes>
-                  <include>LICENSE</include>
+                    <include>LICENSE</include>
                 </includes>
             </resource>
         </resources>
         <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <id>license_as_javadoc_metainf</id>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>LICENSE</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-toolchains-plugin</artifactId>
                 <version>3.1.0</version>
@@ -276,6 +300,17 @@
                             <version>${version.test.jdk}</version>
                         </jdk>
                     </toolchains>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <legacyMode>true</legacyMode>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <jdkToolchain>
+                        <version>17</version>
+                    </jdkToolchain>
                 </configuration>
             </plugin>
             <plugin>
