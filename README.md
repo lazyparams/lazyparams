@@ -67,7 +67,7 @@ public void twoParams() {
 //  ├─ twoParams int=2 RUNTIME ✔
 //  └─ twoParams int=4 CLASS ✔
 ```
-All parameter combinations are tested. This is because LazyParams attmpts to seek out all possible paired combinations of the two parameters' values.
+All parameter combinations are tested. This is because LazyParams attempts to seek out all possible paired combinations of the two parameters' values.
 
 What if test execution only introduces second parameter `myPolicy` when `myInt == 2`? ...
 ```
