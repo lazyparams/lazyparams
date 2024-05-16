@@ -20,7 +20,7 @@ public void smallInt() {
 //  ├─ smallInt int=2 ✔
 //  └─ smallInt int=4 ✔
 ```
-Above test uses the best practice API of feature class [LazyParams](https://javadoc.io/static/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html). First argument of above [#pickValue(...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(java.lang.String,T,T...)) invocation specifies parameter-name, which will be part of the test-name. Additional arguments define possible parameter values.
+Above test uses the best practice API of feature class [LazyParams](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html). First argument of above [#pickValue(...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(java.lang.String,T,T...)) invocation specifies parameter-name, which will be part of the test-name. Additional arguments define possible parameter values.
 Fine-grained customization on how to display parameter value is 
 achieved with a separate pickValue-method, which first parameter is of type [ToDisplayFunction](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/ToDisplayFunction.html), which method takes parameter value as argument. E.g. instead of parameter name, a lambda expression can be used:
 ```
