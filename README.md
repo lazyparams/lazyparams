@@ -29,9 +29,9 @@ achieved with a separate pickValue-method, which first parameter is of type [ToD
           3, 2, 4);
 
 //  smallInt() ✔
-//  ├─ smallInt int=3rd ✔
-//  ├─ smallInt int=2nd ✔
-//  └─ smallInt int=4th ✔
+//  ├─ smallInt 3rd ✔
+//  ├─ smallInt 2nd ✔
+//  └─ smallInt 4th ✔
 ```
 There is one special method [pickValue(Enum...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(E...)) that promotes enum parameters. Its only parameter is a vararg Enum array with the parameter values. Empty vararg array means all constants of parameter enum-type are possible values. With this method the enum constant #toString() describes the value in test-name. E.g. if parameter type is [RetentionPolicy](https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html) then a test could look like this:
 ```
