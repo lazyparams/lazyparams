@@ -48,7 +48,7 @@ public void policy() {
 //  └─ policy RUNTIME ✔
 ```
 ### ... Two parameters ...
-Let's have values for the above parameters `myInt` and `myPolicy` picked in the same test:
+Let's have values for the above `myInt` and `myPolicy` picked in the same test:
 ```
 @Test
 public void twoParams() {
