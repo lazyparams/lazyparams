@@ -51,7 +51,7 @@ Let's have values for the above parameters `myInt` and `myPolicy` picked in the 
 ```
 @Test
 public void twoParams() {
-  int myInt = LazyParams.pickValue("int", 3, 2, 3);
+  int myInt = LazyParams.pickValue("int", 3, 2, 4);
   RetentionPolicy myPolicy = LazyParams.pickValue();
 }
 
@@ -115,7 +115,7 @@ Now have an additional parameter `extra` combined with both parameters from abov
 ```
 @Test
 public void threeParams() {
-  int myInt = LazyParams.pickValue("int", 3, 2, 3);
+  int myInt = LazyParams.pickValue("int", 3, 2, 4);
   RetentionPolicy myPolicy = LazyParams.pickValue();
   String extra = LazyParams.pickValue("extra", "x","y","z");
 }
@@ -139,7 +139,7 @@ What if `extra` is never introduced for `SOURCE`:
 ```
 @Test
 public void threeParams() {
-  int myInt = LazyParams.pickValue("int", 3, 2, 3);
+  int myInt = LazyParams.pickValue("int", 3, 2, 4);
   RetentionPolicy myPolicy = LazyParams.pickValue();
   if (RetentionPolicy.SOURCE == myPolicy) {
     return;
