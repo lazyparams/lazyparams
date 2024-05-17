@@ -7,7 +7,7 @@ The parametrization API does not have any annotations. Instead there is an imper
 
 ### ... One parameter ...
 First example:
-```
+```java
 @Test
 public void smallInt() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
@@ -24,7 +24,7 @@ Above test uses the best practice API of feature class [LazyParams](https://java
 
 Fine-grained customization on how to display parameter value is 
 achieved with a separate pickValue-method, which first parameter is of type [ToDisplayFunction](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/ToDisplayFunction.html), which method takes parameter value as argument. E.g. instead of parameter name, a lambda expression can be used:
-```
+```java
   int myInt = LazyParams.pickValue(
           i -> 1==i ? "1st" : 2==i ? "2nd" : 3==i ? "3rd" : i + "th",
           3, 2, 4);
@@ -35,7 +35,7 @@ achieved with a separate pickValue-method, which first parameter is of type [ToD
 //  └─ smallInt 4th ✔
 ```
 There is one special method [pickValue(Enum...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(E...)) that promotes enum parameters. Its only parameter is a vararg Enum array with the parameter values. Empty vararg array means all constants of parameter enum-type are possible values. With this method the enum constant #toString() describes the value in test-name. E.g. if parameter type is [RetentionPolicy](https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html) then a test could look like this:
-```
+```java
 @Test
 public void policy() {
   RetentionPolicy myPolicy = LazyParams.pickValue();
@@ -49,7 +49,7 @@ public void policy() {
 ```
 ### ... Two parameters ...
 Let's have values for the above `myInt` and `myPolicy` picked in a single test:
-```
+```java
 @Test
 public void twoParams() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
@@ -71,7 +71,7 @@ public void twoParams() {
 All parameter combinations are tested. This is because LazyParams attempts to seek out all possible paired combinations of the two parameters' values.
 
 What if test execution only introduces second parameter `myPolicy` when `myInt == 2`? ...
-```
+```java
 @Test
 public void twoParams() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
@@ -92,7 +92,7 @@ LazyParams notices how end-of-the-road is hit when `myInt` has value 3 or 4 - an
 In the above example the condition that unlocks execution path for introducing `myPolicy` is hardwired - but even without a hardwired condition it would still be possible for the repetition execution paths to unfold like this if repetitions for `myInt` values 3 and 4 cause test-failure before `myPolicy` is introduced.
 
 Let's instead have the other `myInt` values unlock `myPolicy` introduction:
-```
+```java
 @Test
 public void twoParams() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
@@ -114,7 +114,7 @@ With `myPolicy` introduction path enabled by two `myInt` values there are again 
 
 ### ... Three parameters ...
 Now have an additional parameter `extra` combined with both parameters from above section:
-```
+```java
 @Test
 public void threeParams() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
@@ -138,7 +138,7 @@ With 3 parameters of 3 values each there are actually 27 possible combinations (
 In total LazyParams identifies 27 value pairs, each to be tried at least once. This time it managed to walk through all pairs with just 9 repetitions, because it managed to try three new pairs in each repetition. (I.e. in the first repetition there are `int=3 SOURCE`, `int=3 extra=x` and `SOURCE extra=x`. In the second repetition there are `int=2 CLASS`, `int=2 extra=y` and `CLASS extra=y` etc.)
 
 What if `extra` is never introduced for `SOURCE`:
-```
+```java
 @Test
 public void threeParams() {
   int myInt = LazyParams.pickValue("int", 3, 2, 4);
