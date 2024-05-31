@@ -133,7 +133,7 @@ public void threeParams() {
 //  ├─ threeParams int=2 SOURCE extra=z ✔
 //  └─ threeParams int=4 CLASS extra=x ✔
 ```
-With 3 parameters having 3 values each there are actually 27 possible combinations (3x3x3) but there are only 9 repetitions. This is because the pairwise combinatorial reduction has kicked in as there are here three parameters which are all introduced on each repetition, regardless of execution path (as long as there is no failure). LazyParams here attempts to ensure each value of `myInt` (3,2 & 4) is combined at least once with each value of `myPolicy` and `extra` - and also values of `myPolicy` and `extra` are combined at least once with each other.
+With 3 parameters having 3 values each there are actually 27 possible combinations (3x3x3) but there are only 9 repetitions. This is because the pairwise combinatorial reduction has kicked in as here are three parameters that are all introduced on each repetition. LazyParams here attempts to ensure each value of `myInt` (3,2 & 4) is combined at least once with each value of `myPolicy` and `extra` - and also values of `myPolicy` and `extra` are combined at least once with each other.
 
 In total LazyParams identifies 27 value pairs, each to be tried at least once. This time it managed to walk through all pairs with just 9 repetitions, because it managed to try three new pairs in each repetition. (I.e. in the first repetition there are `int=3 SOURCE`, `int=3 extra=x` and `SOURCE extra=x`. In the second repetition there are `int=2 CLASS`, `int=2 extra=y` and `CLASS extra=y` etc.)
 
