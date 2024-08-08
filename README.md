@@ -1,7 +1,7 @@
 # LazyParams
-LazyParams is a powerful parametrization solution for JUnit (versions 4 and 5). It provides the test developer with easy ways to convert a regular test into a parameterized test that can have one or many parameters, which can be seamlessly combined to achieve pairwise testing.
+LazyParams is a powerful parametrization solution for JUnit (versions 4 and 5). It allows the test developer to easily convert a regular test into a parameterized test that can have one or many parameters. These parameters are seamlessly combined to facilitate pairwise testing.
 
-The parametrization API does not have any annotations. Instead there is an imperative API to use during the test execution. Therewith the parametrization is of a lazy nature, because the test can start off as a regular test execution without parameters and then turn into a parameterized test as the first parameter is introduced during the test-execution.
+Unlike traditional parametrization approaches that rely on annotations, LazyParams provides an imperative API during test execution. This approach allows for "lazy" parametrization, where a test can start as a regular test without parameters and then transition into a parameterized test as parameters are introduced during test execution.
 
 ## Best-Practice Feature API [LazyParams#pickValue(...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html) and execution path evaluation
 
@@ -82,14 +82,14 @@ public void twoParams() {
 
 //  twoParams() ✔
 //  ├─ twoParams int=3 ✔
-//  ├─ twoParams int=2 CLASS ✔
-//  ├─ twoParams int=4 ✔
 //  ├─ twoParams int=2 SOURCE ✔
+//  ├─ twoParams int=4 ✔
+//  ├─ twoParams int=2 CLASS ✔
 //  └─ twoParams int=2 RUNTIME ✔
 ```
-LazyParams notices how end-of-the-road is hit when `myInt` has value 3 or 4 - and that it's necessary to choose `int=2` on the last couple of test repetitions in order to unlock the execution path that allows evaluation of the pending `myPolicy` values.
+LazyParams notices that end-of-the-road is reached when `myInt` has value 3 or 4, making it necessary to choose `int=2` in the last couple of test repetitions to unlock the execution path that allows for the evaluation of the pending `myPolicy` values.
 
-In the above example the condition that unlocks execution path for introducing `myPolicy` is hardwired - but even without a hardwired condition it would still be possible for the repetition execution paths to unfold like this if repetitions for `myInt` values 3 and 4 cause test-failure before `myPolicy` is introduced.
+In the above example, the condition that unlocks the execution path for introducing `myPolicy` is hardwired. However, even without a hardwired condition, it would still be possible for the repetition execution paths to unfold like this if `myInt` values 3 and 4 cause test failure before `myPolicy` is introduced.
 
 Let's instead have the other `myInt` values unlock `myPolicy` introduction:
 ```java
@@ -133,9 +133,9 @@ public void threeParams() {
 //  ├─ threeParams int=2 SOURCE extra=z ✔
 //  └─ threeParams int=4 CLASS extra=x ✔
 ```
-With 3 parameters having 3 values each there are actually 27 possible combinations (3x3x3) but there are only 9 repetitions. This is because the pairwise combinatorial reduction has kicked in as here are three parameters that are all introduced on each repetition. LazyParams here attempts to ensure each value of `myInt` (3,2 & 4) is combined at least once with each value of `myPolicy` and `extra` - and also values of `myPolicy` and `extra` are combined at least once with each other.
+With 3 parameters each having 3 values, there are actually 27 possible combinations (3x3x3) but there are only 9 repetitions. This is because the pairwise combinatorial reduction has kicked in as here are three parameters that are all introduced in each repetition. LazyParams aims to ensure that each `myInt` value (3,2 & 4) is combined at least once with each value of `myPolicy` and `extra`, and that values of `myPolicy` and `extra` are also combined at least once with each other.
 
-In total LazyParams identifies 27 value pairs, each to be tried at least once. This time it managed to walk through all pairs with just 9 repetitions, because it managed to try three new pairs in each repetition. (I.e. in the first repetition there are `int=3 SOURCE`, `int=3 extra=x` and `SOURCE extra=x`. In the second repetition there are `int=2 CLASS`, `int=2 extra=y` and `CLASS extra=y` etc.)
+In total, LazyParams identifies 27 value pairs, each to be tried at least once. This time it managed to walk through all pairs with just 9 repetitions, because it managed to try three new pairs in each repetition. (I.e. in the first repetition there are `int=3 SOURCE`, `int=3 extra=x` and `SOURCE extra=x`. In the second repetition there are `int=2 CLASS`, `int=2 extra=y` and `CLASS extra=y` etc.)
 
 What if `extra` is never introduced for `SOURCE`:
 ```java
@@ -163,13 +163,13 @@ public void threeParams() {
 //  ├─ threeParams int=2 SOURCE ✔
 //  └─ threeParams int=4 SOURCE ✔
 ```
-With conditional introduction of parameter `extra` the number of possible parameter combinations is down from 27 (3x3x3) to only 21. Therefore it's kind of a paradox how the number of repetitions went the opposite way - up from 9 to 12.
+With the conditional introduction of the `extra` parameter, the number of possible parameter combinations is down from 27 (3x3x3) to only 21. This reduction in possible combinations might suggest that fewer repetitions would be required to cover all possible value pairs. However, paradoxically, the number of repetitions increased from 9 to 12.
 
-But this is indeed the fewest number of repetitions required to make execution paths cover all possible value pairs. Since `SOURCE` is end-of-the-line it requires 3 repetitions to combine with all three `myInt` values - but none of these repetitions will cover any pairs for parameter `extra`, which will require at least 9 repetitions (3x3) in order to statisfy all pair combinations with `myInt`. This means at least 12 repetitions are here required to satisfy all pairs. (`extra` will not combine with `SOURCE`, so only `myPolicy` values `RUNTIME` and `CLASS` means 6 repetitions (3x2) for all possible `myPolicy<->extra` pairs, which are easily satisfied under the radar while the 9 `myInt<->extra` pairs are navigated.)
+This increase is necessary because 12 is indeed the minimum number of repetitions required to cover all possible value pairs. `SOURCE` is end-of-the-line, requiring 3 repetitions that have just two parameters (i.e. only one pair per repetition) to combine with all three myInt values. None of these repetitions will cover any pairs involving `extra`, which requires at least 9 separate repetitions (3x3) to statisfy all combinations with `myInt`. Thus, at least 12 repetitions (3x3+3) are here needed. (`extra` does not combine with `SOURCE`, so only the `myPolicy` values `RUNTIME` and `CLASS` need 6 repetitions (3x2) for all possible `myPolicy<->extra` pairs, which are easily covered while navigating the 9 `myInt<->extra` pairs.)
 
-So LazyParams managed to reach the lowest possible number of repetitions (12) to satisfy all pairs here. But do also notice how parameter picks `int=3` and `SOURCE` happened first and thereafter were only repeated after all pairs without them had been satisfied. I.e. after `int=3` and `SOURCE` were branded as not introducing `extra` then LazyParams prioritized the other values, which didn't prevent parameter `extra`, and had them form all possible pairs with the three `extra` values before revisiting `int=3`, which was then given higher priority as it turned out to not prevent `extra`. - And finally the two remaining pairs `int=2 SOURCE` and `int=4 SOURCE` were checked off.
+So LazyParams managed to reach the lowest possible number of repetitions (12) to satisfy all pairs here. But do also notice how parameter picks `int=3` and `SOURCE` happened first and thereafter were only repeated after all pairs without them had been covered. I.e. after `int=3` and `SOURCE` were branded as not introducing `extra` then LazyParams prioritized the other values, which didn't prevent parameter `extra`, and had them form all possible pairs with the three `extra` values before revisiting `int=3`, which was then given higher priority as it turned out to not prevent `extra`. - And finally the two remaining pairs `int=2 SOURCE` and `int=4 SOURCE` were checked off.
 
-The purpose of the above - volatile - prioritization of parameter values is to uncover potentially hidden execution paths while satisfying parameter pair combinations in the process. First impression of `int=3` and `SOURCE` was that they are a dead end - and since first-impressions-last the other values seemed like better candidates for uncovering hidden execution paths and therefore they were initially entrusted with higher priority.
+The purpose of this dynamic prioritization is to uncover potentially hidden execution paths while satisfying parameter pair combinations in the process. First impression of `int=3` and `SOURCE` was that they are a dead end - and since first-impressions-last the other values seemed like better candidates for uncovering hidden execution paths and therefore they were initially entrusted with higher priority.
 
 ## Simpliest Possible Parameterization: [FalseOrTrue.pickBoolean(displayOnTrue)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/showcase/FalseOrTrue.html#pickBoolean(java.lang.CharSequence))
 Isn't the simpliest possible parameter one that can only have values `true` or `false`? Though being very simple it is nevertheless kind of a big deal when relying on LazyParams to seek out corner cases that require special treatment during a test.
