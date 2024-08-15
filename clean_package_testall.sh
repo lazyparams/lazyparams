@@ -37,9 +37,8 @@ fi
 prepare_profiles_parameter() {
   param="$1"
   [ "$2" ] && pattern="$2" || pattern="$param"'_[\.0-9a-z]++'
-  filter="${3-cat}"
   separator="var $param"'s = new String[] {"'
-  grep -oP "(?<=<id>)$pattern(?=</id>)" pom.xml | $filter | while read eachprfl; do
+  grep -oP "(?<=<id>)$pattern(?=</id>)" pom.xml | while read eachprfl; do
     echo -n "$separator$eachprfl"
     separator='", "'
   done
