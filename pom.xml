@@ -69,32 +69,14 @@
         <!--
         Dependency on JUnit-4 is optional.
         It is assumed projects with JUnit-3/4 tests will specify JUnit-4
-        or vintage dependency anyway. Likewise it is also assumed projects
-        will have dependency on PowerMock JUnit-4 module specified.
-        (LazyParams JUnit-5 compatibility does not break if dependency on
-        JUnit-4 and PowerMock is missing - as is verified by surefire
-        test execution "Test_without_JUnit-4".)
+        or vintage dependency anyway. (LazyParams JUnit-5 compatibility
+        does not break if dependency on JUnit-4 is missing - as is
+        verified by Surefire test execution "Test_without_JUnit-4".)
         -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                    <!--
-                    Hamcrest is in fact used by this project but
-                    only with scope=test.
-                    -->
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-module-junit4</artifactId>
-            <version>2.0.9</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -113,7 +95,7 @@
         It is assumed projects that use JUnit Jupiter will specify test
         dependencies properly anyway. (LazyParams JUnit-4 compatibility does
         not break if dependency on JUnit-5 is missing - as is verified by
-        failsafe integration-test execution "Test_JUnit-4".)
+        Failsafe integration-test execution "Test_JUnit-4".)
         -->
         <dependency>
             <groupId>org.junit.platform</groupId>
@@ -161,28 +143,6 @@
         </dependency>
 
         <!--
-        Test dependencies on APIs that are used by JUnit-4 PowerMock tests.
-        -->
-        <dependency>
-            <groupId>org.powermock</groupId>
-            <artifactId>powermock-api-easymock</artifactId>
-            <version>2.0.9</version>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>cglib</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>5.2.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!--
         Other (regular) test dependencies:
         -->
         <dependency>
@@ -207,6 +167,39 @@
         <!--
         Test dependencies to verify some 3rd-party compatibility
         -->
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-module-junit4</artifactId>
+            <version>2.0.9</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hamcrest</groupId>
+                    <artifactId>hamcrest-core</artifactId>
+                    <!--
+                    ... to avoid conflict with artifact "hamcrest-all" ...
+                    -->
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.powermock</groupId>
+            <artifactId>powermock-api-easymock</artifactId>
+            <version>2.0.9</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>cglib</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.easymock</groupId>
+            <artifactId>easymock</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
