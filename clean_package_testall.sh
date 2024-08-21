@@ -140,7 +140,7 @@ else
   echo -- '--------------------------------------------'
   grep . target/surefire-reports/testcmds.txt
   cat target/surefire-reports/org.*.txt | perl -ne '
-    ($successCount += $1) & ($skipCount += $2) if /.*Tests run: *(\d++).*Skipped: *(\d++).*/;
+    $successCount += $1, $skipCount += $2 if /.*Tests run: *(\d++).*Skipped: *(\d++).*/;
     print "TESTS RUN: $successCount - SKIPPED: $skipCount\n" if eof;
   '
   true
