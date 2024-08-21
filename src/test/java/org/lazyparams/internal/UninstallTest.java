@@ -38,6 +38,7 @@ import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.engine.descriptor.JupiterTestDescriptor;
 import org.junit.jupiter.engine.descriptor.TestFactoryTestDescriptor;
+import org.junit.jupiter.engine.extension.MutableExtensionRegistry;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -193,6 +194,9 @@ public class UninstallTest {
     private void applyAfterAndThenPrepareTemplateInvocation() throws Exception {
         JupiterEngineExecutionContext mockContext = mock(
                 JupiterEngineExecutionContext.class, RETURNS_DEEP_STUBS);
+        MutableExtensionRegistry dummyRegistry = MutableExtensionRegistry
+                .createRegistryWithDefaultExtensions(mockContext.getConfiguration());
+        when(mockContext.getExtensionRegistry()).thenReturn(dummyRegistry);
         when(mockContext.getExtensionContext()).thenReturn(null);
         TestTemplateInvocationTestDescriptor invDesc = newDummyInvocationDescriptor();
         invDesc.after(mockContext);
