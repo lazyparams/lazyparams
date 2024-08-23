@@ -15,7 +15,7 @@ import org.lazyparams.LazyParams;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * A little test to make sure the {@link org.lazyparams.core.Lazer} does not
+ * A little test to make sure a {@link org.lazyparams.core.Lazer} instance does not
  * survive between test-methods when parametrization has been canceled with
  * {@link org.lazyparams.config.Configuration#setMaxTotalCount(int) Configuration#setMaxTotalCount(1)}
  *
@@ -26,7 +26,7 @@ public class MaxTotalCountAtOneMustNotLeakParametersTest {
     @Test @org.junit.Test
     public void passOn1stAndOnly() {
         LazyParams.currentScopeConfiguration().setMaxTotalCount(1);
-        assertThat(LazyParams.pickValue("answer", 42,"2nd value must not leak"))
+        assertThat(LazyParams.pickValue("answer", 42,"2nd value that must not leak"))
                 .as("Pass answer")
                 .isEqualTo(42);
     }

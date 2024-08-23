@@ -14,7 +14,7 @@ import org.lazyparams.LazyParams;
 
 /**
  * Purpose with this test is to make sure there is no unexpected JUnit-5
- * dependency that must be present if framework is used with just JUnit-4.
+ * dependency that must be present if LazyParams is used with just JUnit-4.
  *
  * @author Henrik Kaipe
  */

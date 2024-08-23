@@ -35,7 +35,7 @@ import org.lazyparams.showcase.ToPick;
  * {@link DisplayName @DisplayName}. Also it provides some coverage on
  * feature {@link ToPick#as(org.lazyparams.ToDisplayFunction), which is
  * deprecated but still convenient if you know what you're doing and make sure
- * to have stream consistently sorted before picking the parameter value.
+ * to have your stream consistently sorted before picking the parameter value.
  *
  * @author Henrik Kaipe
  */

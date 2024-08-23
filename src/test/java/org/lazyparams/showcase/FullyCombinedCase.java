@@ -140,9 +140,9 @@ public class FullyCombinedCase {
     }
 
     /**
-     * This test-method Is a reference for comparing the resulting parameter
-     * combinations with that from {@link #separateProducts()}.
-     * It is not part of project's unit test suite.
+     * This test-method is a reference for comparing the resulting parameter
+     * combinations with those of {@link #separateProducts()}.
+     * It is not part of the unit test suite of this project.
      */
     @Test
     void pairwise1234() {

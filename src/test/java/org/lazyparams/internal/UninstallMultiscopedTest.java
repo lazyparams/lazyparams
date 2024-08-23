@@ -31,14 +31,14 @@ public class UninstallMultiscopedTest {
     @Test
     public void test() {
         /*
-         * Purpose here is to make sure uninstall during static Jupiter scope
-         * work and does not break things if implicit installation (i.e.
-         * paraemter introduction) happens right after uninstallation.
+         * Here the purpose is to make sure uninstall during static Jupiter
+         * scope works and does not break things if implicit installation (i.e.
+         * parameter introduction) happens right after uninstallation.
          */
         LazyParams.install();
 
         /*
-         * Set the static field that is used here to force uninstall: */
+         * Set the static field that is here used to force uninstall: */
         UninstallMultiscoped.uninstallOn1stRun = true;
 
         for (String staticPart : new String[] {

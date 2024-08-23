@@ -14,7 +14,7 @@ import org.lazyparams.LazyParamsCoreUtil;
 /**
  * Offers functionality, which recommended best practice API implementation is
  * provided by {@link LazyParams}. This is a faster - but less safe -
- * implementation that is intended as a reference in order to get an idea on
+ * implementation that is intended as a reference to get an idea on
  * how (hopefully) little performance is affected by the fine-grained default
  * parameter-ID composition of {@link ScopedLazyParameter}, which is used by
  * the best practice API of {@link LazyParams} for more careful recognition of

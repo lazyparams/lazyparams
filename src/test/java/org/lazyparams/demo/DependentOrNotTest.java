@@ -16,7 +16,7 @@ import org.lazyparams.VerifyVintageRule;
 /**
  * It can be somewhat hard to grasp what it means to have parameters that are
  * dependent or independent of one another, yet still a concern because it
- * affects whether pairwise combination reduction will happen or not.
+ * affects whether pairwise combinatorial reduction will happen or not.
  *
  * @author Henrik Kaipe
  */

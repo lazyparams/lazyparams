@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Demo class for educational purposes.
- * It is not an example of best practise, however. Instead it's for comparing
+ * It is not an example of best practice, however. Instead it's for comparing
  * LazyParams with traditional parametrization patterns.
  *
  * @author Henrik Kaipe

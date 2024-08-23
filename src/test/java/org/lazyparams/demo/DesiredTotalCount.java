@@ -26,7 +26,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
  * predictable if applied after the repeated test. (E.g. during
  * {@link org.junit.After @After} or
  * {@link org.junit.jupiter.api.AfterEach @AfterEach}.) - Especially when
- * when pairwise combine conditions force additional repetitions beyond what
+ * pairwise combine conditions force additional repetitions beyond what
  * is specified with {@link Uncombined#forceRepeatUntilDesiredTotalCount(int)}.
  *
  * @author Henrik Kaipe

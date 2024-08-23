@@ -142,7 +142,7 @@ public class UninstallTest {
         applyAfterAndThenPrepareTemplateInvocation();
         applyAfterAndThenExecuteDynamic();
 
-        /* But should be a different story after uninstalling LazyParams: */
+        /* But it should be a different story after uninstalling LazyParams: */
         LazyParams.uninstall();
         assertThrows(NullPointerException.class,
                 this::applyAfterAndThenPrepareTemplateInvocation);

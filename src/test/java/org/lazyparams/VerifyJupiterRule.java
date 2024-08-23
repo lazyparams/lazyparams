@@ -371,7 +371,7 @@ public class VerifyJupiterRule implements TestRule {
      * unless Jupiter-5.8 or later is used!
      * There are no plans to fix this, because it only concerns old Jupiter
      * releases and because introduction of parameters during
-     * @AfterAll is considered to be a rare corner-case.
+     * @AfterAll is considered a rare corner-case.
      * Instead we just attempt to ignore such test executions!
      */
     private void firstStaticScopeParameterDuringAfterAllRequires_Jupiter_5_8_orLaterForTestTemplates() {

@@ -144,7 +144,7 @@ public class DescriptorContextGuardCreationChecks {
             invocationsToReachTarget.add(m);
             switch (invocationsToReachTarget.size()) {
                 case 1:
-                    assertThat("Return-type first invoation",
+                    assertThat("Return-type first invocation",
                             m.getReturnType(),
                             sameInstance(UniqueId.class));
                     return UniqueId.forEngine("unit-test mocking");

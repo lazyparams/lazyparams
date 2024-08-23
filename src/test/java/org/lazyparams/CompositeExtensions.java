@@ -30,6 +30,7 @@ import org.lazyparams.internal.LazerContext;
 
 /**
  * @author Henrik Kaipe
+ * @see LeafParameterizedJupiter#mutableExtensions
  */
 public class CompositeExtensions
 implements AfterAllCallback, BeforeAllCallback, BeforeEachCallback,

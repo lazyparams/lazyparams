@@ -28,6 +28,8 @@ import static org.hamcrest.Matchers.*;
 
 /**
  * @author Henrik Kaipe
+ * @see LeafParameterizedJupiterTest#LeafParameterizedJupiterTest(InstallScenario,StaticScopeParam,Object,Object,Object,Object,StaticScopeParam,MaxCountsTweak)
+ * @see LeafParameterizedJupiterTest#tweaks()
  */
 public enum StaticScopeParam {
     NOTHING,

@@ -18,7 +18,7 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * {@link CompositeExtensions#extensions} or there will be risk for uninstall
  * after first parameters are already introduced.
  * <br/>
- * Test execution that tries out different [un]install scenarios has been
+ * Test execution that tries different [un]install scenarios has been
  * disabled as default, because it takes too long to run (minutes). The tests
  * that evaluate these [un]install scenarios have been very useful during the
  * development of this framework but they are ill-suited for unit-test suites
@@ -36,7 +36,8 @@ import org.junit.jupiter.api.extension.ExtensionContext;
  * "enableInstallScenarios" can be used to set this system property.)
  *
  * @author Henrik Kaipe
- * @see LeafParameterizedJupiterTest
+ * @see LeafParameterizedJupiterTest#LeafParameterizedJupiterTest(InstallScenario,StaticScopeParam,Object,Object,Object,Object,StaticScopeParam,MaxCountsTweak)
+ * @see LeafParameterizedJupiterTest#tweaks()
  */
 public interface InstallScenario extends BeforeAllCallback, Consumer<VerifyJupiterRule> {
 
