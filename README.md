@@ -87,7 +87,7 @@ public void twoParams() {
 //  ├─ twoParams int=2 CLASS ✔
 //  └─ twoParams int=2 RUNTIME ✔
 ```
-LazyParams notices that end-of-the-road is reached when `myInt` has value 3 or 4, making it necessary to choose `int=2` in the last couple of test repetitions to unlock the execution path that allows for the evaluation of the pending `myPolicy` values.
+LazyParams notices that end-of-the-road is reached when `myInt` has value 3 or 4, making it necessary to choose `int=2` in the last couple of test repetitions to unlock the execution path for evaluating the pending `myPolicy` values.
 
 In the above example, the condition that unlocks the execution path for introducing `myPolicy` is hardwired. However, even without a hardwired condition, it would still be possible for the repetition execution paths to unfold like this if `myInt` values 3 and 4 cause test failure before `myPolicy` is introduced.
 
@@ -165,7 +165,7 @@ public void threeParams() {
 ```
 With the conditional introduction of the `extra` parameter, the number of possible parameter combinations is down from 27 (3x3x3) to only 21. This reduction in possible combinations might suggest that fewer repetitions would be required to cover all possible value pairs. However, paradoxically, the number of repetitions increased from 9 to 12.
 
-This increase is necessary because 12 is indeed the minimum number of repetitions required to cover all possible value pairs. `SOURCE` is end-of-the-line, requiring 3 repetitions that have just two parameters (i.e. only one pair per repetition) to combine with all three myInt values. None of these repetitions will cover any pairs involving `extra`, which requires at least 9 separate repetitions (3x3) to statisfy all combinations with `myInt`. Thus, at least 12 repetitions (3x3+3) are here needed. (`extra` does not combine with `SOURCE`, so only the `myPolicy` values `RUNTIME` and `CLASS` need 6 repetitions (3x2) for all possible `myPolicy<->extra` pairs, which are easily covered while navigating the 9 `myInt<->extra` pairs.)
+This increase is necessary because 12 is indeed the minimum number of repetitions required to cover all possible value pairs. `SOURCE` is end-of-the-line, requiring 3 repetitions that have just two parameters (i.e. only one pair per repetition) to combine with all three myInt values. None of these repetitions will cover any pairs involving `extra`, which requires at least 9 separate repetitions (3x3) to satisfy all combinations with `myInt`. Thus, at least 12 repetitions (3x3+3) are here needed. (`extra` does not combine with `SOURCE`, so only the `myPolicy` values `RUNTIME` and `CLASS` need 6 repetitions (3x2) for all possible `myPolicy<->extra` pairs, which are easily covered while navigating the 9 `myInt<->extra` pairs.)
 
 So LazyParams managed to reach the lowest possible number of repetitions (12) to satisfy all pairs here. But do also notice how parameter picks `int=3` and `SOURCE` happened first and thereafter were only repeated after all pairs without them had been covered. I.e. after `int=3` and `SOURCE` were branded as not introducing `extra` then LazyParams prioritized the other values, which didn't prevent parameter `extra`, and had them form all possible pairs with the three `extra` values before revisiting `int=3`, which was then given higher priority as it turned out to not prevent `extra`. - And finally the two remaining pairs `int=2 SOURCE` and `int=4 SOURCE` were checked off.
 
