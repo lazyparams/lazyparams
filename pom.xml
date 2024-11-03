@@ -355,6 +355,7 @@
                     <testTarget>8</testTarget>
 
                     <parameters>true</parameters>
+                    <proc>none</proc>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
                     <!--
                     All compilation with JDK-8
