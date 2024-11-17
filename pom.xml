@@ -541,9 +541,7 @@ reevaluated once-in-while by running tests with this profile enabled!
         Version alternatives for depencencies org.junit.jupiter:junit-jupiter-engine
         and org.junit.vintage:junit-vintage-engine
         These profiles also specify version for JUnit Platform to match the
-        Jupiter release or - for a couple of old Jupiter releases - somewhat
-        later version, because LazyParams JUnit Platform support starts at
-        version 1.7
+        Jupiter release
         -->
         <profile>
             <id>junit_latest</id>
@@ -573,20 +571,6 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>junit_5.7.2</id>
             <properties>
                 <version.junit5>5.7.2</version.junit5>
-                <version.platform>1.7.2</version.platform>
-                <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
-                <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
-            </properties>
-        </profile>
-        <profile>
-            <id>junit_5.6.3</id>
-            <properties>
-                <version.junit5>5.6.3</version.junit5>
-                <!--
-                Compatibility with JUnit Platform starts at version 1.7, because
-                it introduces Node.DynamicTestRunner#execute(Context,TestListener).
-                I.e. the ability to specify a customized listener for a dynamic test!
-                -->
                 <version.platform>1.7.2</version.platform>
                 <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
                 <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
