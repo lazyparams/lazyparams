@@ -210,13 +210,13 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <version>5.3.31</version>
+            <version>6.1.15</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
-            <version>5.3.31</version>
+            <version>6.1.15</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -297,7 +297,7 @@
             </plugin>
             <plugin>
                 <artifactId>maven-toolchains-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution><goals><goal>toolchain</goal></goals></execution>
                 </executions>
@@ -347,6 +347,19 @@
                             </testIncludes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                        <id>Compile JDK-17 tests</id>
+                        <phase>process-test-sources</phase>
+                        <configuration>
+                            <testIncludes>
+                                <testInclude>**/ge17/**</testInclude>
+                            </testIncludes>
+                            <jdkToolchain><version>[17,)</version></jdkToolchain>
+                        </configuration>
+                    </execution>
                 </executions>
                 <configuration>
                     <source>6</source>
@@ -358,7 +371,7 @@
                     <proc>none</proc>
                     <useIncrementalCompilation>false</useIncrementalCompilation>
                     <!--
-                    All compilation with JDK-8
+                    Compile with JDK-8
                     -->
                     <jdkToolchain><version>8</version></jdkToolchain>
                 </configuration>

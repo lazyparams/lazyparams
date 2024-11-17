@@ -7,7 +7,7 @@
  *
  * https://www.eclipse.org/legal/epl-v20.html
  */
-package org.lazyparams.demo;
+package org.lazyparams.demo.ge17;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;

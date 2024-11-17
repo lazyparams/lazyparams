@@ -7,12 +7,14 @@
  *
  * https://www.eclipse.org/legal/epl-v20.html
  */
-package org.lazyparams.demo;
+package org.lazyparams.demo.ge17;
 
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.condition.JRE;
+import org.junit.jupiter.api.extension.ExecutableInvoker;
 import org.junit.platform.engine.TestExecutionResult;
 import org.lazyparams.VerifyJupiterRule;
 
@@ -20,6 +22,18 @@ import org.lazyparams.VerifyJupiterRule;
  * @author Henrik Kaipe
  */
 public class SprouterTest {
+    {
+        org.junit.Assume.assumeThat("Java Version",
+                JRE.currentVersion(),
+                org.hamcrest.Matchers.greaterThanOrEqualTo(JRE.JAVA_17));
+        try {
+            ExecutableInvoker.class.getName();
+        } catch (NoClassDefFoundError on_Jupiter_version_5_8_or_earlier) {
+            org.junit.Assume.assumeNoException(
+                    "This test requires Jupiter version 5.9.x or later!",
+                    on_Jupiter_version_5_8_or_earlier);
+        }
+    }
 
     @Rule
     public final VerifyJupiterRule expect =
