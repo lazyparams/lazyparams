@@ -293,11 +293,11 @@ public enum ProvideJunitVintage {
      * Also the LazyParams scope context is referenced by a weakly referenced
      * Description, in order to not prevent garbage collection if test goes
      * wrong somehow. Therefore the {@link Description} that is used to reference
-     * LazyParams scope is kept on this thread-local for safe-keeping until
-     * a fireTestFinished event is fired, so we don't risk the scope reference
-     * {@link Description} and its LazyParams scope context being garbage
-     * collected in midair as the JUnit runner might drop its {@link Description}
-     * instance between events from an ongoing test-execution.
+     * LazyParams scope is kept on this thread-local for safe-keeping until a
+     * {@link #fireTestFinished} event is fired, so we don't risk the scope
+     * reference {@link Description} and its LazyParams scope context being
+     * garbage collected in midair as the JUnit runner might drop its
+     * {@link Description} instance between events from an ongoing test-execution.
      * This safe-keeping of the test-identifier {@link Description} is also
      * what allows us to use a {@link WeakHashMap} for
      * {@link #pendingFailuresToReport}.
@@ -335,7 +335,7 @@ public enum ProvideJunitVintage {
 
     /**
      * Default implementation requires a non-null {@link Failure} argument!
-     * This method is overidden by the event-types that don't have any
+     * This method is overridden by the event-types that don't have any
      * {@link Failure} parameter.
      */
     boolean handleInterception(
@@ -375,7 +375,7 @@ public enum ProvideJunitVintage {
     }
 
     public static class NotifierAdvice extends AdviceFor<RunNotifier> {
-        public NotifierAdvice() {
+        NotifierAdvice() {
             on().fireTestStarted(null);
             on().fireTestFailure(null);
             on().fireTestFinished(null);

@@ -46,7 +46,7 @@ import org.lazyparams.internal.AdviceFor;
  * This is because Jupiter's most test-instance generous creation mode is
  * {@link TestInstance.Lifecycle#PER_METHOD}, so that a new test instance is
  * created when execution shifts to next test-method - but not when repeated
- * test-method execution is triggered (by LazyParams). This is sometimes
+ * test-method execution is triggered by LazyParams. This is sometimes
  * undesirable and not equivalent with the behavior on JUnit versions 3 and 4.
  * The purpose of this experimental annotation is to apply
  * {@link TestInstance.Lifecycle#PER_METHOD} and have it further enhanced by
@@ -71,6 +71,7 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
         }
     }
 
+    /** @hidden */
     public class JupiterTweak extends AdviceFor<Object> {
         JupiterTweak() {
             super(JupiterEngineExecutionContext.class);

@@ -44,7 +44,7 @@ import org.lazyparams.config.Configuration;
  * {@link LazyParams LazyParams.pickValue(...)} and other best-practice APIs
  * that will always produce separate parameters for each (sub-)scope, even if
  * parameters are otherwise identical. This may seem strange given that
- * {@link LazyParams} relies ScopedLazyParameter under the hood - but it is all
+ * {@link LazyParams} relies on ScopedLazyParameter under the hood - but it is all
  * because it does not hold on to its ScopedLazyParameter instance, so instead
  * {@link #pickValue()} is invoked on a new instance whenever a parameter
  * value-pick is made with {@link LazyParams LazyParams.pickValue(...)}.
@@ -148,7 +148,7 @@ public abstract class ScopedLazyParameter<T> {
 
                 for (int factor = separateFactorBound; 2 <= factor; --factor) {
                     if (0 == bound % factor) {
-                        /* Factor will be separatly combined: */
+                        /* Factor will be separately combined: */
                         return next(factor) + factor * next(bound/factor);
                     }
                 }
@@ -212,9 +212,9 @@ public abstract class ScopedLazyParameter<T> {
      * pick is combined with the ID-string to form a core parameter ID,
      * which will ultimately define the parameter. I.e. plenty of effort is
      * invested to make sure parameter value-picks such as ...<pre><code>
-     * ScopedLazyParameter.from(false,true).as("foo");
+     * ScopedLazyParameter.from(false,true).asParameter("foo");
      * </code></pre>... will not be confused with neither ...<pre><code>
-     * ScopedLazyParameter.from(false,true).notCombined().as("foo")
+     * ScopedLazyParameter.from(false,true).notCombined().asParameter("foo")
      * </code></pre>... nor ...<pre><code>
      * LazyParams.pickValue("foo", false, true);
      * </code></pre>
@@ -563,7 +563,7 @@ public abstract class ScopedLazyParameter<T> {
             collectDetailArray(detailDataArray, idDetails,
                     null != log && 1 <= log.length
                     ? log[0] : new IdentityHashMap<Object, Object>());
-            return idDetails.toArray(new IdDetail[idDetails.size()]);
+            return idDetails.toArray(new IdDetail[0]);
         }
         private static void collectDetailArray(Object detailDataArray,
                 List<IdDetail> idDetails, Map<Object,Object> log) {

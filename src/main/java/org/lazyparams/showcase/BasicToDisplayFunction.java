@@ -20,8 +20,10 @@ import org.lazyparams.config.Configuration;
  */
 class BasicToDisplayFunction<T> implements ToDisplayFunction<T> {
 
+    /** Used by {@link ScopedLazyParameter.FactoryHandler#parameterId(java.util.List,String,ToDisplayFunction)}*/
     final String parameterName;
-    final String valuePrefix;
+
+    private final String valuePrefix;
 
     BasicToDisplayFunction(String parameterName) {
         this.parameterName = parameterName;

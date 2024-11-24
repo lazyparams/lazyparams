@@ -268,7 +268,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             /*
              * This can theoretically happen if initial install (e.g. initial usage)
              * took place during NodeTestTask#reportCompletion() and would
-             * probably require for it to have happen on a concurrent thread.
+             * probably require for it to have happened on a concurrent thread.
              * We here try to resolve the theoretical scenario by treating test
              * as a completed non-parameterized test!
              */

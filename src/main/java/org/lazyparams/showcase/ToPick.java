@@ -32,7 +32,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.FactoryRoot;
  * certain stream properties to be guaranteed on repeated stream creations.
  * These demands on special stream properties are pitfalls that can be very
  * confusing if developer lacks knowledge on how these things work, so usage
- * of those methods have been discouraged by having them deprecated.
+ * of those methods has been discouraged by having them deprecated.
  *
  * @see #from()
  *
@@ -44,7 +44,7 @@ public class ToPick {
     /**
      * Collector implementation that accumulates values from stream to a list,
      * which finisher is specified as constructor argument.
-     * All {@link ToPick} factory methods returns an instance of this class.
+     * Each {@link ToPick} factory method returns an instance of this class.
      */
     private static class CollectorImpl<T,R> implements Collector<T,List<T>,R> {
 
@@ -101,7 +101,7 @@ public class ToPick {
     /**
      * Recommended practice when parameter values are collected from a stream
      * is to use this collector, which initiates a progressive factory for
-     * creating parameter that is abstracted as an instance of
+     * creating a parameter that is abstracted as an instance of
      * {@link ScopedLazyParameter}, which can be stored in a static field (or
      * other context that is not reset on each repetition) so that its method
      * {@link ScopedLazyParameter#pickValue()} can be used for test
@@ -222,9 +222,9 @@ public class ToPick {
      */
     @Deprecated
     public static <T,R> Collector<T,?,R> as(
-            final String parameterName,
-            final BiFunction<String,? super T[],R> pickValueFunction,
-            final T... templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible) {
+            String parameterName,
+            BiFunction<String,? super T[],R> pickValueFunction,
+            T... templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible) {
         return new CollectorImpl<T,R>(new PickValueFinisher(parameterName, pickValueFunction,
                 templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible));
     }
@@ -258,9 +258,9 @@ public class ToPick {
      */
     @Deprecated
     public static <T,R> Collector<T,?,R> as(
-            final ToDisplayFunction<? super R> toDisplay,
-            final BiFunction<ToDisplayFunction<? super R>,? super T[],R> pickValueFunction,
-            final T... templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible) {
+            ToDisplayFunction<? super R> toDisplay,
+            BiFunction<ToDisplayFunction<? super R>,? super T[],R> pickValueFunction,
+            T... templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible) {
         return new CollectorImpl<T,R>(new PickValueFinisher(toDisplay, pickValueFunction,
                 templateArray_normallyIgnoredButEmptyStreamDefaultValueIsPossible));
     }

@@ -20,7 +20,7 @@ import org.lazyparams.ToDisplayFunction;
 /**
  * @author Henrik Kaipe
  * @deprecated
- * This kind of ugly API has been deprecated on behalf of {@link ToPick} that
+ * This somewhat ugly API has been deprecated on behalf of {@link ToPick} that
  * offers collectors for creating parameters from streams. The {@link ToPick}
  * collectors are much more elegant and easy to reuse for other innovation.
  *
@@ -65,7 +65,7 @@ public class Maps {
             throw new IllegalArgumentException("Cannot pick entry from empty map!");
         }
         return LazyParams.pickValue((ToDisplayFunction)toDisplay,
-                entries.entrySet().toArray(new Map.Entry[entries.size()]));
+                entries.entrySet().toArray(new Map.Entry[0]));
     }
 
     public static <K,V> Map.Entry<K,V> pickEntry(

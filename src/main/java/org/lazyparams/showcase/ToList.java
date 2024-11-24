@@ -40,8 +40,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.Identifier;
  * and {@link #combineElementsIndividually()}
  * are crafted to provide a menu of default implementations that cooperate well
  * with the default {@link ScopedLazyParameter.CombiningCollector.Seeds#next(int)}
- * mechanism to achieve good combining within themselves and with other 
- * parameters.
+ * mechanism to combine well within themselves and with other parameters.
  *
  * @author Henrik Kaipe
  */
@@ -129,19 +128,19 @@ public abstract class ToList<T> implements CombiningCollector<T,List<T>> {
      * will be evaluated
      * </li>
      * <li>... at least 4 and less then 20 element input-values can be expected
-     * to evaluate must like {@link #combineOneOrTwo()} (but a few more result
-     * values because of combine algorithm defects when an extra parameter
+     * to evaluate much like {@link #combineOneOrTwo()} (but a few more value
+     * combinations because of combine algorithm defects when an extra parameter
      * (in this case extra seed) is conditioned. I.e. 3rd seed only enabled when
      * result list has two elements.
      * <br>
-     * Each element will occur at least once in two-element result list of
-     * having elements order as in parameter input-values array and at least
+     * Each element will occur at least once in a two-element result list that
+     * has elements ordered as in parameter input-values array and at least
      * once in reversed order. Roughly half of the
      * two-element result lists will have their elements in reverse order.
      * </li>
      * <li>... 20 or more element input-values will not be pairwise combined
      * (because of seed combine degrading) and it cannot be said for certain
-     * whether an individual element will occur in both reveresed and
+     * whether an individual element will occur in both a reversed and an
      * originally ordered result lists.
      * </li>
      * </ul>
@@ -186,7 +185,7 @@ public abstract class ToList<T> implements CombiningCollector<T,List<T>> {
      * {@link #combineOneOrPermutationOfTwo()} or 
      * {@link #combineElementsIndividually()}) this one will produce a list
      * that will always contain the exact same elements no matter how many times
-     * repeated. Only the element order will differ.
+     * the test is repeated. Only the element order will differ.
      * <br><br>
      * It is assumed unlikely for a permutation pick to cause failure because
      * of a certain combination with another parameter. This is a reason
