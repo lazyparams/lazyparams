@@ -319,6 +319,9 @@
                 <configuration>
                     <legacyMode>true</legacyMode>
                     <detectJavaApiLink>false</detectJavaApiLink>
+                    <doclet>org.lazyparams.demo.ge17.LazyparamsDoclet</doclet>
+                    <docletPath>${project.build.testOutputDirectory}</docletPath>
+                    <excludePackageNames>org.lazyparams.internal</excludePackageNames>
                     <jdkToolchain>
                         <version>17</version>
                     </jdkToolchain>
