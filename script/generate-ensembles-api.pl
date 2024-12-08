@@ -127,11 +127,6 @@ print "
         });
     }
 
-    /**
-     * \@deprecated
-     * There is doubt whether this is a good idea.
-     */
-    \@Deprecated
     public static <T,R,E extends Throwable> AllEnsemblesFunction<T,R,E> groupBy(
             final GroupFunction<T,R,E> groupFunction) {
         return new AllEnsemblesFunction<T,R,E>() {",

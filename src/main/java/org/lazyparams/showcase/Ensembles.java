@@ -469,11 +469,7 @@ public class Ensembles {
         throw (E)ex;
     }
 
-    /**
-     * @deprecated
-     * There is doubt whether this is a good idea.
-     */
-    @FunctionalInterface @Deprecated
+    @FunctionalInterface
     public interface GroupFunction<T,R,E extends Throwable> {
         R apply(List<T> arguments) throws E;
     }
@@ -1336,11 +1332,6 @@ public class Ensembles {
         });
     }
 
-    /**
-     * @deprecated
-     * There is doubt whether this is a good idea.
-     */
-    @Deprecated
     public static <T,R,E extends Throwable> AllEnsemblesFunction<T,R,E> groupBy(
             final GroupFunction<T,R,E> groupFunction) {
         return new AllEnsemblesFunction<T,R,E>() {
