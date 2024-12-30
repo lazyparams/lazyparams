@@ -114,36 +114,10 @@ public abstract class ToList<T> implements CombiningCollector<T,List<T>> {
      * [of {@link #combineOneOrTwo()}] has two elements. It will be the third
      * parameter seed (i.e. second trailing seed) and therefore will be
      * pairwise combined if number of parameter input values is greater than 3,
-     * even if parameter itself is set to be fully combined on some
-     * {@link CartesianProductHub}. (And with 20 or more parameter input values
-     * this permutation seed will even be effectively picked as
-     * {@link ScopedLazyParameter.Combiner#notCombined()}, being a victim of the
-     * combine degrading that is in effect for trailing seeds as more parameter
-     * input values causes higher bounds on initial two seeds, which will
-     * cut away pending allowance for pairwise combining.)
-     * <br>
-     * If default pairwise combined with ...
-     * <ul>
-     * <li>... 2 or 3 element input-values then all permutations
-     * will be evaluated
-     * </li>
-     * <li>... at least 4 and less then 20 element input-values can be expected
-     * to evaluate much like {@link #combineOneOrTwo()} (but a few more value
-     * combinations because of combine algorithm defects when an extra parameter
-     * (in this case extra seed) is conditioned. I.e. 3rd seed only enabled when
-     * result list has two elements.
-     * <br>
-     * Each element will occur at least once in a two-element result list that
-     * has elements ordered as in parameter input-values array and at least
-     * once in reversed order. Roughly half of the
-     * two-element result lists will have their elements in reverse order.
-     * </li>
-     * <li>... 20 or more element input-values will not be pairwise combined
-     * (because of seed combine degrading) and it cannot be said for certain
-     * whether an individual element will occur in both a reversed and an
-     * originally ordered result lists.
-     * </li>
-     * </ul>
+     * unless combine degrading has occurred because of too many values.
+     * (The threshold above which the combine degrading will occur is not
+     * finalized as of release version 1.0.x - and therefore it is not
+     * specified in this piece of documentation.)
      */
     public static <T> ToList<T> combineOneOrPermutationOfTwo() {
         return new ToList<T>() {
