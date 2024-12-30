@@ -15,10 +15,10 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * Same as {@link LegacyHarnessReference} but with a different super-class
- * {@link LegacyHarness}, which mimics {@link junit.framework.Test
+ * {@link LegacyHarness}, which mimics {@link junit.framework.TestCase
    the JUnit-3 API harness super-class TestCase} by delegating to test-methods
  * that are identified in the same manner.
- * But technically {@link LegacyHarness} presents a JUpiter-style test-method
+ * But technically {@link LegacyHarness} presents a Jupiter-style test-method
  * {@link LegacyHarness#test(LegacyHarness.TestMethod)} that achieves delegation
  * to the JUnit-3-style test-methods by having them as values of a lazy 
  * parameter. This will work just like a normal JUnit-3 test-class unless

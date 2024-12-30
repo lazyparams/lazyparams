@@ -38,12 +38,7 @@ import org.powermock.reflect.internal.WhiteboxImpl;
  * PowerMock features. Therewith it's possible to use PowerMock on newer JVMs.
  * <br>
  * Of course, it breaks some PowerMock functionality but this breakage concerns
- * corner-case functionality that is not used very often (e.g. exception
- * stubbing and whiteboxing internal functionality of module "java.base").
- * <br>
- * Functionality on this runner is only tested for the PowerMock features that
- * are used by the regression tests of this framework. E.g. test-executions
- * on separate class-loaders and static mocking with the EasyMock API.
+ * corner-case functionality that is not used by any tests on this project.
  *
  * @author Henrik Kaipe
  */
@@ -277,7 +272,7 @@ public class PowerMockRunnerLight extends PowerMockRunner {
             }
         }
 
-        static void install() throws NoSuchMethodException {
+        static void install() {
             logInstall();
             Class<?> class2fix = DefineClassHelper.class;
             installAgent(class2fix.getName(), new DefineClassHelperFix(class2fix));

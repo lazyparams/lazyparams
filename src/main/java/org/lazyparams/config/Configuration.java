@@ -14,6 +14,7 @@ package org.lazyparams.config;
  */
 public abstract class Configuration implements ReadableConfiguration {
 
+    /** @hidden */
     public static final Configuration GLOBAL_CONFIGURATION = new Configuration() {
         @Override
         protected ReadableConfiguration parentConfiguration() {
@@ -64,6 +65,7 @@ public abstract class Configuration implements ReadableConfiguration {
         }
     };
 
+    /** @hidden */
     protected abstract ReadableConfiguration parentConfiguration();
 
     @Override public int getMaxFailureCount() {
@@ -115,6 +117,7 @@ public abstract class Configuration implements ReadableConfiguration {
             internalSetScopedCustomItem(scopedItemKey, scopedItemValue, onScopeRetirement);
         }
     }
+    /** @hidden */
     protected abstract <V> void internalSetScopedCustomItem(Object scopedItemKey,
             V scopedItemValue, ScopeRetirementPlan<? super V> onScopeRetirement);
 

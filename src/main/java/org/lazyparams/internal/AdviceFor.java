@@ -39,7 +39,7 @@ import net.bytebuddy.utility.JavaModule;
 import static net.bytebuddy.matcher.ElementMatchers.*;
 
 /**
- * AOP utility for specifying advice and its target classes.
+ * AOP utility for specifying advice and target classes.
  *
  * @author Henrik Kaipe
  */
@@ -76,7 +76,7 @@ public abstract class AdviceFor<T> {
         } catch (Exception propablyAConstructorIssue_tryInsteadToOnlySupportInterfaces) {
             this.methodInterceptor = (T) Proxy.newProxyInstance(
                     getClass().getClassLoader(),
-                    collectInterfacesOf(this.classToAdvice).toArray(new Class[1]),
+                    collectInterfacesOf(this.classToAdvice).toArray(new Class[0]),
                     new InvocationHandler() {
                 @Override
                 public Object invoke(Object o, Method method, Object[] os) {
@@ -129,7 +129,7 @@ public abstract class AdviceFor<T> {
             } catch (RuntimeException ignoreCheck) {
             } catch (AssertionError badState) {
                 System.err.println(getClass() + " has java.lang.Object as "
-                        + "#classToRedefine and therefore really should"
+                        + "#classToAdvice and therefore really should"
                         + " override this method!");
             }
             /* Specify a non-interface that declares either of #methods2advice

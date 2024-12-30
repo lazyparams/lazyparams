@@ -21,10 +21,10 @@ import org.lazyparams.internal.Instrument;
  * This low-level API targets the internal parts of LazyParams.
  *
  * The feature API functions of {@link LazyParams class LazyParams} (i.e. the
- * pickValue(...) functions) are implemented upon
+ * pickValue(...) functions) are implemented on top of
  * {@link org.lazyparams.showcase.ScopedLazyParameter},
  * which uses this low-level API.
- *
+ * <br><br>
  * Worth noticing from this API is how LazyParams internally only deals with
  * int parameters, which possible values range from 0 to a parameter-specific
  * upper limit (exclusive). Also there is a clean distinction between choice of
@@ -32,7 +32,7 @@ import org.lazyparams.internal.Instrument;
  * implementations (e.g. {@link org.lazyparams.showcase.ScopedLazyParameter})
  * to decide how the internally picked int values are translated to their proper
  * test parameter values and how to have it displayed in the test-name appendix.
- * 
+ *
  * @author Henrik Kaipe
  */
 public class LazyParamsCoreUtil {

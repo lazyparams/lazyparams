@@ -39,7 +39,7 @@ public class ContextLifecycleProviderFacade<ID> {
     }
 
     /**
-     * Closes specified scope and returns true if pending parameter-values
+     * Closes specified scope and returns false if pending parameter-values
      * should trigger repetition of closed test-execution.
      *
      * @param executionScopedIdentifier identifies test and scope
@@ -48,17 +48,17 @@ public class ContextLifecycleProviderFacade<ID> {
      *         combinations;<br>
      *         otherwise false if closed but with pending parameter values or
      *         pending parameter value combinations that demand repetition of
-     *         test-execution unless there some other circumstances to prevent it
-     *         (e.g. to many failures or repetitions)
+     *         test-execution, unless there are some other circumstances to
+     *         prevent it (e.g. to many failures or repetitions)
      * @throws MaxRepeatCount if there are pending parameter values or combinations
-     *         but repeated total- or failure-counts have reached its max.
+     *         but repeated total- or failure-counts have reached max.
      * @see org.lazyparams.config.Configuration#setMaxFailureCount(int)
      * @see org.lazyparams.config.Configuration#setMaxTotalCount(int)
      */
     public boolean closeExecutionScope(ID executionScopedIdentifier, Throwable result)
     throws MaxRepeatCount {
         if (scopeDisplayAppendixes.containsKey(executionScopedIdentifier)) {
-            /* Scope is already closed but this should not be a problem.
+            /* Scope is already closed but it should not be a problem.
              * Just dont signal any additional pending combinations: */
             return true;
         }
@@ -163,8 +163,7 @@ public class ContextLifecycleProviderFacade<ID> {
             }
         }
 
-        private void increaseAndCheckOnConfiguredMaxCounts(boolean success)
-        throws MaxRepeatCount {
+        private void increaseAndCheckOnConfiguredMaxCounts(boolean success) {
             Configuration scopeConfig = ConfigurationContext.currentTestConfiguration();
             if (false == success
                     && scopeConfig.getMaxFailureCount() <= ++failureCount) {

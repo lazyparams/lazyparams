@@ -146,7 +146,7 @@ public class FailFastOnInconsistentPicksTest {
                             if ("pickNonRepeatable".equals(methodName)) {
                                 /*
                                  * This test doesn't detect the inconsistency in
-                                 * midair - but does instead detect when cheching
+                                 * midair - but does instead detect it when checking
                                  * whether there are pending combinations. */
                                 supportSingularDisplayNameDuplicate();
                             }

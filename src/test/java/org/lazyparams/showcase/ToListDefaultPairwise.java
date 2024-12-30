@@ -33,20 +33,22 @@ public class ToListDefaultPairwise {
      * This parameter value is picked in static scope.
      * Jupiter does, unlike JUnit-4, create test instances in static scope and
      * therewith this parameter is introduced in static scope. Jupiter does
-     * create a separate test-instance for each test-method but the above
+     * create a separate test-instance for each test-method but this parameter
      * value will nonetheless be the same on all those instances until next
      * iteration of static scope when new test instances are created etc.
-     * As default LazyParams will reuse the test instance when iterating through
-     * parameter values of a test method, only changing to next test instance
-     * when done as continuing with next test method.
-     * <br/>
+     * As a consequence, LazyParams will normally reuse the test instance when
+     * iterating through parameter values of a test method - and only change to
+     * next test instance when execution continues with the next test method.
+     * <br/><b>
      * This test makes use of this test instance reuse behavior when repeating
-     * a parameterized test method but the traditional "normal" is to have a
-     * new test-instance on each test-method repetition. If the traditional
-     * normal is desired then a special annotation
-     * {@link LazyInstantiateTestClass} can be used to delay test instance
-     * creation until test method scope is opened, therewith forcing creation
-     * of new test instance each time the test method is repeated.
+     * a parameterized test method!!
+     * </b><br/>
+     * However, the traditional "normal" is to have a new test-instance on each
+     * test-method repetition. If the traditional normal is desired for a test
+     * then a special annotation {@link TestInstance_Lifecycle_PER_METHOD_REPETITION}
+     * can be used to delay test instance creation until test method scope is
+     * opened, therewith forcing creation of new test instance each time the
+     * test method is repeated.
      */
     final int nbrOfListSourceValues = LazyParams.pickValue("src-size", 0,1,2,3,4,5,6,7,8,9);
 
@@ -112,7 +114,7 @@ public class ToListDefaultPairwise {
 
     /**
      * Some intentional failures are fired when running this test.
-     * They are failed duplication check on the list results
+     * They are failed duplication checks on the list results
      * from {@link ToList#combineOneOrTwo()}. They happen because the list
      * of input parameter values has an intentionally duplicated null-value
      * that occurs twice in the list of parameter values.

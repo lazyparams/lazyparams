@@ -28,6 +28,8 @@ import org.lazyparams.internal.ConfigurationContext;
 
 /**
  * @author Henrik Kaipe
+ * @see LeafParameterizedJupiterTest#LeafParameterizedJupiterTest(InstallScenario,StaticScopeParam,Object,Object,Object,Object,StaticScopeParam,MaxCountsTweak)
+ * @see LeafParameterizedJupiterTest#tweaks()
  */
 public enum MaxCountsTweak implements InvocationInterceptor {
     GLOBAL_DEFAULTS(

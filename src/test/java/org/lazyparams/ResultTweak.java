@@ -32,6 +32,8 @@ import static org.mockito.Mockito.*;
 
 /**
  * @author Henrik Kaipe
+ * @see LeafParameterizedJupiterTest#LeafParameterizedJupiterTest(InstallScenario,StaticScopeParam,Object,Object,Object,Object,StaticScopeParam,MaxCountsTweak)
+ * @see LeafParameterizedJupiterTest#tweaks()
  */
 public enum ResultTweak
 implements TestExecutionExceptionHandler, BeforeEachCallback, AfterEachCallback, AfterAllCallback {

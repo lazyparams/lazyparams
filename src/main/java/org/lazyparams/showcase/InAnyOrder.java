@@ -73,8 +73,7 @@ public class InAnyOrder {
         }
         List<Callable<? extends CharSequence>> reorderedTasks = ScopedLazyParameter
                 .from(tasks).quietly()
-                /*Prioritize distribution - by using ...*/
-                .notCombined()/*- assuming order is unlikely to affect result!*/
+                .notCombined()
                 .withExplicitParameterId(resolveExplicitParamId())
                 .asParameter("", ToList.<Callable<? extends CharSequence>>combinePermutation())
                 .pickValue();

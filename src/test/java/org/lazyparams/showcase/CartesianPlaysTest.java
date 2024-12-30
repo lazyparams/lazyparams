@@ -22,17 +22,17 @@ import org.lazyparams.VerifyJupiterRule;
  * The fine granulite level makes these tests complex and difficult to maintain
  * but it is for a reason. A couple of the {@link CartesianPlays} test-methods
  * demonstrate the existence of certain scenarios, during which a fully combined
- * pocket can help the {@link org.lazyparams.core.Lazer} lazy algorithm to
+ * pocket can help the {@link org.lazyparams.core.Lazer} algorithms to
  * fulfill all pairwise combinations more efficiently.<br/>
  * This particular phenomena happens when two independent parameters (in this
  * case <code>X-open</code> and <code>Y-open</code>) both have values that can
  * unlock the introduction of an extra parameter (<code>foo</code>). In this way
  * the two independent parameters (<code>X-open</code> and <code>Y-open</code>)
  * form a kind of three-way dependency with parameter <code>foo</code>.
- * The presence of this three-way
- * dependency, which involves one parameter that is not always present, can
- * confuse the {@link org.lazyparams.core.Lazer} pairwise combine strategy, for
- * which it gets more difficult to make parameter value picks that quickly cover
+ * The presence of this three-way dependency,
+ * which involves one parameter that is not always present, can confuse
+ * the {@link org.lazyparams.core.Lazer} pairwise combine strategy, for which
+ * it gets more difficult to make parameter value picks that quickly cover
  * all pairwise combinations. What is not so intuitive is how the algorithm
  * efficiency can be helped by introducing a fully combined pocket for the two
  * parameters (<code>X-open</code> and <code>Y-open</code>) that determine
@@ -51,7 +51,7 @@ import org.lazyparams.VerifyJupiterRule;
  * approach, but the three-way dependency in these tests makes it
  * difficult for the algorithm that cannot efficiently conclude that the
  * introduction of parameter <code>foo</code> is determined by values on both
- * parameters <code>X-open</code> and <code>Y-open</code> and instead gets lost
+ * parameters <code>X-open</code> and <code>Y-open</code>. Instead it gets lost
  * in the dark as it will require many iterations to conclude that the one
  * remaining parameter <code>1stFrom3</code> does not impact the introduction
  * of parameter <code>foo</code>. (This phenomena only occurs when there are
@@ -69,11 +69,11 @@ import org.lazyparams.VerifyJupiterRule;
  * <br/><br/>
  * If all four parameters are independent of each other (from the
  * perspective of the pairwise combinations by {@link org.lazyparams.core.Lazer}
- * algorithm) as is in all four parameters are being introduced
+ * algorithm), as would be the case if all four parameters are introduced
  * regardless of values on other parameters (as is enforced when
- * {@link CartesianPlays#globalFooSupport} is <code>true</code>) 
- * then the pairwise algorithm works well without the help and as can be seen
- * with {@link CartesianPlays#singleCartesian()} (when
+ * {@link CartesianPlays#globalFooSupport} is <code>true</code>),
+ * then the pairwise algorithms work well without cartesian-pocket
+ * and as can be seen with {@link CartesianPlays#singleCartesian()} (when
  * {@link CartesianPlays#globalFooSupport} is <code>true</code>) it now requires
  * more iterations than {@link CartesianPlays#globalFooSupport} (16 vs 14).
  * I.e. the fully combined pocket is no longer helpful.

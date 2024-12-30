@@ -52,18 +52,19 @@ public class Ensembles {
      * parameter name for the argument that does not implement equality
      * sufficiently:<pre><code>
  var foo = Ensembles
-     .apply(new Object(), "1st")
-     .of(new Object(), "2nd")
-     .asLazyTrio(  null,    , "foo")
-     .with( (data,name) -> data);
+     .use(new Object(), "1st")
+     .or(new Object(), "2nd")
+     .asLazyDuo(null, "foo")
+     .applyOn((data,name) -> data);
  </code></pre>
      * The above will be accepted without inconsistency issues on repetition
      * because class Object does only have default implementation of #toString(),
      * which is ignored by {@link Tuple#toString()} and
      * {@link Tuple#equals(Object)}. And it will not be considered by core,
-     * because the {@link Duo.Options#as(String,String) doesn't specify
-     * parameter-name for first argument, so that its #toString() value will not be
-     * considered downstream when {@link ScopedLazyParameter} composes parameter ID.
+     * because the {@link Duo.EnsembleOptions#asLazyDuo(String,String)} doesn't
+     * specify parameter-name for first argument, so that its #toString() value
+     * will not be considered downstream when {@link ScopedLazyParameter}
+     * composes parameter ID.
      */
     private static final class Tuple {
         private final Object[] argsOption;
@@ -223,7 +224,7 @@ public class Ensembles {
             });
         } else if (method.getName().equals("asParameter")) {
             /*The ensemble specific overload of "asParameter" with multiple
-             * string arguments - one for each participan in ensemble pick ...*/
+             * string arguments - one for each participant in ensemble pick ...*/
             final Class<?> ensembleType = method.getDeclaringClass().getDeclaringClass();
             return parameterFactory.asParameter(new ToDisplayFunction() {
                 @Override public CharSequence apply(Object ensemble) {
@@ -258,7 +259,7 @@ public class Ensembles {
                             } else {
                                 assert progressArgs.length == tuplePick.length :
                                         "Number of parameter names " + Arrays.toString(progressArgs)
-                                        + " must same length as tuple: " + tuplePick.length;
+                                        + " must be same as tuple length: " + tuplePick.length;
                                 StringBuilder sb = new StringBuilder();
                                 for (int i = 0; i < progressArgs.length; ++i) {
                                     sb.append(", ").append(progressArgs[i])
@@ -337,7 +338,7 @@ public class Ensembles {
             @Override Object invoke(String name, Object[] tuplePick) throws Throwable {
                 assert parameterNames.length == tuplePick.length
                         : "Number of parameter names " + Arrays.toString(parameterNames)
-                        + " must same length as tuple: " + tuplePick.length;
+                        + " must be same as tuple length: " + tuplePick.length;
                 StringBuilder sb = new StringBuilder();
                 for (int i = 0; i < parameterNames.length; ++i) {
                     if (null != parameterNames[i]) {

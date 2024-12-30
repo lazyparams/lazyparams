@@ -21,7 +21,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
 
 /**
  * Poor man utilities to feature parameters that are not combined.
- * I.e. parameter that are introduced by {@link #pick(String,Object...)} will
+ * I.e. a parameter that is introduced by {@link #pick(String,Object...)} will
  * just make sure all its values are picked at least once and thereafter not
  * force any additional repetitions for combining these values with other
  * parameters.
@@ -40,7 +40,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
  * counter available as a core feature that can be used for anything. (A reason
  * for not introducing repetition count as a core feature is the risk of core
  * failure "inconsistent parameter value pick" in case the repetition count is
- * used a condition for parameter introduction and execution path.)
+ * used as a condition for parameter introduction and execution path.)
  *
  * @author Henrik Kaipe
  */

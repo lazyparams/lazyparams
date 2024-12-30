@@ -53,7 +53,7 @@ public class Lazer {
             new HashMap<Lazynition, ValueInformation[]>();
     /**
      * Each entry of {@link #coreStatKeys} will here have an entry showing the
-     * stack for the parameter's initial introduction.
+     * stack of the parameter's initial introduction to this Lazer instance.
      */
     private final Map<Lazynition,ExpectedParameterRepetition> firstIntroductionStacks =
             new IdentityHashMap<Lazynition,ExpectedParameterRepetition>();
@@ -192,16 +192,16 @@ public class Lazer {
          * repopulated with additional pending combos after briefly
          * being satisfied.
          * In case multiple value options have the chance to satisfy the
-         * same number of combos - then the option which satisfied combos
-         * having the lowest sum of forwardRequestCount shall have preference,
-         * because combos with higher forwardRequestCount are more likely
+         * same number of combos - then prefer the option which satisfied combos
+         * have the lowest {@link #forwardRequestCount} sum,
+         * because combos with higher {@link #forwardRequestCount} are more likely
          * to soon show up again.
          * <br/>
          * This map is also used for uncombined parameter values (i.e. those
          * having <code>{@link #combined} == false)</code>, even though they
          * never have any pending combos. Instead an uncombined parameter value
          * that still has <code>{@link #totalCount} == 0</code> uses the
-         * null-entry to reference a set of ValueInformation instances that
+         * null-entry to reference a set of {@link ValueInformation} instances that
          * can enable its first pick.
          */
         private final Map<ValueInformation,Set<ValueInformation>> pendingCombos =
@@ -427,7 +427,7 @@ public class Lazer {
     }
 
     /**
-     * ValueInformation set implementation that is optimized for the Lazer algorithms.
+     * {@link ValueInformation} set implementation that is optimized for the Lazer algorithms.
      * With many parameters and values it can make algorithms run more than
      * 4 times faster than with regular hash-sets and hash-maps.
      */
@@ -663,9 +663,9 @@ public class Lazer {
     }
 
     /**
-     * Stores the stack-trace of a parameter's initial introduction
+     * Stores stack-trace for a parameter's initial introduction
      * to its {@link Lazer} instance. This information is kept internally to
-     * compose decent error message in case a historical crumbs inconsistency is
+     * compose a decent error message in case a historical crumbs inconsistency is
      * detected by {@link Lazer#enforceHistoricalCrumbsConsistency(Lazynition)}
      * on a future repetition.
      *
@@ -693,7 +693,8 @@ public class Lazer {
         }
 
         /** Try to navigate stack in order to locate a place where things
-         * might have started to go wrong. */
+         * might have started to go wrong.
+         * @hidden */
         @Override public String getMessage() {
             StringBuilder buildMsg =
                     new StringBuilder("Inconsistent parameter value pick\n");

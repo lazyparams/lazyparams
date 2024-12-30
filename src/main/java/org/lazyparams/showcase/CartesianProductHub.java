@@ -33,13 +33,13 @@ import org.lazyparams.config.Configuration;
  * {@link ScopedLazyParameter.Combiner#fullyCombinedOn(CartesianProductHub)}
  * when a value is picked from one of the parameters of concern.
  * <br>
- * Parameter values that are picked being fully combined on same
+ * Parameters that are fully combined on same
  * {@link CartesianProductHub} will be treated as a separate unit by
  * LazyParams when other, pairwise-combined values from other parameters are
  * picked. This means that with many parameters it is possible to have pockets
  * of parameters, which values are fully combined between themselves but
  * pairwise combined with values from other parameters.
- * 
+ *
  * @see ScopedLazyParameter.Combiner#fullyCombinedOn(CartesianProductHub)
  * @author Henrik Kaipe
  */

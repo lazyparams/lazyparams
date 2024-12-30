@@ -38,14 +38,13 @@ public class ConfigurationContext {
      * after {@link org.lazyparams.LazyParams#uninstall()}!
      *
      * @see #resetAllCurrentConfig()
-     * @see Instrumentor#uninstall()
+     * @see Instrument#uninstall()
      */
     private static ThreadLocal<ConfigurationImpl> currentConfiguration;
     static {
         resetAllCurrentConfig();
     }
-            
-    @SuppressWarnings("NonPublicExported")
+
     public static Configuration currentTestConfiguration() {
         if (null != currentTestConfOnTargetClassLoader) {
             return ConfigurationContext
@@ -159,7 +158,7 @@ public class ConfigurationContext {
             protected ConfigurationImpl initialValue() {
                 /* A bit ugly - but this is coincidently a good place to have
                  * LazyParams installed, because this will execute on first usage
-                 * of any LazyParams feature that require provider installation!
+                 * of any LazyParams feature that requires provider installation!
                  * Also it allows for framework to be reinstalled if it somehow
                  * has been momentarily uninstalled by some other activity. */
                 Instrument.install();

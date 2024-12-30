@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Purpose with this test is to make sure there is no unexpected vintage or
- * JUnit-4 dependency that must be present if framework is used with just JUnit-5.
+ * JUnit-4 dependency that must be present if LazyParams is used with just JUnit-5.
  *
  * @author Henrik Kaipe
  */
@@ -23,7 +23,7 @@ public class AssertNoVintageOnClasspath {
 
     /**
      * Test is expected to fail unless being run on a test-execution that has
-     * excluded the JUnit vintage class from classpath.
+     * excluded the JUnit vintage classes from classpath.
      */
     @Test void test() {
         String vintageClassName = LazyParams.pickValue("vintage-class",
