@@ -471,7 +471,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.10</version>
+                <version>0.8.12</version>
                 <executions>
                     <execution>
                         <goals>
@@ -500,8 +500,8 @@
             <properties>
                 <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
                 <!-- Compile Dependencies: -->
-                <version.junit5>5.10.2</version.junit5>
-                <version.platform>1.10.2</version.platform>
+                <version.junit5>5.10.5</version.junit5>
+                <version.platform>1.10.5</version.platform>
             </properties>
         </profile>
 
@@ -510,7 +510,7 @@
                 <property><name>test</name></property>
             </activation>
             <id>
-            Separate profile for running singluar tests with latest versions of
+            Separate profile for singular test execution with latest versions of
             all dependencies that have version ranges.
             By not specifying Surefire report-name suffix this is also a
             workaround for NetBeans IDE, which otherwise gets confused and fails
@@ -554,12 +554,16 @@ reevaluated once-in-while by running tests with this profile enabled!
         -->
         <profile>
             <id>junit_latest</id>
+            <properties>
+                <version.junit5>5.11.4</version.junit5>
+                <version.platform>1.11.4</version.platform>
+            </properties>
         </profile>
         <profile>
-            <id>junit_5.10.2</id>
+            <id>junit_5.10.5</id>
             <properties>
-                <version.junit5>5.10.2</version.junit5>
-                <version.platform>1.10.2</version.platform>
+                <version.junit5>5.10.5</version.junit5>
+                <version.platform>1.10.5</version.platform>
             </properties>
         </profile>
         <profile>
