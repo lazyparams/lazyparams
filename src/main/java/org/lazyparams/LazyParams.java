@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -87,7 +87,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
  * </ul>
  *
  * @author Henrik Kaipe
- * @see <a href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
+ * @see <a target="_top" href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
  * @see org.lazyparams.showcase
  */
 public class LazyParams {
@@ -104,7 +104,7 @@ public class LazyParams {
     };
 
     /**
-     * @see <a href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
+     * @see <a target="_top" href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
      */
     public static <T> T pickValue(
             ToDisplayFunction<? super T> toDisplay,
@@ -116,7 +116,7 @@ public class LazyParams {
     }
 
     /**
-     * @see <a href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
+     * @see <a target="_top" href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
      */
     public static <T> T pickValue(
             final String parameterName, T[] possibleParamValues) {
@@ -127,7 +127,7 @@ public class LazyParams {
     }
 
     /**
-     * @see <a href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
+     * @see <a target="_top" href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
      */
     public static <T> T pickValue(
             ToDisplayFunction<? super T> toDisplay,
@@ -139,7 +139,7 @@ public class LazyParams {
     }
 
     /**
-     * @see <a href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
+     * @see <a target="_top" href="https://github.com/lazyparams/lazyparams#lazyparams">LazyParams Documentation</a>
      */
     public static <T> T pickValue(
             String parameterName, T primaryValue, T... otherValues) {

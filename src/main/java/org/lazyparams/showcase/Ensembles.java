@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -27,7 +27,7 @@ import org.lazyparams.showcase.ScopedLazyParameter.Combiner;
 import org.lazyparams.showcase.ScopedLazyParameter.Silencer;
 
 /**
- * @see <a href="https://en.wikipedia.org/wiki/Musical_ensemble">Musical ensemble</a>
+ * @see <a target="_top" href="https://en.wikipedia.org/wiki/Musical_ensemble">Musical ensemble</a>
  *
  * @author Henrik Kaipe
  */
