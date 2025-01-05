@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -11,6 +11,7 @@ package org.lazyparams.config;
 
 /**
  * @author Henrik Kaipe
+ * @see org.lazyparams.LazyParams#currentScopeConfiguration()
  */
 public abstract class Configuration implements ReadableConfiguration {
 
@@ -27,8 +28,7 @@ public abstract class Configuration implements ReadableConfiguration {
         @Override
         protected <V> void internalSetScopedCustomItem(Object configurationKey,
                 V configurationValue, ScopeRetirementPlan<? super V> onScopeRetirement) {
-            throw new UnsupportedOperationException(
-                    "Not supported for global configuration!.");
+            throw new UnsupportedOperationException("Not supported for global configuration!");
         }
     };
     private static final ScopeRetirementPlan<Object> NO_RETIREMENT_PLAN = new ScopeRetirementPlan() {
