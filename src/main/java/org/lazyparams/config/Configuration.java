@@ -40,7 +40,8 @@ public abstract class Configuration implements ReadableConfiguration {
     private String valueDisplaySeparator = null;
     private Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction = null;
 
-    private final ReadableConfiguration virtualScopeConfiguration = new ReadableConfiguration() {
+    /* *************************************************************************
+     * Each getter that implements ReadableConfiguration ... */
         @Override
         public int getMaxFailureCount() {
             return 0 < maxFailureCount ? maxFailureCount
@@ -63,19 +64,14 @@ public abstract class Configuration implements ReadableConfiguration {
                     : parentConfiguration()
                     .alsoUseValueDisplaySeparatorBeforeToDisplayFunction();
         }
-    };
-
-    /** @hidden */
+    /** @hidden ... will forward to its corresponding getter on parent
+     * configuration, unless its property on this instance has been set to
+     * a non-default value!
+     **************************************************************************/
     protected abstract ReadableConfiguration parentConfiguration();
 
-    @Override public int getMaxFailureCount() {
-        return virtualScopeConfiguration.getMaxFailureCount();
-    }
     public void setMaxFailureCount(int maxFailureCountOrZeroToForceParentScope) {
         this.maxFailureCount = maxFailureCountOrZeroToForceParentScope;
-    }
-    @Override public int getMaxTotalCount() {
-        return virtualScopeConfiguration.getMaxTotalCount();
     }
 
     /**
@@ -86,19 +82,11 @@ public abstract class Configuration implements ReadableConfiguration {
     public void setMaxTotalCount(int maxTotalCountOrZeroToForceParentScope) {
         this.maxTotalCount = maxTotalCountOrZeroToForceParentScope;
     }
-    @Override
-    public String getValueDisplaySeparator() {
-        return virtualScopeConfiguration.getValueDisplaySeparator();
-    }
 
     public void setValueDisplaySeparator(String valueDisplaySeparator) {
         this.valueDisplaySeparator = valueDisplaySeparator;
     }
-    @Override
-    public boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction() {
-        return virtualScopeConfiguration
-                .alsoUseValueDisplaySeparatorBeforeToDisplayFunction();
-    }
+
     public void setAlsoUseValueDisplaySeparatorBeforeToDisplayFunction(Boolean alsoUseValueDisplaySeparatorBeforeToDisplayFunction) {
         this.alsoUseValueDisplaySeparatorBeforeToDisplayFunction =
                 alsoUseValueDisplaySeparatorBeforeToDisplayFunction;
