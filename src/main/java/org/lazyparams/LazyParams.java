@@ -24,7 +24,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
  * additional APIs on lazy parametrization available in the
  * {@link org.lazyparams.showcase showcase package}. An intention with these
  * APIs is to demonstrate how lazy parametrization allows the developer to
- * innovate new kinds of parametrization that collaborate nicely with the
+ * innovate new kinds of parametrization that collaborates nicely with the
  * overall testing framework (e.g. JUnit). Some examples:<ul>
  * <li>Use {@link org.lazyparams.showcase.FalseOrTrue#pickBoolean(CharSequence)}
  * to introduce a parameter with values <code>false</code> and <code>true</code>.
@@ -79,7 +79,7 @@ import org.lazyparams.showcase.ScopedLazyParameter;
  * <pre><code>static &lt;T&gt; List&lt;T&gt; pickAtMostTwo(String listName, T... sourceValues) {
  *     return FalseOrTrue.pickBoolean("empty_" + listName)
  *             ? new ArrayList()
- *             : ToList.combineOneOrTwo(listName, sourceValues);
+ *             : ToList.combineOneOrTwo().pickList(listName, sourceValues);
  * }</code></pre>
  * ... that harnesses a special empty list corner-case and otherwise relies on
  * {@link org.lazyparams.showcase.ToList#combineOneOrTwo()}.
