@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -105,14 +105,19 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
             String methodName = "getTestInstances";
             try {
                 return TestInstancesProvider.class.getMethod(methodName,
-                        ExtensionRegistry.class, ExtensionRegistrar.class,
-                        ThrowableCollector.class);
-            } catch (NoSuchMethodException betterBeJupiterVersion_5_6_or_5_5) {
+                        ExtensionRegistry.class, JupiterEngineExecutionContext.class);
+            } catch (NoSuchMethodException probablyOnJupiterVersion_5_11_or_earlier) {
                 try {
                     return TestInstancesProvider.class.getMethod(methodName,
-                            ExtensionRegistry.class, ExtensionRegistrar.class);
-                } catch (NoSuchMethodException ex) {
-                    throw new IllegalStateException(ex);
+                            ExtensionRegistry.class, ExtensionRegistrar.class,
+                            ThrowableCollector.class);
+                } catch (NoSuchMethodException betterBeJupiterVersion_5_6_or_5_5) {
+                    try {
+                        return TestInstancesProvider.class.getMethod(methodName,
+                                ExtensionRegistry.class, ExtensionRegistrar.class);
+                    } catch (NoSuchMethodException ex) {
+                        throw new IllegalStateException(ex);
+                    }
                 }
             }
         }
@@ -172,13 +177,18 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
                 });
             }
 
-            @Override // on JUnit platform version 5.7.0 and later
+            // @Override // on JUnit Jupiter version 5.12.0 and later
+            public TestInstances getTestInstances(
+                    ExtensionRegistry extensionRegistry, JupiterEngineExecutionContext executionContext) {
+                return newProxy(extensionRegistry, executionContext);
+            }
+            @Override // on JUnit Jupiter version 5.7.0 - 5.11.x
             public TestInstances getTestInstances(
                     ExtensionRegistry extensionRegistry, ExtensionRegistrar extensionRegistrar,
                     ThrowableCollector throwableCollector) {
                 return newProxy(extensionRegistry, extensionRegistrar, throwableCollector);
             };
-            //@Override // on JUnit platform version 5.6.x and earlier
+            //@Override // on JUnit Jupiter version 5.6.x and earlier
             public TestInstances getTestInstances(
                     ExtensionRegistry extensionRegistry, ExtensionRegistrar extensionRegistrar) {
                 return newProxy(extensionRegistry, extensionRegistrar);
