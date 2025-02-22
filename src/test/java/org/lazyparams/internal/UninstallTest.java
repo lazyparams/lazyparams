@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -9,9 +9,13 @@
  */
 package org.lazyparams.internal;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
@@ -24,11 +28,9 @@ import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContext;
 import org.junit.jupiter.api.extension.TestTemplateInvocationContextProvider;
-import org.junit.jupiter.engine.config.JupiterConfiguration;
 import org.junit.jupiter.engine.descriptor.TestTemplateInvocationTestDescriptor;
 import org.junit.jupiter.engine.descriptor.TestTemplateTestDescriptor;
 import org.junit.jupiter.engine.execution.JupiterEngineExecutionContext;
-import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.hierarchical.Node;
 import org.lazyparams.LazyParams;
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.engine.descriptor.JupiterTestDescriptor;
+import org.junit.jupiter.engine.descriptor.MethodBasedTestDescriptor;
 import org.junit.jupiter.engine.descriptor.TestFactoryTestDescriptor;
 import org.junit.jupiter.engine.extension.MutableExtensionRegistry;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
@@ -129,6 +132,7 @@ public class UninstallTest {
                 "nbr7", "nbr7", "nbr2");
     }
 
+    @SuppressWarnings("ThrowableResultIgnored")
     private void assertInstalledThenUninstall(String... expectedPicksLog) throws Exception {
         try {
             assertThat("Completed picks log",
@@ -150,41 +154,17 @@ public class UninstallTest {
                 this::applyAfterAndThenExecuteDynamic);
     }
 
+    /**
+     * This should normally result in NullPointerException but LazyParams
+     * will prevent it after full installation.
+     */
     private void applyAfterAndThenExecuteDynamic() throws Exception {
-        JupiterTestDescriptor dynamicDescriptor = newDummyDynamicDescriptor();
-        dynamicDescriptor.after(mock(JupiterEngineExecutionContext.class));
-        dynamicDescriptor.execute(
-                mock(JupiterEngineExecutionContext.class, RETURNS_DEEP_STUBS),
-                mock(Node.DynamicTestExecutor.class));
-    }
-
-    private JupiterTestDescriptor newDummyDynamicDescriptor() throws Exception {
-        Node.DynamicTestExecutor executor = mock(Node.DynamicTestExecutor.class);
-
-        final Object testInstance = new Object() {
-            @DisplayName("bar") Stream<DynamicNode> factoryMethod() {
-                return Stream.of(DynamicTest.dynamicTest("dummy", () -> {}));
-            }
-        };
-        new TestFactoryTestDescriptor(
-                UniqueId.root("factory-dummy", "bar"),
-                testInstance.getClass(),
-                testInstance.getClass().getDeclaredMethod("factoryMethod"),
-                mock(JupiterConfiguration.class)) {{
-            JupiterEngineExecutionContext ctx = mock(
-                    JupiterEngineExecutionContext.class,
-                    RETURNS_DEEP_STUBS);
-            when(ctx.getThrowableCollector())
-                    .thenReturn(new ThrowableCollector(x -> false));
-            when(ctx.getExtensionContext().getRequiredTestInstance())
-                    .thenReturn(testInstance);
-            invokeTestMethod(ctx, executor);
-        }};
-
-        ArgumentCaptor<JupiterTestDescriptor> descriptorArg =
-                ArgumentCaptor.forClass(JupiterTestDescriptor.class);
-        verify(executor).execute(descriptorArg.capture());
-        return descriptorArg.getValue();
+        JupiterTestDescriptor dynamicDescriptor =
+                captureExecutorDescriptorArgOn(TestFactoryTestDescriptor.class);
+        JupiterEngineExecutionContext stubbedContext = deeplyStubbedContext();
+        dynamicDescriptor.after(stubbedContext);
+        dynamicDescriptor.execute(stubbedContext,
+                mock(Node.DynamicTestExecutor.class, withSettings().stubOnly()));
     }
 
     /**
@@ -192,21 +172,59 @@ public class UninstallTest {
      * will prevent it after full installation.
      */
     private void applyAfterAndThenPrepareTemplateInvocation() throws Exception {
-        JupiterEngineExecutionContext mockContext = mock(
-                JupiterEngineExecutionContext.class, RETURNS_DEEP_STUBS);
+        JupiterEngineExecutionContext stubbedContext = deeplyStubbedContext();
         MutableExtensionRegistry dummyRegistry = MutableExtensionRegistry
-                .createRegistryWithDefaultExtensions(mockContext.getConfiguration());
-        when(mockContext.getExtensionRegistry()).thenReturn(dummyRegistry);
-        when(mockContext.getExtensionContext()).thenReturn(null);
-        TestTemplateInvocationTestDescriptor invDesc = newDummyInvocationDescriptor();
-        invDesc.after(mockContext);
-        invDesc.prepare(mockContext);
+                .createRegistryWithDefaultExtensions(stubbedContext.getConfiguration());
+        when(stubbedContext.getExtensionRegistry()).thenReturn(dummyRegistry);
+        when(stubbedContext.getExtensionContext()).thenReturn(null);
+        TestTemplateInvocationTestDescriptor invDesc =
+                captureExecutorDescriptorArgOn(TestTemplateTestDescriptor.class);
+        invDesc.after(stubbedContext);
+        invDesc.prepare(stubbedContext);
     }
 
-    @DisplayName("foo")
-    private TestTemplateInvocationTestDescriptor newDummyInvocationDescriptor()
+    private <D extends JupiterTestDescriptor> D captureExecutorDescriptorArgOn(
+            Class<? extends MethodBasedTestDescriptor> descriptorClass)
     throws Exception {
-        TestTemplateInvocationContextProvider provider = new TestTemplateInvocationContextProvider() {
+        Object testInstance = new Object() {
+            @DisplayName("dummy") Stream<DynamicNode> dummy() {
+                return Stream.of(DynamicTest.dynamicTest("dummy", () -> {}));
+            }
+        };
+        JupiterEngineExecutionContext stubbedContext = stubContextAround(testInstance);
+
+        Constructor descriptorConstr = Stream
+                .of(descriptorClass.getDeclaredConstructors())
+                .filter(c -> 4 <= c.getParameterCount())
+                .peek(c -> c.setAccessible(true))
+                .findAny()
+                .orElseThrow(NoSuchElementException::new);
+        List<Object> constrArgs = new ArrayList<Object>();
+        constrArgs.add(UniqueId.root(descriptorClass.getSimpleName(), "foobar"));
+        constrArgs.add(testInstance.getClass());
+        constrArgs.add(testInstance.getClass().getDeclaredMethod("dummy"));
+        constrArgs.add(stubbedContext.getConfiguration());
+        MethodBasedTestDescriptor descriptor = (MethodBasedTestDescriptor)
+                descriptorConstr.newInstance(constrArgs.toArray());
+
+        Node.DynamicTestExecutor executor = mock(Node.DynamicTestExecutor.class,
+                withSettings().name(descriptorClass.getSimpleName() +  " Executor"));
+        descriptor.execute(stubbedContext, executor);
+
+        ArgumentCaptor<JupiterTestDescriptor> descriptorArg =
+                ArgumentCaptor.forClass(JupiterTestDescriptor.class);
+        verify(executor).execute(descriptorArg.capture());
+        return (D) descriptorArg.getValue();
+    }
+
+    private JupiterEngineExecutionContext stubContextAround(Object testInstance) {
+        JupiterEngineExecutionContext stubbedContext = deeplyStubbedContext();
+        when(stubbedContext.getExtensionContext().getTestInstance())
+                .thenReturn(Optional.of(testInstance));
+        when(stubbedContext.getExtensionContext().getRequiredTestInstance())
+                .thenCallRealMethod();
+        when(stubbedContext.getExtensionRegistry().stream(any()))
+                .thenReturn(Stream.of(new TestTemplateInvocationContextProvider() {
             @Override
             public boolean supportsTestTemplate(ExtensionContext context) {
                 return true;
@@ -215,34 +233,22 @@ public class UninstallTest {
             public Stream<TestTemplateInvocationContext>
                     provideTestTemplateInvocationContexts(ExtensionContext context) {
                 TestTemplateInvocationContext invCtx = mock(
-                        TestTemplateInvocationContext.class);
+                        TestTemplateInvocationContext.class,
+                        withSettings().stubOnly());
                 when(invCtx.getDisplayName(anyInt()))
-                        .thenReturn("bar");
+                        .thenReturn("dummy");
                 when(invCtx.getAdditionalExtensions())
                         .thenReturn(Collections.emptyList());
                 return Stream.of(invCtx);
             }
-        };
+        }));
+        when(stubbedContext.getThrowableCollector())
+                .thenReturn(new ThrowableCollector(x -> false));
+        return stubbedContext;
+    }
 
-        JupiterEngineExecutionContext context = mock(
-                JupiterEngineExecutionContext.class, RETURNS_DEEP_STUBS);
-        when(context.getExtensionRegistry().stream(any()))
-                .thenReturn(Stream.of(provider));
-        Node.DynamicTestExecutor executor = mock(Node.DynamicTestExecutor.class);        
-        try {
-            new TestTemplateTestDescriptor(
-                    UniqueId.root("template-dummy", "foo"),
-                    getClass(),
-                    getClass().getDeclaredMethod("newDummyInvocationDescriptor"),
-                    mock(JupiterConfiguration.class))
-                    .execute(context, executor);
-        } catch (Exception ex) {
-            throw new Error(ex);
-        }
-
-        ArgumentCaptor<TestDescriptor> descriptorArg =
-                ArgumentCaptor.forClass(TestDescriptor.class);
-        verify(executor).execute(descriptorArg.capture());
-        return (TestTemplateInvocationTestDescriptor) descriptorArg.getValue();
+    private JupiterEngineExecutionContext deeplyStubbedContext() {
+        return mock(JupiterEngineExecutionContext.class,
+                withSettings().stubOnly().defaultAnswer(RETURNS_DEEP_STUBS));
     }
 }
