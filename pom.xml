@@ -797,6 +797,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.10</id><!-- Introduced at Mockito-2.26 -->
             <properties>
                 <version.bytebuddy>1.9.10</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.28.2</version.mockito>
             </properties>
         </profile>
@@ -804,6 +805,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy###1.9.7</id><!-- Introduced at Mockito-2.24 -->
             <properties>
                 <version.bytebuddy>1.9.7</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.28.2</version.mockito>
             </properties>
         </profile>
@@ -811,6 +813,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.3</id><!-- Introduced at Mockito-2.23.4 -->
             <properties>
                 <version.bytebuddy>1.9.3</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -818,6 +821,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.0</id><!-- Introduced at Mockito-2.23 -->
             <properties>
                 <version.bytebuddy>1.9.0</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -825,6 +829,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.21</id><!-- Introduced at Mockito-2.22 -->
             <properties>
                 <version.bytebuddy>1.8.21</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -832,6 +837,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.15</id><!-- Introduced at Mockito-2.21 -->
             <properties>
                 <version.bytebuddy>1.8.15</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -839,6 +845,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.10</id><!-- Introduced at Mockito-2.19 -->
             <properties>
                 <version.bytebuddy>1.8.10</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -846,6 +853,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy###1.8.5</id><!-- Introduced at Mockito-2.18.3 -->
             <properties>
                 <version.bytebuddy>1.8.5</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -853,6 +861,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.7.9</id><!-- Introduced at Mockito-2.12 -->
             <properties>
                 <version.bytebuddy>1.7.9</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>
@@ -865,6 +874,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             -->
             <properties>
                 <version.bytebuddy>1.7.4</version.bytebuddy>
+                <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
             </properties>
         </profile>

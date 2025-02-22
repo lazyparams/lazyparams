@@ -1,6 +1,6 @@
 #!/bin/bash
 ######################################################################
-# Copyright 2024 the original author or authors.
+# Copyright 2024-2025 the original author or authors.
 #
 # All rights reserved. This program and the accompanying materials are
 # made available under the terms of the Eclipse Public License v2.0 which
@@ -77,15 +77,17 @@ prepare_profiles_parameter() {
     var jdkPick = profiles.pickNextFrom(jdks,true);
     boolean jdkPost8 = jdkPick.compareTo("jdk_6") < 0 || "jdk_9".equals(jdkPick);
     boolean jdkPost17 = jdkPost8 && "jdk_17".compareTo(jdkPick) < 0;
-    boolean junit5support = false == "jdk_6".equals(jdkPick)
-                         && false == "jdk_7".equals(jdkPick);
-    if (junit5support) {
-      profiles.pickNextFrom(junits,true);
-    }
 
     int buddyIndexPick = lazer.pick(bytebuddies, true, jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
     var buddyRange = bytebuddies[buddyIndexPick];
-    profiles.pickNextFrom(buddyRange, junit5support && newbuddies == buddyRange);
+    var buddyPick = profiles.pickNextFrom(buddyRange, newbuddies == buddyRange);
+
+    boolean junit5support = false == "jdk_6".equals(jdkPick)
+                         && false == "jdk_7".equals(jdkPick)
+                         && (newbuddies == buddyRange || buddyPick.contains("_1.1"));
+    if (junit5support) {
+      profiles.pickNextFrom(junits,true);
+    }
 
     System.out.print("mvn test");
     profiles.stream().map(" -P "::concat).forEach(System.out::print);
