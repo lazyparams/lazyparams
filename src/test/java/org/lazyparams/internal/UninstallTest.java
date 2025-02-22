@@ -203,6 +203,9 @@ public class UninstallTest {
         constrArgs.add(UniqueId.root(descriptorClass.getSimpleName(), "foobar"));
         constrArgs.add(testInstance.getClass());
         constrArgs.add(testInstance.getClass().getDeclaredMethod("dummy"));
+        if (5 <= descriptorClass.getConstructors()[0].getParameterCount()) {
+            constrArgs.add((Supplier)Collections::emptyList);
+        }
         constrArgs.add(stubbedContext.getConfiguration());
         MethodBasedTestDescriptor descriptor = (MethodBasedTestDescriptor)
                 descriptorConstr.newInstance(constrArgs.toArray());
