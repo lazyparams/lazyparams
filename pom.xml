@@ -555,6 +555,13 @@ reevaluated once-in-while by running tests with this profile enabled!
         <profile>
             <id>junit_latest</id>
             <properties>
+                <version.junit5>5.12.0</version.junit5>
+                <version.platform>1.12.0</version.platform>
+            </properties>
+        </profile>
+        <profile>
+            <id>junit_5.11.4</id>
+            <properties>
                 <version.junit5>5.11.4</version.junit5>
                 <version.platform>1.11.4</version.platform>
             </properties>
