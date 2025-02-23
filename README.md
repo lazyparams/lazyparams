@@ -3,7 +3,7 @@ LazyParams is a powerful parametrization solution for JUnit (versions 4 and 5). 
 
 Unlike traditional parametrization approaches that rely on annotations, LazyParams provides an imperative API during test execution. This approach allows for "lazy" parametrization, where a test can start as a regular test without parameters and then transition into a parameterized test as parameters are introduced during test execution.
 
-## Best-Practice Feature API [LazyParams#pickValue(...)](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/LazyParams.html) and execution path evaluation
+## Best-Practice Feature API [LazyParams#pickValue(...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html) and execution path evaluation
 
 ### ... One parameter ...
 First example:
@@ -20,10 +20,10 @@ public void smallInt() {
 //  ├─ smallInt int=2 ✔
 //  └─ smallInt int=4 ✔
 ```
-Above test uses the best practice API of feature class [LazyParams](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/LazyParams.html). First argument of above [#pickValue(...)](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/LazyParams.html#pickValue(java.lang.String,T,T...)) invocation specifies parameter-name, which will be part of the test-name. Additional arguments define possible parameter values.
+Above test uses the best practice API of feature class [LazyParams](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html). First argument of above [#pickValue(...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(java.lang.String,T,T...)) invocation specifies parameter-name, which will be part of the test-name. Additional arguments define possible parameter values.
 
 Fine-grained customization on how to display parameter value is 
-achieved with a separate pickValue-method, which first parameter is of type [ToDisplayFunction](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/ToDisplayFunction.html), which method takes parameter value as argument. E.g. instead of parameter name, a lambda expression can be used:
+achieved with a separate pickValue-method, which first parameter is of type [ToDisplayFunction](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/ToDisplayFunction.html), which method takes parameter value as argument. E.g. instead of parameter name, a lambda expression can be used:
 ```java
   int myInt = LazyParams.pickValue(
           i -> 1==i ? "1st" : 2==i ? "2nd" : 3==i ? "3rd" : i + "th",
@@ -34,7 +34,7 @@ achieved with a separate pickValue-method, which first parameter is of type [ToD
 //  ├─ smallInt 2nd ✔
 //  └─ smallInt 4th ✔
 ```
-There is one special method [pickValue(Enum...)](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/LazyParams.html#pickValue(E...)) that promotes enum parameters. Its only parameter is a vararg Enum array with the parameter values. Empty vararg array means all constants of parameter enum-type are possible values. With this method the enum constant #toString() describes the value in test-name. E.g. if parameter type is [RetentionPolicy](https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html) then a test could look like this:
+There is one special method [pickValue(Enum...)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/LazyParams.html#pickValue(E...)) that promotes enum parameters. Its only parameter is a vararg Enum array with the parameter values. Empty vararg array means all constants of parameter enum-type are possible values. With this method the enum constant #toString() describes the value in test-name. E.g. if parameter type is [RetentionPolicy](https://docs.oracle.com/javase/8/docs/api/java/lang/annotation/RetentionPolicy.html) then a test could look like this:
 ```java
 @Test
 public void policy() {
@@ -171,5 +171,5 @@ So LazyParams managed to reach the lowest possible number of repetitions (12) to
 
 The purpose of this dynamic prioritization is to uncover potentially hidden execution paths while satisfying parameter pair combinations in the process. First impression of `int=3` and `SOURCE` was that they are a dead end - and since first-impressions-last the other values seemed like better candidates for uncovering hidden execution paths and therefore they were initially entrusted with higher priority.
 
-## Simpliest Possible Parameterization: [FalseOrTrue.pickBoolean(displayOnTrue)](https://javadoc.io/static/org.lazyparams/lazyparams/1.0.1/org/lazyparams/showcase/FalseOrTrue.html#pickBoolean(java.lang.CharSequence))
+## Simpliest Possible Parameterization: [FalseOrTrue.pickBoolean(displayOnTrue)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/showcase/FalseOrTrue.html#pickBoolean(java.lang.CharSequence))
 Isn't the simpliest possible parameter one that can only have values `true` or `false`? Though being very simple it is nevertheless kind of a big deal when relying on LazyParams to seek out corner cases that require special treatment during a test.
