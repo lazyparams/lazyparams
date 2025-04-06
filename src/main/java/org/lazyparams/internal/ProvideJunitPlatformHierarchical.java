@@ -1209,7 +1209,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         @Advice.OnMethodEnter(inline = false)
         public static void instrumentClearingOnThrowableCollector(
                 @Advice.This(typing = Assigner.Typing.DYNAMIC)
-                        ThrowableCollector thisCollector)//,
+                        ThrowableCollector thisCollector)
         throws Exception {
             Throwable currentThrowable = thisCollector.getThrowable();
             if (null != currentThrowable
