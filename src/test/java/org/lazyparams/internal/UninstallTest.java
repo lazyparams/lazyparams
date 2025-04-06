@@ -194,7 +194,7 @@ public class UninstallTest {
         JupiterEngineExecutionContext stubbedContext = stubContextAround(testInstance);
 
         Constructor descriptorConstr = Stream
-                .of(descriptorClass.getDeclaredConstructors())
+                .of(descriptorClass.getConstructors())
                 .filter(c -> 4 <= c.getParameterCount())
                 .peek(c -> c.setAccessible(true))
                 .findAny()
