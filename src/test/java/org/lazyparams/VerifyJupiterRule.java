@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -13,6 +13,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.AbstractSet;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,11 +23,11 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.hamcrest.Matcher;
 import org.junit.Assume;
 import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.TestTemplate;
@@ -36,7 +37,6 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 import org.junit.platform.engine.DiscoverySelector;
 import org.junit.platform.engine.TestExecutionResult;
-import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.discovery.DiscoverySelectors;
 import org.junit.platform.engine.discovery.MethodSelector;
 import org.junit.platform.engine.support.descriptor.ClassSource;
@@ -52,8 +52,6 @@ import org.lazyparams.internal.ProvideJunitPlatformHierarchical;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -64,8 +62,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class VerifyJupiterRule implements TestRule {
 
     private static final Pattern cdataIncompability = Pattern.compile("\\]\\](?=$|\\>)");
-    private static final Map<UniqueId,?> postbonedAfterInvocations =
-            mapOnAdviceRepeatableNode("postbonedAfterInvocations");
+    private static final Collection<ProvideJunitPlatformHierarchical.DescriptorContextGuard>
+            phantomGuards = locatePhantomGuards();
+    private static final List<Function<ProvideJunitPlatformHierarchical.DescriptorContextGuard,?>>
+            guardFieldsToClean = Stream.of("preservedState","suspendedCleanUp").<Field>map(fName -> {
+        try {
+            return ProvideJunitPlatformHierarchical.DescriptorContextGuard.class
+                    .getDeclaredField(fName);
+        } catch (NoSuchFieldException x) {
+            throw new Error(x);
+        }
+    }).peek(f -> f.setAccessible(true))
+    .<Function<ProvideJunitPlatformHierarchical.DescriptorContextGuard,?>>map(f -> guard -> {
+        try {
+            return f.get(guard);
+        } catch (Exception x) {
+            throw new Error(x);
+        }
+    }).collect(Collectors.toList());
 
     final Class<?> testClassToVerify;
     private String methodName;
@@ -80,12 +94,17 @@ public class VerifyJupiterRule implements TestRule {
         this.testClassToVerify = testClassToVerify;
     }
 
-    private static <T> Map<UniqueId,T> mapOnAdviceRepeatableNode(String fieldName) {
+    private static Collection<ProvideJunitPlatformHierarchical.DescriptorContextGuard>
+            locatePhantomGuards() {
         try {
-            Field mapField = ProvideJunitPlatformHierarchical.AdviceRepeatableNode.class
-                    .getDeclaredField(fieldName);
-            mapField.setAccessible(true);
-            return (Map<UniqueId,T>) mapField.get(null);
+            Field f = ProvideJunitPlatformHierarchical.class
+                    .getDeclaredField("pendingContextGuards");
+            f.setAccessible(true);
+            Object weakIdMap = f.get(null);
+            f = weakIdMap.getClass().getDeclaredField("coreMap");
+            f.setAccessible(true);
+            return ((Map<?,ProvideJunitPlatformHierarchical.DescriptorContextGuard>)
+                    f.get(weakIdMap)).values();
         } catch (Exception ex) {
             throw new Error(ex);
         }
@@ -122,14 +141,14 @@ public class VerifyJupiterRule implements TestRule {
         return expectations;
     }
 
-    private void assertPendingAfterInvocations(Matcher<? extends Iterable<?>> expected) {
-        assertThat("Descriptors with pending after invocations",
-                new ArrayList(postbonedAfterInvocations.keySet()) {
-                    /** Prevents broken JUnit XML-report ... */
-                    @Override public String toString() {
-                        return super.toString().replace("]]", "]}");
-                    }
-                }, (Matcher) expected);
+    private void assertGuardsAreCleaned() {
+        for (ProvideJunitPlatformHierarchical.DescriptorContextGuard guard : phantomGuards) {
+            guardFieldsToClean.stream().map(f -> f.apply(guard)).forEach(fieldValue -> {
+                if (null != fieldValue) {
+                    throw new IllegalStateException(guard + " has " + fieldValue);
+                }
+            });
+        }
     }
 
     @Override
@@ -151,7 +170,7 @@ public class VerifyJupiterRule implements TestRule {
                 base.evaluate();
                 /* Clean up! Otherwise end of test verifications risk being
                  * confused with remnants of previous tests */
-                postbonedAfterInvocations.clear();
+                phantomGuards.clear();
 
                 expectationsTweakers.forEach(tweaker
                         -> tweaker.accept(VerifyJupiterRule.this));
@@ -333,8 +352,6 @@ public class VerifyJupiterRule implements TestRule {
                                 expectations.remove(0).verifyResult(
                                         testIdentifier, testExecutionResult);
                             }
-                            assertPendingAfterInvocations(
-                                    not(hasItem(testIdentifier.getUniqueId())));
                         });
                     }
 
@@ -347,20 +364,14 @@ public class VerifyJupiterRule implements TestRule {
 
                 Throwable firstVerifyFailure = verifyFailure.get();
                 if (null != firstVerifyFailure) {
-                    postbonedAfterInvocations.clear();
                     throw firstVerifyFailure;
 
                 }
                 if (false == expectations.isEmpty()) {
-                    postbonedAfterInvocations.clear();
                     throw new AssertionError("There are " + expectations.size()
                             + " pending verifications!!");
                 }
-                try {
-                    assertPendingAfterInvocations(empty());
-                } finally {
-                    postbonedAfterInvocations.clear();
-                }
+                assertGuardsAreCleaned();
             }
         };
     }

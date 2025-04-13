@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -9,6 +9,7 @@
  */
 package org.lazyparams.internal;
 
+import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -21,13 +22,13 @@ import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.WeakHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -56,7 +57,6 @@ import org.junit.platform.engine.support.hierarchical.HierarchicalTestExecutorSe
 import org.junit.platform.engine.support.hierarchical.Node;
 import org.junit.platform.engine.support.hierarchical.SameThreadHierarchicalTestExecutorService;
 import org.junit.platform.engine.support.hierarchical.ThrowableCollector;
-import org.junit.platform.engine.support.store.NamespacedHierarchicalStore;
 
 import org.lazyparams.LazyParamsCoreUtil;
 
@@ -208,7 +208,6 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
     private TestExecutionResult loopThroughPendingRepeats(
             DescriptorContextGuard<?,?> repeatContext,
             TestExecutionResult firstResult) {
-        ThrowableCollectorAdvice.retireResultThrowable(firstResult);
         if (null != repeatContext.maxReached) {
             return TestExecutionResult.failed(repeatContext.maxReached);
         }
@@ -223,6 +222,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             repeatDescriptor = DescriptorContextGuard.of(
                     repeatContext.guardedTestDescriptor.get(),
                     false);
+            repeatDescriptor.preservedState = repeatContext.preservedState;
             repeatContext.dynamicExecutor.execute(
                     repeatDescriptor, repeatListener);
             repeatDescriptor.finalizeParent(repeatContext.finalParent);
@@ -256,7 +256,6 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             if (false == TestExecutionResult.Status.SUCCESSFUL
                     .equals(testExecutionResult.getStatus())) {
                 ++failureCount;
-                ThrowableCollectorAdvice.retireResultThrowable(testExecutionResult);
             }
 //            System.out.println("Finishing " + testDescriptor.getDisplayName());
             return;
@@ -291,7 +290,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             }
 
             coreListener.executionFinished(testDescriptor,
-                    retryPendingAfter(testDescriptor, testExecutionResult));
+                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
 //            System.out.println("Finishing " + testDescriptor.getDisplayName());
             return;
         }
@@ -335,14 +334,14 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             guard0.pendingNotifications.getAndSet(noopListenerConsumer)
                     .accept(delegateListener);
             delegateListener.executionFinished(testDescriptor,
-                    retryPendingAfter(testDescriptor, testExecutionResult));
+                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
 
         } else if (null != pendingParent) {
             pendingParent.ensureStarted();
             guard0.finalizeParent(pendingParent);
             guard0.pendingNotifications.getAndSet(noopListenerConsumer)
                     .accept(pendingParent.delayingListener);
-            retryPendingAfter(testDescriptor, testExecutionResult);
+            executeSuspendedCleanUp(testDescriptor, testExecutionResult);
 
         } else {
             Consumer<EngineExecutionListener> pendingNotifications =
@@ -367,7 +366,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 pendingNotifications.accept(coreListener);
             }
             coreListener.executionFinished(testDescriptor,
-                    retryPendingAfter(testDescriptor, testExecutionResult));
+                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
         }
 //        System.out.println("Finishing " + testDescriptor.getDisplayName());
     }
@@ -409,25 +408,29 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         });
     }
 
-    private TestExecutionResult retryPendingAfter(
+    private TestExecutionResult executeSuspendedCleanUp(
             TestDescriptor testDescriptor, TestExecutionResult preliminaryResult) {
         if (testDescriptor instanceof DescriptorContextGuard) {
-            testDescriptor = ((DescriptorContextGuard<?,?>)testDescriptor)
-                    .guardedTestDescriptor.get();
-        }
-        try {
-            AdviceRepeatableNode.proceedPostbonedAfterAndClosings(testDescriptor);
-        } catch (VirtualMachineError noGood) {
-            throw noGood;
-        } catch (final Throwable closeDownFailure) {
-            if (TestExecutionResult.Status.SUCCESSFUL.equals(preliminaryResult.getStatus())) {
-                return TestExecutionResult.failed(closeDownFailure);
-            } else {
-                preliminaryResult.getThrowable().ifPresent(new Consumer<Throwable>() {
-                    @Override public void accept(Throwable testFailure) {
-                        testFailure.addSuppressed(closeDownFailure);
+            DescriptorContextGuard<?,?> descriptorGuard =
+                    (DescriptorContextGuard<?,?>)testDescriptor;
+            descriptorGuard.preservedState = null;
+            ThrowableCollector.Executable pendingCleanUp = descriptorGuard.suspendedCleanUp;
+            if (null != pendingCleanUp) {
+                try {
+                    pendingCleanUp.execute();
+                } catch (VirtualMachineError noGood) {
+                    throw noGood;
+                } catch (final Throwable cleanUpFailure) {
+                    if (TestExecutionResult.Status.SUCCESSFUL.equals(preliminaryResult.getStatus())) {
+                        return TestExecutionResult.failed(cleanUpFailure);
+                    } else {
+                        preliminaryResult.getThrowable().ifPresent(new Consumer<Throwable>() {
+                            @Override public void accept(Throwable testFailure) {
+                                testFailure.addSuppressed(cleanUpFailure);
+                            }
+                        });
                     }
-                });
+                }
             }
         }
         return preliminaryResult;//which is now final result!
@@ -575,12 +578,82 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 targetClass = hierarchicalPackageClass("NodeTestTask")
                         .asSubclass(HierarchicalTestExecutorService.TestTask.class);
 
+        private enum Loop {
+            throwableCollectors(false, targetClass, ThrowableCollector.class),
+            contexts          (true, targetClass, EngineExecutionContext.class),
+            nodes            (true, targetClass, Node.class),
+            throwables      (false, ThrowableCollector.class, Throwable.class);
+
+            final Collection<Field> fields;
+
+            Loop(boolean includeFinalFields, Class<?> targetClass, Class<?> fieldType) {
+                List<Field> targetFields = new ArrayList<Field>(2);
+                for (Class c = targetClass; Object.class != c; c = c.getSuperclass()) {
+                    for (Field f : c.getDeclaredFields()) {
+                        int mods = f.getModifiers();
+                        if (false == Modifier.isStatic(mods)
+                                && f.getType() == fieldType
+                                && (includeFinalFields
+                                        || false == Modifier.isFinal(mods))) {
+                            f.setAccessible(true);
+                            targetFields.add(f);
+                        }
+                    }
+                }
+                if (targetFields.isEmpty()) {
+                    throw new Error(name() + " fields are not found on " + targetClass);
+                }
+                this.fields = 1 == targetFields.size()
+                        ? Collections.singleton(targetFields.get(0))
+                        : Collections.unmodifiableCollection(Arrays
+                                .asList(targetFields.toArray(new Field[0])));
+            }
+
+            <T> UnaryOperator<T> switcherOn(final Object o) {
+                return new UnaryOperator<T>() {
+                    @Override public T apply(T replacement) {
+                        List<T> originals = on(o);
+                        if (2 <= originals.size()) {
+                            throw new IllegalStateException(
+                                    "No unique " + name() + " identified on " + o);
+                        }
+                        for (Field f : fields) {
+                            try {
+                                f.set(o, replacement);
+                            } catch (Exception mustNeverHappen) {
+                                throw new Error(mustNeverHappen);
+                            }
+                        }
+                        return originals.isEmpty() ? null : originals.get(0);
+                    }
+                };
+            }
+
+            <T> List<T> on(Object o, T... type) {
+                Class<?> desiredType = type.getClass().getComponentType();
+                List<T> ts = new ArrayList<T>(fields.size());
+                for (Field f : fields) {
+                    try {
+                        f.setAccessible(true);
+                        T value = (T) f.get(o);
+                        if (false == ts.contains(value) && desiredType.isInstance(value)) {
+                            ts.add(value);
+                        }
+                    } catch (Exception mustNeverHapen) {
+                        throw new Error(mustNeverHapen);
+                    }
+                }
+                return ts;
+            }
+        }
+
         private static final Constructor<? extends Node.DynamicTestExecutor>
                 dynamicExecutorConstructor = resolveDynamicExecutorConstructor();
 
         NodeTestTaskAdvice() throws NoSuchMethodException {
             super(targetClass);
             on(targetClass.getDeclaredMethod("reportCompletion"));
+            on(targetClass.getDeclaredMethod("cleanUp"));
         }
 
         private static Constructor<? extends Node.DynamicTestExecutor>
@@ -604,8 +677,16 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         }
 
         @Advice.OnMethodEnter(inline = false)
-        public static void delayedExecutorResolution(
-                @Advice.This(typing = Assigner.Typing.DYNAMIC)
+        public static void tweaksAtEndOfTask(
+                @Advice.This HierarchicalTestExecutorService.TestTask thisTask,
+                @Advice.Origin("#m"/*to capture method-name!*/) String methodName) {
+            delayedExecutorResolution(thisTask);
+            if ("cleanUp".equals(methodName)) {
+                suspendCleanUp(thisTask);
+            }
+        }
+
+        private static void delayedExecutorResolution(
                 final HierarchicalTestExecutorService.TestTask thisTask) {
 
             Iterable<TestDescriptor> taskDescriptors = DynamicTestExecutorAdvice
@@ -634,13 +715,89 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 throwUnchecked(ex);
             }
         }
+
+        private static <TD extends TestDescriptor,CTX extends EngineExecutionContext>
+                void suspendCleanUp(final HierarchicalTestExecutorService.TestTask thisTask) {
+            ThrowableCollectorInterception.setup(
+                    Loop.throwableCollectors.<ThrowableCollector>switcherOn(thisTask),
+                    new UnaryOperator<ThrowableCollector.Executable>() {
+                @Override
+                public ThrowableCollector.Executable apply(
+                        final ThrowableCollector.Executable coreCleanUpExecution) {
+                    return new ThrowableCollector.Executable() {
+                        @Override public void execute() throws Throwable {
+                            storeCleanUpOnDescriptorContextGuards();
+                            throwPendingThrowable();
+                        }
+
+                        void storeCleanUpOnDescriptorContextGuards() {
+                            final List<Reference<DescriptorContextGuard>> targetGuards =
+                                    new ArrayList<Reference<DescriptorContextGuard>>(1);
+                            for (TD descriptor : Loop.nodes.<TD>on(thisTask)) {
+                                targetGuards.add(new WeakReference(
+                                        DescriptorContextGuard.of(descriptor, true)));
+                            }
+                            ThrowableCollector.Executable fullCleanUpExecution =
+                                    new ThrowableCollector.Executable() {
+                                @Override public void execute() throws Throwable {
+                                    for (Reference<DescriptorContextGuard> eachRef : targetGuards) {
+                                        DescriptorContextGuard guard = eachRef.get();
+                                        if (null != guard) {
+                                            guard.suspendedCleanUp = null;
+                                            guard.preservedState = null;
+                                            eachRef.clear();
+                                        }
+                                    }
+                                    coreCleanUpExecution.execute();
+                                }
+                            };
+                            for (Reference<DescriptorContextGuard> eachRef : targetGuards) {
+                                eachRef.get().suspendedCleanUp = fullCleanUpExecution;
+                            }
+                        }
+                    };
+                }
+                void throwPendingThrowable() throws Throwable {
+                    List<ThrowableCollector> collectors =
+                            new ArrayList<ThrowableCollector>();
+                    for (CTX ctx : Loop.contexts.<CTX>on(thisTask)) {
+                        collectCollectors(ctx, collectors);
+                    }
+                    List<Throwable> throwables =
+                            new ArrayList<Throwable>(collectors.size());
+                    for (ThrowableCollector eachCollector : collectors) {
+                        throwables.add(Loop.throwables
+                                .<Throwable>switcherOn(eachCollector)
+                                .apply(null));
+                    }
+                    for (Throwable thrown : throwables) {
+                        if (null != thrown) {
+                            throw thrown;
+                        }
+                    }
+                }
+                void collectCollectors(CTX ctx, List<ThrowableCollector> clc) {
+                    for (Method m : ctx.getClass().getMethods()) {
+                        if (0 == m.getParameterCount()
+                                && ThrowableCollector.class == m.getReturnType()) {
+                            try {
+                                ThrowableCollector collector =
+                                        (ThrowableCollector) m.invoke(ctx);
+                                if (null != collector) {
+                                    clc.add(collector);
+                                }
+                            } catch (Exception mustNeverHappen) {
+                                throw new Error(mustNeverHappen);
+                            }
+                        }
+                    }
+                }
+            });
+        }
     }
 
     public static class DynamicTestExecutorAdvice
     extends AdviceFor<Node.DynamicTestExecutor> {
-
-        private static final Function<HierarchicalTestExecutorService.TestTask,List<Node>>
-                nodesGetter = getterForFieldsOfType(Node.class);
 
         DynamicTestExecutorAdvice() throws InterruptedException {
             on().awaitFinished();
@@ -688,57 +845,13 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             for (TestDescriptor descriptor : testDescriptorNodesOn(enclosingTask)) {
                 DescriptorContextGuard
                         .of(descriptor, true)
-                        .dynamicExecutor = executorInstance;
+                        .preserveContextForRepeat(executorInstance);
             }
         }
 
         private static Iterable<TestDescriptor> testDescriptorNodesOn(
                 HierarchicalTestExecutorService.TestTask enclosingNodeTask) {
-            List<TestDescriptor> testNodes = new ArrayList<TestDescriptor>(1);
-            for (Node node : nodesGetter.apply(enclosingNodeTask)) {
-                for (int i = testNodes.size(); 0 <= --i;) {
-                    if (node == testNodes.get(i)) {
-                        testNodes.remove(i);
-                    }
-                }
-                if (node instanceof TestDescriptor) {
-                    testNodes.add((TestDescriptor) node);
-                }
-            }
-            return testNodes;
-        }
-
-        private static <T> Function<HierarchicalTestExecutorService.TestTask,List<T>>
-                getterForFieldsOfType(Class<T> fieldSuperType) {
-            final List<Field> resolvedFields = new ArrayList<Field>(1);
-            for (final Field f : NodeTestTaskAdvice.targetClass.getDeclaredFields()) {
-                if (false == Modifier.isStatic(f.getModifiers())
-                        && fieldSuperType.isAssignableFrom(f.getType())) {
-                    f.setAccessible(true);
-                    resolvedFields.add(f);
-                }
-            }
-            if (resolvedFields.isEmpty()) {
-                throw new IllegalStateException(NodeTestTaskAdvice.targetClass
-                        + " has no fields of type " + fieldSuperType.getSimpleName());
-            }
-            return new Function<HierarchicalTestExecutorService.TestTask, List<T>>() {
-                @Override
-                public List<T> apply(HierarchicalTestExecutorService.TestTask task) {
-                    List<T> result = new ArrayList<T>(resolvedFields.size());
-                    for (Field tField : resolvedFields) {
-                        try {
-                            T fieldValue = (T) tField.get(task);
-                            if (null != fieldValue) {
-                                result.add(fieldValue);
-                            }
-                        } catch (Exception ex) {
-                            throw new Error(ex);
-                        }
-                    }
-                    return result;
-                }
-            };
+            return NodeTestTaskAdvice.Loop.nodes.on(enclosingNodeTask);
         }
     }
 
@@ -797,6 +910,15 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         private ContextLifecycleProviderFacade.MaxRepeatCount maxReached;
         private Throwable result;
         private Node.DynamicTestExecutor dynamicExecutor;
+        private InternalState<TestDescriptor> preservedState;
+        /**
+         * This suspended clean-up prevents garbage collection by referencing
+         * {@link #guardedTestDescriptor} internally. It's a reason to only have it
+         * setup for the {@link DescriptorContextGuard} instance that originates
+         * from first base execution for the test descriptor of concern.
+         * @see #finalizeParent(TestDescriptor)
+         */
+        private ThrowableCollector.Executable suspendedCleanUp;
 
         private final AtomicReference<Consumer<EngineExecutionListener>>
                 pendingNotifications = new AtomicReference(noopListenerConsumer);
@@ -901,6 +1023,11 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             return pendingGuard;
         }
 
+        void preserveContextForRepeat(Node.DynamicTestExecutor dynamicExecutor) {
+            this.dynamicExecutor = dynamicExecutor;
+            this.preservedState = InternalState.of(guardedTestDescriptor.get());
+        }
+
         boolean closeScope() {
             if (null == hasPendingRepetitions) {
                 TestDescriptor scopeIdentifier = scopeOnGuardedDescriptor
@@ -939,6 +1066,11 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
 
         void finalizeParent(TestDescriptor finalParent) {
             this.finalParent = finalParent;
+            if (finalParent instanceof DescriptorContextGuard
+                    && ((DescriptorContextGuard)finalParent).guardedTestDescriptor.get()
+                    == guardedTestDescriptor.get()) {
+                suspendedCleanUp = null;
+            }
         }
 
         CharSequence getCurrentAppendix() {
@@ -1010,212 +1142,27 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         }
         @Override public boolean isTest() { return true; }
         @Override public boolean mayRegisterTests() { return true; }
-        @Override public C       prepare(C context) { return context; }
+
+        /**
+         * Bypasses the regular {@link Node#prepare(EngineExecutionContext)} invocation
+         * and instead restores descriptor state that was preserved with
+         * {@link #preserveContextForRepeat(Node.DynamicTestExecutor)}.
+         *
+         * @return Argument context without modifications
+         */
+        @Override public C prepare(C context) {
+            TestDescriptor testDescriptor = guardedTestDescriptor.get();
+            if (null == testDescriptor) {
+                throw new IllegalStateException("TestDescriptor has been garbage-collected.");
+            }
+            preservedState.restoreOn(testDescriptor);
+            return context;
+        }
         @Override
         public SkipResult shouldBeSkipped(C context) {
             return SkipResult.doNotSkip();
         }
         @Override public ExecutionMode getExecutionMode() { return ExecutionMode.SAME_THREAD; }
         @Override public Set getExclusiveResources() { return Collections.emptySet(); }
-    }
-
-    public static class AdviceRepeatableNode extends AdviceFor<Node> {
-        AdviceRepeatableNode() throws Exception {
-            on().after(null);
-            on().cleanUp(null);
-        }
-
-        @Override
-        protected ElementMatcher.Junction<? super TypeDescription> definitionsToInstrument() {
-            return super.definitionsToInstrument().and(
-                    ElementMatchers.not(ElementMatchers.isSubTypeOf(DescriptorContextGuard.class)));
-        }
-
-        private static final ThreadLocal<Object> ticketToProceedAfter = new ThreadLocal<Object>();
-        private static final Map<UniqueId,EngineExecutionContext> postbonedAfterInvocations =
-                Collections.synchronizedMap(new WeakHashMap<UniqueId,EngineExecutionContext>());
-        private static final ThreadLocal<List<AutoCloseable>> postbonedClosingRegistration =
-                new ThreadLocal<List<AutoCloseable>>();
-        private static final Map<UniqueId,List<AutoCloseable>> postbonedClosings =
-                Collections.synchronizedMap(new WeakHashMap<UniqueId,List<AutoCloseable>>());
-
-        @Advice.OnMethodExit(onThrowable = Throwable.class, inline = false)
-        public static void stopClosingsRegistration() {
-            postbonedClosingRegistration.remove();
-        }
-
-        @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class, inline = false)
-        public static boolean registerPostbonedClosingsDuringCleanup_OR_skipIfPostboningAfter(
-                @Advice.This(typing = Assigner.Typing.DYNAMIC)
-                        TestDescriptor repeatableTestDescriptorNode,
-                @Advice.Origin String methodName,
-                @Advice.Argument(value = 0, typing = Assigner.Typing.DYNAMIC)
-                        EngineExecutionContext afterContext) {
-
-            if (methodName.contains("cleanUp(")) {
-                UniqueId testId = repeatableTestDescriptorNode.getUniqueId();
-                List<AutoCloseable> closingRegister = postbonedClosings.get(testId);
-                if (null == closingRegister) {
-                    closingRegister = new ArrayList<AutoCloseable>();
-                    postbonedClosings.put(testId, closingRegister);
-                }
-                postbonedClosingRegistration.set(closingRegister);
-                return false;
-
-            } else if (afterContext == ticketToProceedAfter.get()) {
-                return false;
-
-            } else if (isAfterPostbonedOn(repeatableTestDescriptorNode.getClass())) {
-                postbonedAfterInvocations.put(
-                        repeatableTestDescriptorNode.getUniqueId(),
-                        afterContext);
-                return true;
-
-            } else {
-                return false;
-            }
-        }
-
-        static boolean isAfterPostbonedOn(
-                Class<? extends TestDescriptor> descriptorClass) {
-            if (false == Node.class.isAssignableFrom(descriptorClass)) {
-                return false;
-            }
-            try {
-                Method executeMethod = descriptorClass.getMethod("execute",
-                        EngineExecutionContext.class, Node.DynamicTestExecutor.class);
-                return false == executeMethod.getDeclaringClass().isInterface();
-            } catch (Exception shouldNeverHappen) {
-                shouldNeverHappen.printStackTrace();
-                return false;
-            }
-        }
-
-        static void proceedPostbonedAfterAndClosings(TestDescriptor closingTest)
-        throws Throwable {
-            stopClosingsRegistration();//again - in case something went wrong upstream
-
-            UniqueId testId = closingTest.getUniqueId();
-            Throwable compositeFailure = null;
-
-            /* Execute postboned after(...) invocation ... */
-            EngineExecutionContext closingContext =
-                    postbonedAfterInvocations.remove(testId);
-            if (null != closingContext) {
-                try {
-                    ticketToProceedAfter.set(closingContext);
-                    ((Node<EngineExecutionContext>)closingTest)
-                            .after(closingContext);
-                } catch (VirtualMachineError noGood) {
-                    throw noGood;
-
-                } catch (Throwable failure) {
-                    compositeFailure = failure;
-                } finally {
-                    ticketToProceedAfter.remove();
-                }
-            }
-
-            /* Invoke close() on pending closings ... */
-            List<AutoCloseable> pendingClosings = postbonedClosings.remove(testId);
-            if (null != pendingClosings) {
-                /* Recent resources often have dependencies on earlier ones: */
-                Collections.reverse(pendingClosings);
-
-                for (AutoCloseable toBeClosed : pendingClosings) {
-                    try {
-                        toBeClosed.close();
-                    } catch (Exception ex) {
-                        if (null != compositeFailure) {
-                            ex.addSuppressed(compositeFailure);
-                        }
-                        compositeFailure = ex;
-                    }
-                }
-            }
-            if (null != compositeFailure) {
-                throw compositeFailure;
-            }
-        }
-    }
-
-    public static class NamespacedHierarchicalStoreAdvice
-    extends AdviceFor<AutoCloseable> {
-        NamespacedHierarchicalStoreAdvice() throws Exception {
-            super(NamespacedHierarchicalStore.class);
-            on().close();
-        }
-
-        @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class, inline = false)
-        public static boolean skipIfClosingPostboned(
-                @Advice.This NamespacedHierarchicalStore postbonedStoreClosing) {
-            List<AutoCloseable> closingRegister =
-                    AdviceRepeatableNode.postbonedClosingRegistration.get();
-            if (null != closingRegister) {
-                return closingRegister.contains(postbonedStoreClosing)
-                        || closingRegister.add(postbonedStoreClosing);
-            } else {
-                return false;
-            }
-        }
-    }
-
-    public static class ThrowableCollectorAdvice
-    extends AdviceFor<Object> {
-        ThrowableCollectorAdvice() throws NoSuchMethodException {
-            super(ThrowableCollector.class);
-            on(ThrowableCollector.class.getMethod("isEmpty"));
-            on(ThrowableCollector.class.getMethod("isNotEmpty"));
-            on(ThrowableCollector.class.getMethod(
-                    "execute", ThrowableCollector.Executable.class));
-        }
-
-        private static final Consumer<ThrowableCollector> clearThrowables =
-                new Consumer<ThrowableCollector>() {
-            private List<Field> resolveThrowables() {
-                List<Field> fields = new ArrayList<Field>();
-                for (Field f : ThrowableCollector.class.getDeclaredFields()) {
-                    if (false == Modifier.isFinal(f.getModifiers())
-                            && Throwable.class.isAssignableFrom(f.getType())) {
-                        f.setAccessible(true);
-                        fields.add(f);
-                    }
-                }
-                return fields;
-            }
-            @Override
-            public void accept(ThrowableCollector collector2clear) {
-                for (Field f : resolveThrowables()) {
-                    try {
-                        f.set(collector2clear, null);
-                    } catch (Exception ex) {
-                        throw new Error(ex);
-                    }
-                }
-            }
-        };
-        private static final WeakIdentityHashMap<Throwable,Object> retiredThrowables =
-                new WeakIdentityHashMap<Throwable, Object>();
-        private static final Consumer<Throwable> retireThrowable = new Consumer<Throwable>() {
-            @Override public void accept(Throwable retired) {
-                retiredThrowables.put(retired, "");
-            }
-        };
-
-        static void retireResultThrowable(TestExecutionResult result) {
-            result.getThrowable().ifPresent(retireThrowable);
-        }
-
-        @Advice.OnMethodEnter(inline = false)
-        public static void instrumentClearingOnThrowableCollector(
-                @Advice.This(typing = Assigner.Typing.DYNAMIC)
-                        ThrowableCollector thisCollector)
-        throws Exception {
-            Throwable currentThrowable = thisCollector.getThrowable();
-            if (null != currentThrowable
-                    && null != retiredThrowables.remove(currentThrowable)) {
-                clearThrowables.accept(thisCollector);
-            }
-        }
     }
 }
