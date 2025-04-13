@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -33,6 +33,7 @@ public class UninstallMultiscoped {
     static boolean uninstallOn1stRun = true;
 
     @BeforeAll static void forceUninstallOn1stRun() {
+        LazyParams.currentScopeConfiguration().setMaxTotalCount(3);
         if (uninstallOn1stRun) {
             LazyParams.uninstall();
         }
@@ -40,6 +41,6 @@ public class UninstallMultiscoped {
     }
 
     @Test void test() {
-        LazyParams.pickValue("dummy", 1,2,3);
+        LazyParams.pickValue("dummy", 1,2,3,4,5);
     }
 }

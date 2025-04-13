@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -41,13 +41,16 @@ public class UninstallMultiscopedTest {
          * Set the static field that is here used to force uninstall: */
         UninstallMultiscoped.uninstallOn1stRun = true;
 
-        for (String staticPart : new String[] {
-            " force uninstall", " already installed"
-        }) {
-            for (int i = 1; i <= 3; ++i) {
+        for (final boolean first : new boolean[] {true,false}) {
+            String staticPart = first ? " force uninstall" : " already installed";
+            for (int i = 1; i <= (first ? 5 : 3); ++i) {
                 expect.pass(staticPart + " / dummy=" + i);
             }
-            expect.pass(staticPart);
+            if (first) {
+                expect.pass(staticPart);
+            } else {
+                expect.fail(staticPart).withMessage(".*[Mm]ax.*3,*");                
+            }
             expect.pass(UninstallMultiscoped.class.getSimpleName() + staticPart,
                     UninstallMultiscoped.class.getName() + staticPart);
         }
