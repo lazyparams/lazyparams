@@ -777,6 +777,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                     }
                 }
                 void collectCollectors(CTX ctx, List<ThrowableCollector> clc) {
+                    List<Throwable> collectorIssues = new ArrayList<Throwable>();
                     for (Method m : ctx.getClass().getMethods()) {
                         if (0 == m.getParameterCount()
                                 && ThrowableCollector.class == m.getReturnType()) {
@@ -786,10 +787,28 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                                 if (null != collector) {
                                     clc.add(collector);
                                 }
+                            } catch (InvocationTargetException collectorIssue) {
+                                Throwable coreIssue = collectorIssue.getTargetException();
+                                collectorIssues.add(null != coreIssue
+                                        ? coreIssue : collectorIssue);
                             } catch (Exception mustNeverHappen) {
                                 throw new Error(mustNeverHappen);
                             }
                         }
+                    }
+                    if (false == collectorIssues.isEmpty()) {
+                        ThrowableCollector lateFake =
+                                new ThrowableCollector(new Predicate<Object>() {
+                            @Override public boolean test(Object t) { return false; }
+                        });
+                        for (final Throwable collectorIssue : collectorIssues) {
+                            lateFake.execute(new ThrowableCollector.Executable() {
+                                @Override public void execute() throws Throwable {
+                                    throw collectorIssue;
+                                }
+                            });
+                        }
+                        clc.add(lateFake);
                     }
                 }
             });
