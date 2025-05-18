@@ -703,9 +703,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         private static void delayedExecutorResolution(
                 final HierarchicalTestExecutorService.TestTask thisTask) {
 
-            Iterable<TestDescriptor> taskDescriptors = DynamicTestExecutorAdvice
-                    .testDescriptorNodesOn(thisTask);
-            for (TestDescriptor taskDescriptor : taskDescriptors) {
+            for (TestDescriptor taskDescriptor : Loop.nodes.<TestDescriptor>on(thisTask)) {
                 if (taskDescriptor instanceof DescriptorContextGuard
                         && null != ((DescriptorContextGuard)taskDescriptor).dynamicExecutor
                         || pendingContextGuards.containsKey(taskDescriptor)
