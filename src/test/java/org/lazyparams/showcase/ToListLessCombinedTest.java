@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -9,7 +9,6 @@
  */
 package org.lazyparams.showcase;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Rule;
 import org.junit.Test;
 import org.lazyparams.VerifyJupiterRule;
@@ -22,8 +21,6 @@ public class ToListLessCombinedTest {
     @Rule
     public VerifyJupiterRule expect = new VerifyJupiterRule(ToListLessCombined.class) {
 
-        final AtomicBoolean first = new AtomicBoolean(true);
-
         String evaluateDigitPrefix(String nameRgx) {
             char firstCh = nameRgx.charAt(0);
 
@@ -32,8 +29,7 @@ public class ToListLessCombinedTest {
             } else {
                 StringBuilder sb = new StringBuilder(" src-size=").append(firstCh);
                 if (2 <= nameRgx.length()) {
-                    sb.append(first.getAndSet(false) ? " / 0\\.\\d{3}s" : " / 0\\.0\\d\\ds")
-                            .append(nameRgx.substring(1));
+                    sb.append(" / 0\\.\\d{3}s").append(nameRgx.substring(1));
                 }
                 return sb.toString();
             }
