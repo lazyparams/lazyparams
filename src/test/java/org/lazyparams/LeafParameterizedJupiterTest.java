@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.jupiter.api.TestClassOrder;
 import org.junit.jupiter.api.extension.BeforeEachCallback;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -29,12 +30,20 @@ public class LeafParameterizedJupiterTest {
     public VerifyJupiterRule expectRule =
             new VerifyJupiterRule(LeafParameterizedJupiter.class);
 
+    /**
+     * @see #assumeJupiter_5_8_orLaterIfThereAreStaticScopeParameters()
+     */
+    private final boolean staticScopeParameterization;
+
     public LeafParameterizedJupiterTest(
             InstallScenario install, StaticScopeParam before,
             Object asynchronousExecution,
             Object displayBeforeEach,
             Object resultTweak, Object maxCountsTweak,
             StaticScopeParam after, MaxCountsTweak maxStatics) {
+        staticScopeParameterization =
+                null != before && before.moreThanOneOption()
+                || null != after && after.moreThanOneOption();
         try {
             /* Clean up any dangling tweak from previous test-execution: */
             LeafParameterizedJupiter.mutableExtensions.clear();
@@ -143,6 +152,7 @@ public class LeafParameterizedJupiterTest {
 
     @Test
     public void parameterization() {
+        assumeJupiter_5_8_orLaterIfThereAreStaticScopeParameters();
         expectRule.methodParameterTypes(int.class)
                 .pass("\\[1\\] nbr=28(staticplace)? 1st=34 2nd=sdf xtra=a One",
                         "parameterization.int..1.(staticplace)? 1st=34 2nd=sdf xtra=a One")
@@ -206,8 +216,21 @@ public class LeafParameterizedJupiterTest {
                        "parameterization\\(int\\)(staticplace)?");
     }
 
+    private void assumeJupiter_5_8_orLaterIfThereAreStaticScopeParameters() {
+        if (staticScopeParameterization) {
+            try {
+                TestClassOrder.class.getName();
+            } catch (NoClassDefFoundError onJupiter_5_7_orEarlier) {
+                org.junit.Assume.assumeNoException(
+                        "Jupiter-5.7 or later is required here",
+                        onJupiter_5_7_orEarlier);
+            }
+        }
+    }
+
     @Test
     public void repeat() {
+        assumeJupiter_5_8_orLaterIfThereAreStaticScopeParameters();
         expectRule
                 .pass("repetition 1 of 2(staticplace)? 1st=43 2nd=prime",
                         "repeat\\(\\)\\[1\\](staticplace)? 1st=43 2nd=prime")
