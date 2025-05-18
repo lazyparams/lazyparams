@@ -19,6 +19,9 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.locks.ReentrantLock;
 
 import net.bytebuddy.asm.Advice;
@@ -145,21 +148,53 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
                         new Class[] { TestInstances.class},
                         new InvocationHandler() {
 
+                    boolean repetitionScopeIsClosed = false;
+                    {
+                        LazyParams.currentScopeConfiguration().setScopedCustomItem(
+                                this, new TestInstances[0], new Configuration.ScopeRetirementPlan<Object>() {
+                            @Override public void apply(Object retiredCustomConfigurationValue) {
+                                repetitionScopeIsClosed = true;
+                            }
+                        });
+                    }
+
                     private final ReentrantLock lockOnScope = new ReentrantLock();
 
                     private TestInstances resolveLazyTestInstances()
                     throws InvocationTargetException, IllegalAccessException {
+                        if (repetitionScopeIsClosed) {
+                            return new TestInstances() {
+                                @Override public Object getInnermostInstance() {
+                                    return null;
+                                }
+                                @Override public List<Object> getEnclosingInstances() {
+                                    return Collections.emptyList();
+                                }
+                                @Override public List<Object> getAllInstances() {
+                                    return Collections.emptyList();
+                                }
+                                @Override
+                                public <T> Optional<T> findInstance(Class<T> requiredType) {
+                                    return Optional.empty();
+                                }
+                            };
+                        }
                         Configuration currentScope = LazyParams.currentScopeConfiguration();
                         lockOnScope.lock();
                         try {
-                            TestInstances coreInstances =
+                            TestInstances[] coreInstances =
                                     currentScope.getScopedCustomItem(this);
-                            if (null == coreInstances) {
-                                coreInstances = (TestInstances) proxiedMethod
-                                        .invoke(coreProvider, getTestInstancesArguments);
-                                currentScope.setScopedCustomItem(this, coreInstances);
+                            if (null != coreInstances && 1 <= coreInstances.length) {
+                                return coreInstances[0];
                             }
-                            return coreInstances;
+                            currentScope.setScopedCustomItem(
+                                    this, coreInstances = new TestInstances[1]);
+                            if (repetitionScopeIsClosed) {
+                                return resolveLazyTestInstances();
+                            } else {
+                                return coreInstances[0] = (TestInstances) proxiedMethod
+                                    .invoke(coreProvider, getTestInstancesArguments);
+                            }
                         } finally {
                             lockOnScope.unlock();
                         }
