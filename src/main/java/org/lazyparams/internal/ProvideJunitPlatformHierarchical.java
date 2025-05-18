@@ -9,7 +9,6 @@
  */
 package org.lazyparams.internal;
 
-import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -25,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,6 +70,9 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
     private static final Consumer<EngineExecutionListener> noopListenerConsumer =
             new Consumer<EngineExecutionListener>() {
         @Override public void accept(EngineExecutionListener delegateListener) {}
+    };
+    private static final Predicate<Object> nonePredicate = new Predicate<Object>() {
+        @Override public boolean test(Object t) { return false; }
     };
 
     private static final ContextLifecycleProviderFacade<TestDescriptor> lifecycleFacade =
@@ -148,8 +151,11 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
     }
 
     private CharSequence resolvePendingAppendixOnParentOf(
-            TestDescriptor childWhichScopeIsAboutToOpen) {
-        TestDescriptor parent = childWhichScopeIsAboutToOpen.getParent().orElse(null);
+            TestDescriptor childScopeDescriptor) {
+        TestDescriptor parent = childScopeDescriptor instanceof DescriptorContextGuard
+                ? ((DescriptorContextGuard)childScopeDescriptor).getSourceParentOrItsGuard()
+                : childScopeDescriptor.getParent().orElse(null);
+
         if (null == parent) {
             /* No parent to inherit from: */
             return null;
@@ -165,7 +171,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             } else {
                 parent = DescriptorContextGuard.of(parent, true);
             }
-            childWhichScopeIsAboutToOpen.setParent(parent);
+            childScopeDescriptor.setParent(parent);
         } else {
             /* Make sure there is some kind of parent appendix: */
             display("");
@@ -289,8 +295,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 /*this situation has cleared any pending parameter combinations from pending scope*/
             }
 
-            coreListener.executionFinished(testDescriptor,
-                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
+            coreListener.executionFinished(testDescriptor, testExecutionResult);
 //            System.out.println("Finishing " + testDescriptor.getDisplayName());
             return;
         }
@@ -334,14 +339,14 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             guard0.pendingNotifications.getAndSet(noopListenerConsumer)
                     .accept(delegateListener);
             delegateListener.executionFinished(testDescriptor,
-                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
+                    executeSuspendedCleanUp(guard0, testExecutionResult));
 
         } else if (null != pendingParent) {
             pendingParent.ensureStarted();
             guard0.finalizeParent(pendingParent);
             guard0.pendingNotifications.getAndSet(noopListenerConsumer)
                     .accept(pendingParent.delayingListener);
-            executeSuspendedCleanUp(testDescriptor, testExecutionResult);
+            executeSuspendedCleanUp(guard0, testExecutionResult);
 
         } else {
             Consumer<EngineExecutionListener> pendingNotifications =
@@ -366,7 +371,7 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 pendingNotifications.accept(coreListener);
             }
             coreListener.executionFinished(testDescriptor,
-                    executeSuspendedCleanUp(testDescriptor, testExecutionResult));
+                    executeSuspendedCleanUp(guard0, testExecutionResult));
         }
 //        System.out.println("Finishing " + testDescriptor.getDisplayName());
     }
@@ -409,39 +414,49 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
     }
 
     private TestExecutionResult executeSuspendedCleanUp(
-            TestDescriptor testDescriptor, TestExecutionResult preliminaryResult) {
-        if (testDescriptor instanceof DescriptorContextGuard) {
-            DescriptorContextGuard<?,?> descriptorGuard =
-                    (DescriptorContextGuard<?,?>)testDescriptor;
-            descriptorGuard.preservedState = null;
-            ThrowableCollector.Executable pendingCleanUp = descriptorGuard.suspendedCleanUp;
-            if (null != pendingCleanUp) {
-                try {
-                    pendingCleanUp.execute();
-                } catch (VirtualMachineError noGood) {
-                    throw noGood;
-                } catch (final Throwable cleanUpFailure) {
-                    if (TestExecutionResult.Status.SUCCESSFUL.equals(preliminaryResult.getStatus())) {
-                        return TestExecutionResult.failed(cleanUpFailure);
-                    } else {
-                        preliminaryResult.getThrowable().ifPresent(new Consumer<Throwable>() {
-                            @Override public void accept(Throwable testFailure) {
-                                testFailure.addSuppressed(cleanUpFailure);
+            DescriptorContextGuard<?,?> descriptorGuard,
+            TestExecutionResult preliminaryResult) {
+        descriptorGuard.preservedState = null;
+        if (descriptorGuard.suspendedCleanups.isEmpty()) {
+//            System.err.println("Expected some expected suspended cleanup - but nothing to see here!");
+            return preliminaryResult;
+
+        } else if (null == resolvePendingAppendixOnParentOf(descriptorGuard)) {
+            ThrowableCollector collector = new ThrowableCollector(nonePredicate);
+            switch (preliminaryResult.getStatus()) {
+                default:
+                    final Optional<Throwable> failure = preliminaryResult.getThrowable();
+                    if (failure.isPresent()) {
+                        collector.execute(new ThrowableCollector.Executable() {
+                            @Override public void execute() throws Throwable {
+                                throw failure.get();
                             }
                         });
                     }
-                }
+                    break;
+                case ABORTED: case SUCCESSFUL:
             }
+            ThrowableCollector.Executable[] cleanups = descriptorGuard.suspendedCleanups
+                    .values().toArray(new ThrowableCollector.Executable[0]);
+            descriptorGuard.suspendedCleanups.clear();
+            for (ThrowableCollector.Executable eachCleanup : cleanups) {
+                collector.execute(eachCleanup);
+            }
+            return TestExecutionResult.Status.ABORTED == preliminaryResult.getStatus()
+                    || collector.isEmpty()
+                    ? preliminaryResult/*is preserved and made final*/
+                    : collector.toTestExecutionResult()/*replaces preliminary result*/;
+
+        } else {
+            DescriptorContextGuard
+                    .of(descriptorGuard.getSourceParentOrItsGuard(), true)
+                    .suspendedCleanups.putAll(descriptorGuard.suspendedCleanups);
+            descriptorGuard.suspendedCleanups.clear();
+            return preliminaryResult;
         }
-        return preliminaryResult;//which is now final result!
     }
 
     private TestDescriptor asLateParent(TestDescriptor templateDescriptor) {
-        if (false == templateDescriptor.getParent()
-                .filter(DescriptorContextGuard.isDescriptorContextGuard)
-                .isPresent()) {
-            return templateDescriptor;
-        }
         DescriptorContextGuard<?,?> lateParent =
                 DescriptorContextGuard.asGuardOf(templateDescriptor);
         lateParent.finalizeParent(templateDescriptor.getParent().get());
@@ -595,7 +610,6 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                                 && f.getType() == fieldType
                                 && (includeFinalFields
                                         || false == Modifier.isFinal(mods))) {
-                            f.setAccessible(true);
                             targetFields.add(f);
                         }
                     }
@@ -716,14 +730,20 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
             }
         }
 
-        private static <TD extends TestDescriptor,CTX extends EngineExecutionContext>
-                void suspendCleanUp(final HierarchicalTestExecutorService.TestTask thisTask) {
+        private static <TD extends TestDescriptor & Node<CTX>,CTX extends EngineExecutionContext>
+                void suspendCleanUp(HierarchicalTestExecutorService.TestTask thisTask) {
+            final TD testDescriptor = Loop.nodes.<TD>on(thisTask)
+                    .stream().findAny().orElse(null);
+            if (false == testDescriptor instanceof TestDescriptor) {
+                /*Assume no actual cleanup will happen here: */ return;
+            }
+            final List<CTX> contexts = Loop.contexts.<CTX>on(thisTask);
             ThrowableCollectorInterception.setup(
                     Loop.throwableCollectors.<ThrowableCollector>switcherOn(thisTask),
                     new UnaryOperator<ThrowableCollector.Executable>() {
                 @Override
                 public ThrowableCollector.Executable apply(
-                        final ThrowableCollector.Executable coreCleanUpExecution) {
+                        ThrowableCollector.Executable coreCleanUpExecution) {
                     return new ThrowableCollector.Executable() {
                         @Override public void execute() throws Throwable {
                             storeCleanUpOnDescriptorContextGuards();
@@ -731,36 +751,31 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                         }
 
                         void storeCleanUpOnDescriptorContextGuards() {
-                            final List<Reference<DescriptorContextGuard>> targetGuards =
-                                    new ArrayList<Reference<DescriptorContextGuard>>(1);
-                            for (TD descriptor : Loop.nodes.<TD>on(thisTask)) {
-                                targetGuards.add(new WeakReference(
-                                        DescriptorContextGuard.of(descriptor, true)));
-                            }
-                            ThrowableCollector.Executable fullCleanUpExecution =
+                            DescriptorContextGuard<?,?> guard =
+                                    DescriptorContextGuard.of(testDescriptor, true);
+                            final WeakReference<DescriptorContextGuard<?,?>>
+                                    weakGuard = new WeakReference(guard);
+                            guard.suspendedCleanups.put(testDescriptor.getUniqueId(),
                                     new ThrowableCollector.Executable() {
                                 @Override public void execute() throws Throwable {
-                                    for (Reference<DescriptorContextGuard> eachRef : targetGuards) {
-                                        DescriptorContextGuard guard = eachRef.get();
-                                        if (null != guard) {
-                                            guard.suspendedCleanUp = null;
-                                            guard.preservedState = null;
-                                            eachRef.clear();
-                                        }
+                                    DescriptorContextGuard<?,?> discardedGuard = weakGuard.get();
+                                    if (null != discardedGuard) {
+                                        weakGuard.clear();
+                                        discardedGuard.preservedState = null;
+                                        discardedGuard.suspendedCleanups.clear();
                                     }
-                                    coreCleanUpExecution.execute();
+                                    for (CTX eachCtx : contexts) {
+                                        testDescriptor.cleanUp(eachCtx);
+                                    }
                                 }
-                            };
-                            for (Reference<DescriptorContextGuard> eachRef : targetGuards) {
-                                eachRef.get().suspendedCleanUp = fullCleanUpExecution;
-                            }
+                            });
                         }
                     };
                 }
                 void throwPendingThrowable() throws Throwable {
                     List<ThrowableCollector> collectors =
                             new ArrayList<ThrowableCollector>();
-                    for (CTX ctx : Loop.contexts.<CTX>on(thisTask)) {
+                    for (CTX ctx : contexts) {
                         collectCollectors(ctx, collectors);
                     }
                     List<Throwable> throwables =
@@ -844,6 +859,8 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                     && false == dynamicTest instanceof DescriptorContextGuard) {
                 for (TestDescriptor taskDescriptor : testDescriptorNodesOn(enclosingTask)) {
                     dynamicTest.setParent(taskDescriptor);
+                    DescriptorContextGuard.setupAsParent(
+                            dynamicTest, dynamicTest.getChildren());
                     return;
                 }
             }
@@ -930,15 +947,9 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
         private Throwable result;
         private Node.DynamicTestExecutor dynamicExecutor;
         private InternalState<TestDescriptor> preservedState;
-        /**
-         * This suspended clean-up prevents garbage collection by referencing
-         * {@link #guardedTestDescriptor} internally. It's a reason to only have it
-         * setup for the {@link DescriptorContextGuard} instance that originates
-         * from first base execution for the test descriptor of concern.
-         * @see #finalizeParent(TestDescriptor)
-         */
-        private ThrowableCollector.Executable suspendedCleanUp;
 
+        private final Map<UniqueId,ThrowableCollector.Executable> suspendedCleanups =
+                new LinkedHashMap<UniqueId,ThrowableCollector.Executable>();
         private final AtomicReference<Consumer<EngineExecutionListener>>
                 pendingNotifications = new AtomicReference(noopListenerConsumer);
         final EngineExecutionListener delayingListener = (EngineExecutionListener)
@@ -1085,11 +1096,6 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
 
         void finalizeParent(TestDescriptor finalParent) {
             this.finalParent = finalParent;
-            if (finalParent instanceof DescriptorContextGuard
-                    && ((DescriptorContextGuard)finalParent).guardedTestDescriptor.get()
-                    == guardedTestDescriptor.get()) {
-                suspendedCleanUp = null;
-            }
         }
 
         CharSequence getCurrentAppendix() {
@@ -1149,15 +1155,34 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 return guardedTestDescriptor.get().getParent();
             }
         }
+        TestDescriptor getSourceParentOrItsGuard() {
+            TestDescriptor parent = getParent().orElse(null);
+            return null != parent && parent == guardedTestDescriptor.get()
+                    || parent instanceof DescriptorContextGuard && guardedTestDescriptor.get()
+                    == ((DescriptorContextGuard)parent).guardedTestDescriptor.get()
+                    ? parent.getParent().orElse(null)
+                    : parent;
+        }
         @Override public void setParent(TestDescriptor parent) {}
         @Override
         public Set<? extends TestDescriptor> getChildren() {
             Set<? extends TestDescriptor> childs =
                     guardedTestDescriptor.get().getChildren();
-            for (TestDescriptor eachChild : childs) {
-                eachChild.setParent(this);
-            }
+            setupAsParent(this, childs);
             return childs;
+        }
+        static void setupAsParent(
+                TestDescriptor newParent,
+                Iterable<? extends TestDescriptor> children) {
+            for (TestDescriptor eachChild : children) {
+                TestDescriptor oldParent = eachChild.getParent().orElse(null);
+                if (newParent != oldParent) {
+                    eachChild.setParent(newParent);
+                    if (oldParent instanceof DescriptorContextGuard) {
+                        setupAsParent(eachChild, eachChild.getChildren());
+                    }
+                }
+            }
         }
         @Override public boolean isTest() { return true; }
         @Override public boolean mayRegisterTests() { return true; }

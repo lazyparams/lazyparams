@@ -65,7 +65,7 @@ public class VerifyJupiterRule implements TestRule {
     private static final Collection<ProvideJunitPlatformHierarchical.DescriptorContextGuard>
             phantomGuards = locatePhantomGuards();
     private static final List<Function<ProvideJunitPlatformHierarchical.DescriptorContextGuard,?>>
-            guardFieldsToClean = Stream.of("preservedState","suspendedCleanUp").<Field>map(fName -> {
+            guardFieldsToClean = Stream.of("preservedState","suspendedCleanups").<Field>map(fName -> {
         try {
             return ProvideJunitPlatformHierarchical.DescriptorContextGuard.class
                     .getDeclaredField(fName);
