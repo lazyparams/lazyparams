@@ -53,8 +53,8 @@ prepare_profiles_parameter() {
   done
   echo '"};'
 
-  prepare_profiles_parameter newbuddie 'bytebuddy_(default|1.15.*)'
-  prepare_profiles_parameter one14buddie 'bytebuddy_1.14.*'
+  prepare_profiles_parameter newbuddie 'bytebuddy_(default|1.15.[1-9].*)'
+  prepare_profiles_parameter one14buddie 'bytebuddy_1.1(5.0|4.*)'
   prepare_profiles_parameter mediumbuddie 'bytebuddy_1.1[12].*'
   prepare_profiles_parameter oldbuddie 'bytebuddy_1.(7|8|9|10).*'
   prepare_profiles_parameter junit
@@ -77,8 +77,10 @@ prepare_profiles_parameter() {
     var jdkPick = profiles.pickNextFrom(jdks,true);
     boolean jdkPost8 = jdkPick.compareTo("jdk_6") < 0 || "jdk_9".equals(jdkPick);
     boolean jdkPost17 = jdkPost8 && "jdk_17".compareTo(jdkPick) < 0;
+    boolean jdkPost21 = jdkPost17 && "jdk_21".compareTo(jdkPick) < 0;
 
-    int buddyIndexPick = lazer.pick(bytebuddies, true, jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
+    int buddyIndexPick = jdkPost21 ? 0
+            : lazer.pick(bytebuddies, true, jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
     var buddyRange = bytebuddies[buddyIndexPick];
     var buddyPick = profiles.pickNextFrom(buddyRange, newbuddies == buddyRange);
 
