@@ -46,6 +46,10 @@
             Jupiter support for specifying parameter resolver on method
             parameter annotation starts at version 5.8.x
         </exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+        <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
+            It is PowerMock's Easymock-API that requires a fairly new
+            release of ByteBuddy for reliable JDK-24 support
+        </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
         <profile.junit5.unsupported>false</profile.junit5.unsupported>
         <version.test.jdk>8</version.test.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -198,7 +202,7 @@
         <dependency>
             <groupId>org.easymock</groupId>
             <artifactId>easymock</artifactId>
-            <version>5.2.0</version>
+            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -455,6 +459,7 @@
                     <excludes>
                         <exclude>${exclude.testfactory-tests.on.jupiter.5.7.or.earlier}</exclude>
                         <exclude>${exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier}</exclude>
+                        <exclude>${exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier}</exclude>
                     </excludes>
                 </configuration>
                 <executions>
@@ -699,42 +704,49 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy###1.12.13</id><!-- Introduced at Mockito-4.7 -->
             <properties>
                 <version.bytebuddy>1.12.13</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy###1.12.10</id><!-- Introduced at Mockito-4.6 -->
             <properties>
                 <version.bytebuddy>1.12.10</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy_1.12.9</id><!-- Introduced at Mockito-4.5 -->
             <properties>
                 <version.bytebuddy>1.12.9</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy###1.12.8</id><!-- Introduced at Mockito-4.4 -->
             <properties>
                 <version.bytebuddy>1.12.8</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy_1.12.7</id><!-- Introduced at Mockito-4.3 -->
             <properties>
                 <version.bytebuddy>1.12.7</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy###1.12.4</id><!-- Introduced at Mockito-4.2 -->
             <properties>
                 <version.bytebuddy>1.12.4</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
             <id>bytebuddy###1.12.1</id><!-- Introduced at Mockito-4.1 -->
             <properties>
                 <version.bytebuddy>1.12.1</version.bytebuddy>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <!--
@@ -747,6 +759,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.11.19</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -754,6 +767,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.11.13</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -761,6 +775,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.11.3</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -768,6 +783,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.11.0</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -775,6 +791,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.20</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -782,6 +799,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.19</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -789,6 +807,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.18</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -796,6 +815,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.15</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -803,6 +823,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.13</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -810,6 +831,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.bytebuddy>1.10.5</version.bytebuddy>
                 <version.mockito>3.12.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -818,6 +840,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.9.10</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.28.2</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -826,6 +849,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.9.7</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.28.2</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -834,6 +858,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.9.3</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -842,6 +867,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.9.0</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -850,6 +876,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.8.21</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -858,6 +885,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.8.15</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -866,6 +894,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.8.10</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -874,6 +903,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.8.5</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -882,6 +912,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.7.9</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -895,6 +926,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.7.4</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -909,6 +941,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.bytebuddy>1.7.0</version.bytebuddy>
                 <profile.junit5.unsupported>true</profile.junit5.unsupported>
                 <version.mockito>2.23.4</version.mockito>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
 
