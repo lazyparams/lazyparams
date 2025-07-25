@@ -653,8 +653,8 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                         if (false == ts.contains(value) && desiredType.isInstance(value)) {
                             ts.add(value);
                         }
-                    } catch (Exception mustNeverHapen) {
-                        throw new Error(mustNeverHapen);
+                    } catch (Exception mustNeverHappen) {
+                        throw new Error(mustNeverHappen);
                     }
                 }
                 return ts;
