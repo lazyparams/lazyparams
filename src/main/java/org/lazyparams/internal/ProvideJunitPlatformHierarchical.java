@@ -732,7 +732,8 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                 void suspendCleanUp(HierarchicalTestExecutorService.TestTask thisTask) {
             final TD testDescriptor = Loop.nodes.<TD>on(thisTask)
                     .stream().findAny().orElse(null);
-            if (false == testDescriptor instanceof TestDescriptor) {
+            if (false == testDescriptor instanceof TestDescriptor
+                    || ((TestDescriptor)testDescriptor).isRoot()) {
                 /*Assume no actual cleanup will happen here: */ return;
             }
             final List<CTX> contexts = Loop.contexts.<CTX>on(thisTask);
