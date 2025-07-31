@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -376,7 +376,7 @@ public class Lazer {
                 }
             }
             if (null == bestSoFar || 0 == totalCount
-                    || 0 == bestSoFar.stats.totalCount && bestSoFar.itemValueIndex < 10
+                    || 0 == bestSoFar.stats.totalCount
                     && isTemporarilyParkedOnPrimaryValue()
                     || bestSoFar.stats.endOfLineKeys.contains(crumbsLog)) {
                 return true;
