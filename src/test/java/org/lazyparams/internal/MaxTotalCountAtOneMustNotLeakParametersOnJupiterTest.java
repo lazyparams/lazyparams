@@ -9,6 +9,7 @@
  */
 package org.lazyparams.internal;
 
+import org.junit.jupiter.api.Test;
 import org.lazyparams.LazyParams;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,16 +21,16 @@ import static org.assertj.core.api.Assertions.assertThat;
  *
  * @author Henrik Kaipe
  */
-public class MaxTotalCountAtOneMustNotLeakParametersTest {
+public class MaxTotalCountAtOneMustNotLeakParametersOnJupiterTest {
 
-    @org.junit.Test
+    @Test
     public void passOn1stAndOnly() {
         LazyParams.currentScopeConfiguration().setMaxTotalCount(1);
         assertThat(LazyParams.pickValue("answer", 42,"2nd value that must not leak"))
                 .as("Pass answer")
                 .isEqualTo(42);
     }
-    @org.junit.Test
+    @Test
     public void passOn1stAndOnly_again() {
         passOn1stAndOnly();
     }
