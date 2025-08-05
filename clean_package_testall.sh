@@ -57,7 +57,8 @@ prepare_profiles_parameter() {
   prepare_profiles_parameter one14buddie 'bytebuddy_1.1(5.0|4.*)'
   prepare_profiles_parameter mediumbuddie 'bytebuddy_1.1[12].*'
   prepare_profiles_parameter oldbuddie 'bytebuddy_1.(7|8|9|10).*'
-  prepare_profiles_parameter junit
+  prepare_profiles_parameter junit5 'junit_5.*'
+  prepare_profiles_parameter junit6 'junit_[^5].*'
 
   echo '
   var bytebuddies = new String[][] {newbuddies, one14buddies, mediumbuddies, oldbuddies};
@@ -79,16 +80,20 @@ prepare_profiles_parameter() {
     boolean jdkPost17 = jdkPost8 && "jdk_17".compareTo(jdkPick) < 0;
     boolean jdkPost21 = jdkPost17 && "jdk_21".compareTo(jdkPick) < 0;
 
+    boolean useJunit6 = (jdkPost17 || "jdk_17".equals(jdkPick))
+                        && 0 == lazer.pick(junit6s,true,2);
+
     int buddyIndexPick = jdkPost21 ? 0
-            : lazer.pick(bytebuddies, true, jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
+            : lazer.pick(bytebuddies, true, useJunit6 || jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
     var buddyRange = bytebuddies[buddyIndexPick];
     var buddyPick = profiles.pickNextFrom(buddyRange, newbuddies == buddyRange);
 
-    boolean junit5support = false == "jdk_6".equals(jdkPick)
+    boolean junit5support = useJunit6
+                         || false == "jdk_6".equals(jdkPick)
                          && false == "jdk_7".equals(jdkPick)
                          && (newbuddies == buddyRange || buddyPick.contains("_1.1"));
     if (junit5support) {
-      profiles.pickNextFrom(junits,true);
+      profiles.pickNextFrom(useJunit6 ? junit6s : junit5s, true);
     }
 
     System.out.print("mvn test");

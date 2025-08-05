@@ -35,8 +35,8 @@
     </developers>
 
     <properties>
-        <version.platform>[1.7.2,6)</version.platform>
-        <version.junit5>[5.7.2,6)</version.junit5>
+        <version.platform>[1.7.2,7)</version.platform>
+        <version.junit5or6>[5.7.2,7)</version.junit5or6>
         <version.bytebuddy>1.15.11</version.bytebuddy>
         <version.mockito>4.11.0</version.mockito>
         <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
@@ -50,7 +50,7 @@
             It is PowerMock's Easymock-API that requires a fairly new
             release of ByteBuddy for reliable JDK-24 support
         </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
-        <profile.junit5.unsupported>false</profile.junit5.unsupported>
+        <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
         <version.test.jdk>8</version.test.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -111,7 +111,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${version.junit5}</version>
+            <version>${version.junit5or6}</version>
             <optional>true</optional>
         </dependency>
 
@@ -124,7 +124,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <version>${version.junit5}</version>
+            <version>${version.junit5or6}</version>
             <scope>test</scope>
         </dependency>
 
@@ -137,7 +137,7 @@
         <dependency>
             <groupId>org.junit.vintage</groupId>
             <artifactId>junit-vintage-engine</artifactId>
-            <version>${version.junit5}</version>
+            <version>${version.junit5or6}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -453,7 +453,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
                 <configuration>
-                    <skip>${profile.junit5.unsupported}</skip>
+                    <skip>${profile.junit5or6.unsupported}</skip>
                     <trimStackTrace>false</trimStackTrace>
                     <failIfNoTests>true</failIfNoTests>
                     <excludes>
@@ -515,9 +515,9 @@
             </activation>
             <id>default build</id>
             <properties>
-                <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
+                <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5or6}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
                 <!-- Compile Dependencies: -->
-                <version.junit5>5.10.5</version.junit5>
+                <version.junit5or6>5.10.5</version.junit5or6>
                 <version.platform>1.10.5</version.platform>
             </properties>
         </profile>
@@ -564,6 +564,173 @@ reevaluated once-in-while by running tests with this profile enabled!
         </profile>
 
         <!--
+        Profiles for executing tests on different JDK versions.
+        -->
+        <profile>
+            <id>jdk_8</id>
+            <properties>
+                <version.test.jdk>8</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_9</id>
+            <properties>
+                <version.test.jdk>9</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_10</id>
+            <properties>
+                <version.test.jdk>10</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_11</id>
+            <properties>
+                <version.test.jdk>11</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <!--
+        JDKs on above profiles are expected to be compatible with all Byte-Buddy
+        editions that allow LazyParams to compile, i.e. Byte-Buddy version 1.7.4
+        or later!
+        However, for JDK-12 or later the test-exeuction script
+        "clean_package_testall" has restricted compatibility to Byte-Buddy
+        versions 1.11.x or later.
+        -->
+        <profile>
+            <id>jdk_12</id>
+            <properties>
+                <version.test.jdk>12</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_13</id>
+            <properties>
+                <version.test.jdk>13</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_14</id>
+            <properties>
+                <version.test.jdk>14</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_15</id>
+            <properties>
+                <version.test.jdk>15</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_16</id>
+            <properties>
+                <version.test.jdk>16</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <!--
+        JDKs on above profiles support JUnit-5 but JUnit-6 is not supported!
+        But JDK-17 or later JDK releases support all versions of JUnit.
+        -->
+        <profile>
+            <id>jdk_17</id>
+            <properties>
+                <version.test.jdk>17</version.test.jdk>
+            </properties>
+        </profile>
+        <!--
+        For JDK-18 or later the test-script "clean_package_testall" will only
+        try compatibility with Byte-Buddy version 1.14.4 or later!
+        -->
+        <profile>
+            <id>jdk_18</id>
+            <properties>
+                <version.test.jdk>18</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_19</id>
+            <properties>
+                <version.test.jdk>19</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_20</id>
+            <properties>
+                <version.test.jdk>20</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_21</id>
+            <properties>
+                <version.test.jdk>21</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_22</id>
+            <properties>
+                <version.test.jdk>22</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_23</id>
+            <properties>
+                <version.test.jdk>23</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_24</id>
+            <properties>
+                <version.test.jdk>24</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_25</id>
+            <properties>
+                <version.test.jdk>25</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_26</id>
+            <properties>
+                <version.test.jdk>26</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_27</id>
+            <properties>
+                <version.test.jdk>27</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_28</id>
+            <properties>
+                <version.test.jdk>28</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_29</id>
+            <properties>
+                <version.test.jdk>29</version.test.jdk>
+            </properties>
+        </profile>
+        <profile>
+            <id>jdk_30</id>
+            <properties>
+                <version.test.jdk>30</version.test.jdk>
+            </properties>
+        </profile>
+
+        <!--
         Version alternatives for depencencies org.junit.jupiter:junit-jupiter-engine
         and org.junit.vintage:junit-vintage-engine
         These profiles also specify version for JUnit Platform to match the
@@ -575,50 +742,57 @@ reevaluated once-in-while by running tests with this profile enabled!
         <profile>
             <id>junit_5.13.4</id>
             <properties>
-                <version.junit5>5.13.4</version.junit5>
+                <version.junit5or6>5.13.4</version.junit5or6>
                 <version.platform>1.13.4</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.12.2</id>
             <properties>
-                <version.junit5>5.12.2</version.junit5>
+                <version.junit5or6>5.12.2</version.junit5or6>
                 <version.platform>1.12.2</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.11.4</id>
             <properties>
-                <version.junit5>5.11.4</version.junit5>
+                <version.junit5or6>5.11.4</version.junit5or6>
                 <version.platform>1.11.4</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.10.5</id>
             <properties>
-                <version.junit5>5.10.5</version.junit5>
+                <version.junit5or6>5.10.5</version.junit5or6>
                 <version.platform>1.10.5</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.9.3</id>
             <properties>
-                <version.junit5>5.9.3</version.junit5>
+                <version.junit5or6>5.9.3</version.junit5or6>
                 <version.platform>1.9.3</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.8.2</id>
             <properties>
-                <version.junit5>5.8.2</version.junit5>
+                <version.junit5or6>5.8.2</version.junit5or6>
                 <version.platform>1.8.2</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>junit_5.7.2</id>
             <properties>
-                <version.junit5>5.7.2</version.junit5>
+                <version.junit5or6>5.7.2</version.junit5or6>
                 <version.platform>1.7.2</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
                 <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
                 <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
             </properties>
@@ -841,7 +1015,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.10</id><!-- Introduced at Mockito-2.26 -->
             <properties>
                 <version.bytebuddy>1.9.10</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.28.2</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -850,7 +1024,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy###1.9.7</id><!-- Introduced at Mockito-2.24 -->
             <properties>
                 <version.bytebuddy>1.9.7</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.28.2</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -859,7 +1033,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.3</id><!-- Introduced at Mockito-2.23.4 -->
             <properties>
                 <version.bytebuddy>1.9.3</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -868,7 +1042,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.9.0</id><!-- Introduced at Mockito-2.23 -->
             <properties>
                 <version.bytebuddy>1.9.0</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -877,7 +1051,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.21</id><!-- Introduced at Mockito-2.22 -->
             <properties>
                 <version.bytebuddy>1.8.21</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -886,7 +1060,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.15</id><!-- Introduced at Mockito-2.21 -->
             <properties>
                 <version.bytebuddy>1.8.15</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -895,7 +1069,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.8.10</id><!-- Introduced at Mockito-2.19 -->
             <properties>
                 <version.bytebuddy>1.8.10</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -904,7 +1078,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy###1.8.5</id><!-- Introduced at Mockito-2.18.3 -->
             <properties>
                 <version.bytebuddy>1.8.5</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -913,7 +1087,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_1.7.9</id><!-- Introduced at Mockito-2.12 -->
             <properties>
                 <version.bytebuddy>1.7.9</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -927,7 +1101,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             -->
             <properties>
                 <version.bytebuddy>1.7.4</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
@@ -942,180 +1116,31 @@ reevaluated once-in-while by running tests with this profile enabled!
             -->
             <properties>
                 <version.bytebuddy>1.7.0</version.bytebuddy>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
                 <version.mockito>2.23.4</version.mockito>
                 <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>org/lazyparams/Powermock*</exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             </properties>
         </profile>
 
-        <!--
-        Profiles for executing tests on different JDK versions.
-        -->
-        <profile>
+	<!--
+	Finally a couple of old JDK profiles that dont support anything beyond JUnit-4
+	-->
+	<profile>
             <id>jdk_6</id>
             <properties>
                 <version.test.jdk>6</version.test.jdk>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
             <id>jdk_7</id>
             <properties>
                 <version.test.jdk>7</version.test.jdk>
-                <profile.junit5.unsupported>true</profile.junit5.unsupported>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_8</id>
-            <properties>
-                <version.test.jdk>8</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_9</id>
-            <properties>
-                <version.test.jdk>9</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_10</id>
-            <properties>
-                <version.test.jdk>10</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_11</id>
-            <properties>
-                <version.test.jdk>11</version.test.jdk>
-            </properties>
-        </profile>
-        <!--
-        JDKs on above profiles are expected to be compatible with all Byte-Buddy
-        editions that allow LazyParams to compile, i.e. Byte-Buddy version 1.7.4
-        or later!
-        However, for JDK-12 or later the test-exeuction script
-        "clean_package_testall" has restricted compatibility to Byte-Buddy
-        versions 1.11.x or later.
-        -->
-        <profile>
-            <id>jdk_12</id>
-            <properties>
-                <version.test.jdk>12</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_13</id>
-            <properties>
-                <version.test.jdk>13</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_14</id>
-            <properties>
-                <version.test.jdk>14</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_15</id>
-            <properties>
-                <version.test.jdk>15</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_16</id>
-            <properties>
-                <version.test.jdk>16</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_17</id>
-            <properties>
-                <version.test.jdk>17</version.test.jdk>
-            </properties>
-        </profile>
-        <!--
-        For JDK-18 or later the test-script "clean_package_testall" will only
-        try compatibility with Byte-Buddy version 1.14.4 or later!
-        -->
-        <profile>
-            <id>jdk_18</id>
-            <properties>
-                <version.test.jdk>18</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_19</id>
-            <properties>
-                <version.test.jdk>19</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_20</id>
-            <properties>
-                <version.test.jdk>20</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_21</id>
-            <properties>
-                <version.test.jdk>21</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_22</id>
-            <properties>
-                <version.test.jdk>22</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_23</id>
-            <properties>
-                <version.test.jdk>23</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_24</id>
-            <properties>
-                <version.test.jdk>24</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_25</id>
-            <properties>
-                <version.test.jdk>25</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_26</id>
-            <properties>
-                <version.test.jdk>26</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_27</id>
-            <properties>
-                <version.test.jdk>27</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_28</id>
-            <properties>
-                <version.test.jdk>28</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_29</id>
-            <properties>
-                <version.test.jdk>29</version.test.jdk>
-            </properties>
-        </profile>
-        <profile>
-            <id>jdk_30</id>
-            <properties>
-                <version.test.jdk>30</version.test.jdk>
+                <profile.junit5or6.unsupported>true</profile.junit5or6.unsupported>
             </properties>
         </profile>
     </profiles>
+
     <distributionManagement>
         <repository>
             <id>github</id>
