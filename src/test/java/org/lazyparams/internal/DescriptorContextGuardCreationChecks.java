@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -30,6 +30,8 @@ import org.junit.platform.engine.TestDescriptor;
 import org.junit.platform.engine.UniqueId;
 import org.junit.platform.engine.support.hierarchical.EngineExecutionContext;
 import org.junit.platform.engine.support.hierarchical.Node;
+import org.mockito.MockMakers;
+import org.mockito.MockSettings;
 import org.mockito.stubbing.Answer;
 import org.lazyparams.LazyParams;
 import org.lazyparams.internal.ProvideJunitPlatformHierarchical.DescriptorContextGuard;
@@ -129,7 +131,11 @@ public class DescriptorContextGuardCreationChecks {
             } else if (Optional.class == type) {
                 return Optional.of(new Object());
             } else if (false == type.isPrimitive()) {
-                return mock(type,monitoredAnswer);
+                MockSettings settings = withSettings();
+                if (Modifier.isFinal(type.getModifiers())) {
+                    settings = settings.mockMaker(MockMakers.INLINE);
+                }
+                return mock(type, settings.defaultAnswer(monitoredAnswer));
             } else if (void.class == type) {
                 return null;
             } else {
