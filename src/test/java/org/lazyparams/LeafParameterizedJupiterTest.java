@@ -154,52 +154,52 @@ public class LeafParameterizedJupiterTest {
     public void parameterization() {
         assumeJupiter_5_8_orLaterIfThereAreStaticScopeParameters();
         expectRule.methodParameterTypes(int.class)
-                .pass("\\[1\\] nbr=28(staticplace)? 1st=34 2nd=sdf xtra=a One",
+                .pass("\\[1\\] nbr ?= ?28(staticplace)? 1st=34 2nd=sdf xtra=a One",
                         "parameterization.int..1.(staticplace)? 1st=34 2nd=sdf xtra=a One")
-                .pass("\\[1\\] nbr=28(staticplace)? 1st=42 2nd=dfwe xtra=a One",
+                .pass("\\[1\\] nbr ?= ?28(staticplace)? 1st=42 2nd=dfwe xtra=a One",
                         "parameterization.int..1.(staticplace)? 1st=42 2nd=dfwe xtra=a One")
-                .fail("\\[1\\] nbr=28(staticplace)? 1st=34 2nd=dfwe",
+                .fail("\\[1\\] nbr ?= ?28(staticplace)? 1st=34 2nd=dfwe",
                         "parameterization.int..1.(staticplace)? 1st=34 2nd=dfwe")
                         .withMessage("Fail here")
-                .pass("\\[1\\] nbr=28(staticplace)? 1st=42 2nd=sdf xtra=a Two",
+                .pass("\\[1\\] nbr ?= ?28(staticplace)? 1st=42 2nd=sdf xtra=a Two",
                         "parameterization.int..1.(staticplace)? 1st=42 2nd=sdf xtra=a Two")
-                .pass("\\[1\\] nbr=28(staticplace)? 1st=34 2nd=sdf xtra=a Two",
+                .pass("\\[1\\] nbr ?= ?28(staticplace)? 1st=34 2nd=sdf xtra=a Two",
                         "parameterization.int..1.(staticplace)? 1st=34 2nd=sdf xtra=a Two")
-                .pass("\\[1\\] nbr=28(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
+                .pass("\\[1\\] nbr ?= ?28(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
                         "parameterization.int..1.(staticplace)? 1st=42 2nd=dfwe xtra=a Two")
-                .fail("\\[1\\] nbr=28(staticplace)?",
+                .fail("\\[1\\] nbr ?= ?28(staticplace)?",
                         "parameterization\\(int\\)\\[1\\](staticplace)?")
                         .withMessage("1 test failed.*total 6.*")
-                .pass("\\[2\\] nbr=42(staticplace)? 1st=34 2nd=sdf xtra=a One",
+                .pass("\\[2\\] nbr ?= ?42(staticplace)? 1st=34 2nd=sdf xtra=a One",
                         "parameterization.int..2.(staticplace)? 1st=34 2nd=sdf xtra=a One")
-                .pass("\\[2\\] nbr=42(staticplace)? 1st=42 2nd=dfwe xtra=a One",
+                .pass("\\[2\\] nbr ?= ?42(staticplace)? 1st=42 2nd=dfwe xtra=a One",
                         "parameterization.int..2.(staticplace)? 1st=42 2nd=dfwe xtra=a One")
-                .fail("\\[2\\] nbr=42(staticplace)? 1st=34 2nd=dfwe",
+                .fail("\\[2\\] nbr ?= ?42(staticplace)? 1st=34 2nd=dfwe",
                         "parameterization.int..2.(staticplace)? 1st=34 2nd=dfwe")
                         .withMessage("Fail here")
-                .pass("\\[2\\] nbr=42(staticplace)? 1st=42 2nd=sdf xtra=a Two",
+                .pass("\\[2\\] nbr ?= ?42(staticplace)? 1st=42 2nd=sdf xtra=a Two",
                         "parameterization.int..2.(staticplace)? 1st=42 2nd=sdf xtra=a Two")
-                .pass("\\[2\\] nbr=42(staticplace)? 1st=34 2nd=sdf xtra=a Two",
+                .pass("\\[2\\] nbr ?= ?42(staticplace)? 1st=34 2nd=sdf xtra=a Two",
                         "parameterization.int..2.(staticplace)? 1st=34 2nd=sdf xtra=a Two")
-                .pass("\\[2\\] nbr=42(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
+                .pass("\\[2\\] nbr ?= ?42(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
                         "parameterization.int..2.(staticplace)? 1st=42 2nd=dfwe xtra=a Two")
-                .fail("\\[2\\] nbr=42(staticplace)?",
+                .fail("\\[2\\] nbr ?= ?42(staticplace)?",
                         "parameterization\\(int\\)\\[2\\](staticplace)?")
                         .withMessage("1 test failed.*total 6.*")
-                .pass("\\[3\\] nbr=43(staticplace)? 1st=34 2nd=sdf xtra=a One",
+                .pass("\\[3\\] nbr ?= ?43(staticplace)? 1st=34 2nd=sdf xtra=a One",
                         "parameterization.int..3.(staticplace)? 1st=34 2nd=sdf xtra=a One")
-                .pass("\\[3\\] nbr=43(staticplace)? 1st=42 2nd=dfwe xtra=a One",
+                .pass("\\[3\\] nbr ?= ?43(staticplace)? 1st=42 2nd=dfwe xtra=a One",
                         "parameterization.int..3.(staticplace)? 1st=42 2nd=dfwe xtra=a One")
-                .fail("\\[3\\] nbr=43(staticplace)? 1st=34 2nd=dfwe",
+                .fail("\\[3\\] nbr ?= ?43(staticplace)? 1st=34 2nd=dfwe",
                         "parameterization.int..3.(staticplace)? 1st=34 2nd=dfwe")
                         .withMessage("Fail here")
-                .pass("\\[3\\] nbr=43(staticplace)? 1st=42 2nd=sdf xtra=a Two",
+                .pass("\\[3\\] nbr ?= ?43(staticplace)? 1st=42 2nd=sdf xtra=a Two",
                         "parameterization.int..3.(staticplace)? 1st=42 2nd=sdf xtra=a Two")
-                .pass("\\[3\\] nbr=43(staticplace)? 1st=34 2nd=sdf xtra=a Two",
+                .pass("\\[3\\] nbr ?= ?43(staticplace)? 1st=34 2nd=sdf xtra=a Two",
                         "parameterization.int..3.(staticplace)? 1st=34 2nd=sdf xtra=a Two")
-                .pass("\\[3\\] nbr=43(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
+                .pass("\\[3\\] nbr ?= ?43(staticplace)? 1st=42 2nd=dfwe xtra=a Two",
                         "parameterization.int..3.(staticplace)? 1st=42 2nd=dfwe xtra=a Two")
-                .fail("\\[3\\] nbr=43(staticplace)?",
+                .fail("\\[3\\] nbr ?= ?43(staticplace)?",
                         "parameterization\\(int\\)\\[3\\](staticplace)?")
                         .withMessage("1 test failed.*total 6.*") 
                 .pass(/*

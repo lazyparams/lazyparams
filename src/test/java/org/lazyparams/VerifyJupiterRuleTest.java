@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -31,10 +31,10 @@ public class VerifyJupiterRuleTest {
     public void parameterization() {
         expectRule
                 .methodParameterTypes(int.class)
-                .pass(quote("[1] nbr=28"), quote("parameterization(int)[1]"))
-                .fail(quote("[2] nbr=42"), quote("parameterization(int)[2]"))
+                .pass("\\[1\\] nbr ?= ?28", quote("parameterization(int)[1]"))
+                .fail("\\[2\\] nbr ?= ?42", quote("parameterization(int)[2]"))
                         .withMessage("Not perfect")
-                .pass(quote("[3] nbr=43"), quote("parameterization(int)[3]"))
+                .pass("\\[3\\] nbr ?= ?43", quote("parameterization(int)[3]"))
                 .pass("parameterization\\(int\\)");
     }
     @Test
