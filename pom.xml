@@ -51,7 +51,7 @@
             release of ByteBuddy for reliable JDK-24 support
         </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
         <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
-        <version.test.jdk>8</version.test.jdk>
+        <version.test.jdk>17</version.test.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -106,13 +106,65 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-engine</artifactId>
             <version>${version.platform}</version>
-            <optional>true</optional>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${version.junit5or6}</version>
+            <scope>test</scope>
+        </dependency>
+        <!--
+        The above dependencies on JUnit Platform and Jupiter have version
+        ranges to keep track of compatibility with latest JUnit releases
+        in a coincidental but convenient manner.
+
+        But for the main compilation the JUnit depencencies below are used!
+        They are for compilation of LazyParams main sources only(!) and
+        therefore they dont have version ranges but instead rely on fixed
+        Platform and Jupiter versions. All LazyParams-1.0.x releases are
+        compiled with Platform-1.10.x and Jupiter-5.10.x but are so in a
+        mindful manner to maintain support for JUnit-5 engines that run on
+        JUnit Platform 1.7.2 or later.
+        -->
+        <dependency>
+            <groupId>org.junit.platform.</groupId>
+            <artifactId>junit-platform-engine</artifactId>
+            <version>1.10.5</version>
+            <scope>compile</scope>
             <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter.</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.10.5</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter.</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.10.5</version>
+            <scope>compile</scope>
+            <optional>true</optional>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--
@@ -339,6 +391,18 @@
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
+                <configuration>
+                    <parameters>true</parameters>
+                    <proc>none</proc>
+                    <useIncrementalCompilation>false</useIncrementalCompilation>
+
+                    <!--
+                    Compile main sources with JDK-8!
+                    -->
+                    <jdkToolchain><version>8</version></jdkToolchain>
+                    <source>6</source>
+                    <target>6</target>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -347,6 +411,11 @@
                         <id>compile-jdk6-tests</id>
                         <phase>process-test-sources</phase>
                         <configuration>
+                            <!--
+                            JDK-8 is used to compile tests that
+                            verify JUnit-4 compatibility on JDK-6 or later!
+                            -->
+                            <jdkToolchain><version>8</version></jdkToolchain>
                             <testSource>6</testSource>
                             <testTarget>6</testTarget>
                             <testIncludes>
@@ -360,33 +429,18 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <goals>
-                            <goal>testCompile</goal>
-                        </goals>
-                        <id>Compile JDK-17 tests</id>
-                        <phase>process-test-sources</phase>
+                        <id>default-testCompile</id>
                         <configuration>
-                            <testIncludes>
-                                <testInclude>**/ge17/**</testInclude>
-                            </testIncludes>
-                            <jdkToolchain><version>[17,)</version></jdkToolchain>
+                            <!--
+                            Tests that require JDK-8 or later (i.e. most tests)
+                            are compiled with JDK-17
+                            -->
+                            <jdkToolchain><version>17</version></jdkToolchain>
+                            <testSource>8</testSource>
+                            <testTarget>8</testTarget>
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <source>6</source>
-                    <target>6</target>
-                    <testSource>8</testSource>
-                    <testTarget>8</testTarget>
-
-                    <parameters>true</parameters>
-                    <proc>none</proc>
-                    <useIncrementalCompilation>false</useIncrementalCompilation>
-                    <!--
-                    Compile with JDK-8
-                    -->
-                    <jdkToolchain><version>8</version></jdkToolchain>
-                </configuration>
             </plugin>
 
             <plugin>
@@ -416,6 +470,9 @@
                 -->
                 <configuration>
                     <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-engine</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.platform.:junit-platform-engine</classpathDependencyExclude>
                         <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-engine</classpathDependencyExclude>
                         <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-api</classpathDependencyExclude>
                         <classpathDependencyExclude>org.junit.platform:junit-platform-engine</classpathDependencyExclude>
@@ -461,6 +518,11 @@
                         <exclude>${exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier}</exclude>
                         <exclude>${exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier}</exclude>
                     </excludes>
+                    <classpathDependencyExcludes>
+                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-engine</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-api</classpathDependencyExclude>
+                        <classpathDependencyExclude>org.junit.platform.:junit-platform-engine</classpathDependencyExclude>
+                    </classpathDependencyExcludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -509,30 +571,27 @@
     <profiles>
 
         <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-                <property><name>!test</name></property>
-            </activation>
-            <id>default build</id>
+            <id>test-report_name-suffix</id>
             <properties>
                 <surefire.reportNameSuffix>Jdk${version.test.jdk}_platform-${version.platform}_jupiter-${version.junit5or6}_bytebuddy-${version.bytebuddy}</surefire.reportNameSuffix>
-                <!-- Compile Dependencies: -->
-                <version.junit5or6>5.10.5</version.junit5or6>
-                <version.platform>1.10.5</version.platform>
             </properties>
-        </profile>
-
-        <profile>
             <activation>
-                <property><name>test</name></property>
+                <property>
+                    <!--
+                    The report-name suffix is for test-executions reports
+                    during builds. But not when the -Dtest=<test-class>
+                    command-line option is used to have surefire execute a
+                    singular test. It is achieved with this piece of activation
+                    configuration:
+                    -->
+                    <name>!test</name>
+                    <!--
+                    To not have report-name suffix on a singular test-execution
+                    serves as a workaround on NetBeans IDE, which otherwise
+                    gets confused and might fail to present the test result.
+                    -->
+                </property>
             </activation>
-            <id>
-            Separate profile for singular test execution with latest versions of
-            all dependencies that have version ranges.
-            By not specifying Surefire report-name suffix this is also a
-            workaround for NetBeans IDE, which otherwise gets confused and fails
-            to present results of its test-executions.
-            </id>
         </profile>
 
         <profile>
@@ -731,13 +790,16 @@ reevaluated once-in-while by running tests with this profile enabled!
         </profile>
 
         <!--
-        Version alternatives for depencencies org.junit.jupiter:junit-jupiter-engine
-        and org.junit.vintage:junit-vintage-engine
-        These profiles also specify version for JUnit Platform to match the
-        Jupiter release
+        Profiles with version alternatives for test dependency groups
+        "org.junit.jupiter" and "org.junit.vintage". Each of these profiles also
+        specifies JUnit Platform version to match its Jupiter version.
         -->
         <profile>
             <id>junit_latest</id>
+            <!-- Placeholder for sticking to the JUnit version ranges that are
+                 specified by default (non-profile) properties declarations,
+                 which should unfold as test dependency on the most
+                 current (possibly milestone or RC) release of JUnit-6. -->
         </profile>
         <profile>
             <id>junit_5.13.4</id>
