@@ -37,7 +37,7 @@
     <properties>
         <version.platform>[1.7.2,7)</version.platform>
         <version.junit5or6>[5.7.2,7)</version.junit5or6>
-        <version.bytebuddy>1.15.11</version.bytebuddy>
+        <version.bytebuddy>1.17.5</version.bytebuddy>
         <version.mockito>4.11.0</version.mockito>
         <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
             Reliable support for Jupiter @TestFactory starts at version 5.8.x
@@ -881,6 +881,10 @@ reevaluated once-in-while by running tests with this profile enabled!
             <id>bytebuddy_default</id>
             <!-- Placeholder for sticking to ByteBuddy version that is specified
                  by default (non-profile) properties declaration! -->
+        </profile>
+        <profile>
+            <id>bytebuddy_1.15.11</id><!-- Introduced at Mockito-5.15 -->
+            <properties><version.bytebuddy>1.15.11</version.bytebuddy></properties>
         </profile>
         <profile>
             <id>bytebuddy_1.15.4</id><!-- Introduced at Mockito-5.14 -->

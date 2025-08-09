@@ -53,15 +53,17 @@ prepare_profiles_parameter() {
   done
   echo '"};'
 
-  prepare_profiles_parameter newbuddie 'bytebuddy_(default|1.15.[1-9].*)'
-  prepare_profiles_parameter one14buddie 'bytebuddy_1.1(5.0|4.*)'
+  prepare_profiles_parameter newbuddie 'bytebuddy_(default|1.17.*)'
+  prepare_profiles_parameter one15or16buddie 'bytebuddy_1.1[56].*'
+  prepare_profiles_parameter one14buddie 'bytebuddy_1.14.*'
   prepare_profiles_parameter mediumbuddie 'bytebuddy_1.1[12].*'
   prepare_profiles_parameter oldbuddie 'bytebuddy_1.(7|8|9|10).*'
   prepare_profiles_parameter junit5 'junit_5.*'
   prepare_profiles_parameter junit6 'junit_[^5].*'
 
   echo '
-  var bytebuddies = new String[][] {newbuddies, one14buddies, mediumbuddies, oldbuddies};
+  var bytebuddies = new String[][] {newbuddies,
+      one15or16buddies, one14buddies, mediumbuddies, oldbuddies};
 
   var lazer = new org.lazyparams.core.Lazer();
   do {
@@ -84,9 +86,10 @@ prepare_profiles_parameter() {
                         && 0 == lazer.pick(junit6s,true,2);
 
     int buddyIndexPick = jdkPost21 ? 0
-            : lazer.pick(bytebuddies, true, useJunit6 || jdkPost17 ? 2 : jdkPost8 ? 3 : 4);
+            : lazer.pick(bytebuddies, true, useJunit6 || jdkPost17 ? 3 : jdkPost8 ? 4 : 5);
     var buddyRange = bytebuddies[buddyIndexPick];
-    var buddyPick = profiles.pickNextFrom(buddyRange, newbuddies == buddyRange);
+    var buddyPick = profiles.pickNextFrom(
+        buddyRange, newbuddies == buddyRange || one15or16buddies == buddyRange);
 
     boolean junit5support = useJunit6
                          || false == "jdk_6".equals(jdkPick)
