@@ -23,6 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.platform.engine.CancellationToken;
 import org.junit.platform.engine.EngineDiscoveryRequest;
 import org.junit.platform.engine.EngineExecutionListener;
 import org.junit.platform.engine.ExecutionRequest;
@@ -134,6 +135,12 @@ public class HierarchicalLifecycleTest {
                 mock(ExecutionRequest.class, RETURNS_MOCKS);
         when(engineExecRequest.getRootTestDescriptor()).thenReturn(rootDescriptor);
         when(engineExecRequest.getEngineExecutionListener()).thenReturn(coreListener);
+        try {
+            /* JUnit-6 introduces a new property "cancellationToken",
+             * which needs to be stubbed: */
+            when(engineExecRequest.getCancellationToken())
+                    .thenReturn(CancellationToken.create());
+        } catch (Error isExpectedOnTestProfileThatVerifiesSupportForJunit5) {}
         new HierarchicalTestEngine<EngineExecutionContext>() {
             @Override
             protected ThrowableCollector.Factory createThrowableCollectorFactory(
