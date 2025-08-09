@@ -226,6 +226,8 @@ public class VerifyJupiterRule implements TestRule {
                 final TestExecutionListener listener = new TestExecutionListener() {
                     final Set<TestIdentifier> dynamiclyRegistered = newIdentitySet();
                     final Set<TestIdentifier> started = newIdentitySet();
+                    final Map<TestIdentifier,IllegalStateException>
+                            dynamiclyRegisteredBeforeDynamicParentStarted = new IdentityHashMap<>();
 
                     <T> Set<T> newIdentitySet() {
                         final Map<T,Object> delegateMap = new IdentityHashMap<>();
@@ -286,8 +288,17 @@ public class VerifyJupiterRule implements TestRule {
                                 if (started.stream()
                                         .map(TestIdentifier::getUniqueId)
                                         .noneMatch(parentUniqueId::equals)) {
-                                    throw new AssertionError("Parent of dynamicly registered "
-                                            + testIdentifier + " is not started!");
+                                    IllegalStateException unusualRegistration = new IllegalStateException(
+                                            "Parent of dynamicly registered " + testIdentifier + " is not started!");
+                                    IllegalStateException duplicatedRegistration =
+                                            dynamiclyRegisteredBeforeDynamicParentStarted
+                                            .put(testIdentifier, unusualRegistration);
+                                    if (null != duplicatedRegistration) {
+                                        dynamiclyRegisteredBeforeDynamicParentStarted
+                                                .remove(testIdentifier);
+                                        throw duplicatedRegistration;
+                                    }
+                                    return;
                                 }
                             }
                             dynamiclyRegistered.add(testIdentifier);
@@ -308,6 +319,15 @@ public class VerifyJupiterRule implements TestRule {
                         collect1stFailure(() -> {
                             if (started.stream().map(TestIdentifier::getSource).anyMatch(src
                                     -> src.filter(MethodSource.class::isInstance).isPresent())) {
+                                if (dynamiclyRegisteredBeforeDynamicParentStarted
+                                        .containsKey(testIdentifier)) try {
+                                    /* Attempt to register again: */
+                                    dynamicTestRegistered(testIdentifier);
+                                } catch (IllegalStateException parentStillNotStarted) {
+                                    throw new AssertionError(
+                                            "Dynamic test started before its parent!",
+                                            parentStillNotStarted);
+                                }
                                 assertTrue(dynamiclyRegistered.remove(testIdentifier),
                                         "A nested test (" + testIdentifier + ")"
                                         + "\nmust have been dynamicly registered!");
