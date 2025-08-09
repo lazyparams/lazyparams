@@ -46,6 +46,9 @@
             Jupiter support for specifying parameter resolver on method
             parameter annotation starts at version 5.8.x
         </exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+        <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
+            Class templates are intruduced at version 5.13.x
+        </exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
         <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             It is PowerMock's Easymock-API that requires a fairly new
             release of ByteBuddy for reliable JDK-24 support
@@ -516,6 +519,7 @@
                     <excludes>
                         <exclude>${exclude.testfactory-tests.on.jupiter.5.7.or.earlier}</exclude>
                         <exclude>${exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier}</exclude>
+                        <exclude>${exclude.classtemplate-tests.on.jupiter.5.12.or.earlier}</exclude>
                         <exclude>${exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier}</exclude>
                     </excludes>
                     <classpathDependencyExcludes>
@@ -815,6 +819,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.junit5or6>5.12.2</version.junit5or6>
                 <version.platform>1.12.2</version.platform>
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -823,6 +828,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.junit5or6>5.11.4</version.junit5or6>
                 <version.platform>1.11.4</version.platform>
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -831,6 +837,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.junit5or6>5.10.5</version.junit5or6>
                 <version.platform>1.10.5</version.platform>
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -839,6 +846,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.junit5or6>5.9.3</version.junit5or6>
                 <version.platform>1.9.3</version.platform>
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -847,6 +855,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.junit5or6>5.8.2</version.junit5or6>
                 <version.platform>1.8.2</version.platform>
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
         <profile>
@@ -857,6 +866,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
                 <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>**/Factoring*</exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
                 <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>**/GlobalAndLocalLifecycle*</exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>**/TemplatedClass*</exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
             </properties>
         </profile>
 
