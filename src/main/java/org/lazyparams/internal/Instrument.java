@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -112,45 +112,32 @@ public class Instrument {
         if (false == junitPlatformOnClasspath()) {
             return builder;
         }
-        for (Class<?> eachClass : ProvideJunitPlatformHierarchical.class.getDeclaredClasses()) {
-            if (AdviceFor.class.isAssignableFrom(eachClass)) {
-                try {
-                    Constructor<? extends AdviceFor> constr = eachClass
-                            .asSubclass(AdviceFor.class).getDeclaredConstructor();
-                    constr.setAccessible(true);
-                    builder = constr.newInstance().append(builder);
-                } catch (Exception ex) {
-                    System.err.println("Fail to append " + eachClass.getSimpleName()
-                            + ": " + ex.getMessage());
-//                    ex.printStackTrace();
-                }
-            }
-        }
+        builder = appendNestedAdvice(builder, ProvideJunitPlatformHierarchical.class);
         try {
-            for (AdviceFor<?> eachAdvice : nestedAdviceOf(
-                    TestInstance_Lifecycle_PER_METHOD_REPETITION.class)) {
-                builder = eachAdvice.append(builder);
-            }
+            builder = appendNestedAdvice(builder,
+                    TestInstance_Lifecycle_PER_METHOD_REPETITION.class);
         } catch (Throwable ignoreSupportForLazyInitialization) {}
         return builder;
     }
 
     private static AgentBuilder appendAllVintageAdvice(AgentBuilder builder) {
-        Collection<AdviceFor<?>> allVintageAdvice;
         try {
-            allVintageAdvice = nestedAdviceOf(ProvideJunitVintage.class);
+            return appendNestedAdvice(builder, ProvideJunitVintage.class);
         } catch (VirtualMachineError oom) {
             throw oom;
         } catch (Throwable junitNotOnClasspath) {
             return builder;
         }
-        for (AdviceFor<?> eachAdvice : allVintageAdvice) {
+    }
+
+    private static AgentBuilder appendNestedAdvice(
+            AgentBuilder builder, Class<?> outerClassOfNestedAdvice) {
+        for (AdviceFor<?> eachAdvice : nestedAdviceOf(outerClassOfNestedAdvice)) {
             try {
                 builder = eachAdvice.append(builder);
-            } catch (Throwable ex) {
+            } catch (Exception ex) {
                 System.err.println("Fail to append "
                         + eachAdvice.getClass().getSimpleName() + ": " + ex.getMessage());
-//                ex.printStackTrace();
             }
         }
         return builder;
