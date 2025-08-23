@@ -134,6 +134,20 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
          */
         private static class TestInstancesProviderDecoration implements TestInstancesProvider {
             static final Method proxiedMethod = resolve_target_getTestInstances_method();
+            static final TestInstances terminalEmptyTestInstances = new TestInstances() {
+                @Override public Object getInnermostInstance() {
+                    return null;
+                }
+                @Override public List<Object> getEnclosingInstances() {
+                    return Collections.emptyList();
+                }
+                @Override public List<Object> getAllInstances() {
+                    return Collections.emptyList();
+                }
+                @Override public <T> Optional<T> findInstance(Class<T> requiredType) {
+                    return Optional.empty();
+                }
+            };
 
             private final TestInstancesProvider coreProvider;
 
@@ -148,63 +162,58 @@ public @interface TestInstance_Lifecycle_PER_METHOD_REPETITION {
                         new Class[] { TestInstances.class},
                         new InvocationHandler() {
 
-                    boolean repetitionScopeIsClosed = false;
+                    private TestInstances testInstancesOnScope = null;
+                    private final ReentrantLock keyAndLockOnScope = new ReentrantLock();
+
                     {
                         LazyParams.currentScopeConfiguration().setScopedCustomItem(
-                                this, new TestInstances[0], new Configuration.ScopeRetirementPlan<Object>() {
-                            @Override public void apply(Object retiredCustomConfigurationValue) {
-                                repetitionScopeIsClosed = true;
+                                keyAndLockOnScope,
+                                "Setup terminal empty TestInstances after "
+                                + "completion of all repetition executions",
+                                new Configuration.ScopeRetirementPlan<String>() {
+                            @Override public void apply(String msg) {
+//                                System.out.println(msg);
+                                testInstancesOnScope = terminalEmptyTestInstances;
                             }
                         });
                     }
 
-                    private final ReentrantLock lockOnScope = new ReentrantLock();
-
                     private TestInstances resolveLazyTestInstances()
                     throws InvocationTargetException, IllegalAccessException {
-                        if (repetitionScopeIsClosed) {
-                            return new TestInstances() {
-                                @Override public Object getInnermostInstance() {
-                                    return null;
+                        LazyParams.currentScopeConfiguration().setScopedCustomItem(
+                                keyAndLockOnScope,
+                                "Remove test-instance after completed execution of "
+                                + "each individual repetition, i.e. when scope closes!",
+                                new Configuration.ScopeRetirementPlan<String>() {
+                            @Override public void apply(String msg) {
+//                                System.out.println(msg);
+                                if (terminalEmptyTestInstances
+                                        != testInstancesOnScope) {
+                                    testInstancesOnScope = null;
                                 }
-                                @Override public List<Object> getEnclosingInstances() {
-                                    return Collections.emptyList();
-                                }
-                                @Override public List<Object> getAllInstances() {
-                                    return Collections.emptyList();
-                                }
-                                @Override
-                                public <T> Optional<T> findInstance(Class<T> requiredType) {
-                                    return Optional.empty();
-                                }
-                            };
-                        }
-                        Configuration currentScope = LazyParams.currentScopeConfiguration();
-                        lockOnScope.lock();
+                            }
+                        });
+                        keyAndLockOnScope.lock();
                         try {
-                            TestInstances[] coreInstances =
-                                    currentScope.getScopedCustomItem(this);
-                            if (null != coreInstances && 1 <= coreInstances.length) {
-                                return coreInstances[0];
+                            if (null == testInstancesOnScope) {
+                                testInstancesOnScope = (TestInstances) proxiedMethod
+                                        .invoke(coreProvider, getTestInstancesArguments);
                             }
-                            currentScope.setScopedCustomItem(
-                                    this, coreInstances = new TestInstances[1]);
-                            if (repetitionScopeIsClosed) {
-                                return resolveLazyTestInstances();
-                            } else {
-                                return coreInstances[0] = (TestInstances) proxiedMethod
-                                    .invoke(coreProvider, getTestInstancesArguments);
-                            }
+                            return testInstancesOnScope;
                         } finally {
-                            lockOnScope.unlock();
+                            keyAndLockOnScope.unlock();
                         }
                     }
 
                     @Override
                     public Object invoke(Object _ignore_, Method method, Object[] arguments)
                     throws Throwable {
+                        TestInstances scopedTestInstances = this.testInstancesOnScope;
                         try {
-                            return method.invoke(resolveLazyTestInstances(), arguments);
+                            if (null == scopedTestInstances) {
+                                scopedTestInstances = resolveLazyTestInstances();
+                            }
+                            return method.invoke(scopedTestInstances, arguments);
                         } catch (InvocationTargetException ex) {
                             throw ex.getTargetException();
                         }
