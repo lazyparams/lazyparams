@@ -51,7 +51,7 @@
         </exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
         <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
             It is PowerMock's Easymock-API that requires a fairly new
-            release of ByteBuddy for reliable JDK-24 support
+            release of Byte-Buddy to support JDK-24 or later
         </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
         <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
         <version.test.jdk>17</version.test.jdk>
