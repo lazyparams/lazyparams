@@ -569,6 +569,29 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.12.1</version>
+            </plugin>
+            <plugin>
+                <groupId>org.simplify4u.plugins</groupId>
+                <artifactId>pgpverify-maven-plugin</artifactId>
+                <version>1.19.1</version>
+                <executions>
+                    <execution>
+                        <goals><goal>check</goal></goals>
+                        <configuration>
+                            <verifyPluginDependencies>true</verifyPluginDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keysMapLocations>
+                        <keysMapLocation>https://raw.githubusercontent.com/s4u/pgp-keys-map/bd07fcca0cc992b12dde18da81700dba812e64c0/resources/pgp-keys-map.list</keysMapLocation>
+                        <keysMapLocation>${basedir}/extra-pgp-keys.list</keysMapLocation>
+                    </keysMapLocations>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

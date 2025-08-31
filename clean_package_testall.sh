@@ -13,6 +13,11 @@
 cd "$(dirname "$0")"
 ls pom.xml > /dev/null || exit $?
 
+### Verify signatures on plugins and on dependencies for each test profile ...
+while read eachJunitOrBytebuddyProfile; do
+  mvn pgpverify:check -P "$eachJunitOrBytebuddyProfile" || exit $?
+done < <(mvn help:all-profiles | grep -oP '(junit|bytebuddy)_[^ ]++')
+
 ### Clean build ...
 mvn clean package -ff -Dsurefire.reportNameSuffix= -Dfailsafe.reportNameSuffix=JUnit4 || exit $?
 mvn jacoco:report
@@ -99,7 +104,7 @@ prepare_profiles_parameter() {
       profiles.pickNextFrom(useJunit6 ? junit6s : junit5s, true);
     }
 
-    System.out.print("mvn test");
+    System.out.print("mvn -o test");
     profiles.stream().map(" -P "::concat).forEach(System.out::print);
     System.out.println();
   } while (lazer.pendingCombinations());'
@@ -118,7 +123,7 @@ runbuilds() {
     if [ "$cmdLine" ] && rmdir "target/surefire-reports/$cmdLine" 2> /dev/null \
         && ! [ -f $failedBuildLog ]; then
       linePrefix="$(echo $cmdLine | perl -pe 's/\D*-P +/_/g; s/^_//;')"
-      $cmdLine -Dmaven.main.skip=true -Dmaven.resources.skip=true -DtempDir=test-thread$1.tmp -ff &> >(tee "$buildThreadLog" | sed "s/^/$linePrefix/")
+      $cmdLine -Dpgpverify.skip=true -Dmaven.main.skip=true -Dmaven.resources.skip=true -DtempDir=test-thread$1.tmp -ff &> >(tee "$buildThreadLog" | sed "s/^/$linePrefix/")
       if [ 0 -ne $? ]; then
         {
           {

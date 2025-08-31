@@ -1,0 +1,6 @@
+
+
+com.google.testparameterinjector:* = 0x2EE890070AE9318C3AD3520CE08F28E25BD93E9F
+                     org.assertj:* = 0x73B03597B892A329DC9B0F43CF84722DFC242EB9
+                   org.powermock:* = 0x53291EC0087EB140DFCA62A69A9E48C5A0DF30F7
+
