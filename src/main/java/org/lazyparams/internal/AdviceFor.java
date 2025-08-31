@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -62,17 +62,16 @@ public abstract class AdviceFor<T> {
         }
         try {
             this.methodInterceptor = Object.class == tClass ? (T)"" : new ByteBuddy()
-                    .subclass(tClass,ConstructorStrategy.Default.IMITATE_SUPER_CLASS)
+                    .subclass(tClass,ConstructorStrategy.Default.DEFAULT_CONSTRUCTOR)
                     .method(isMethod()
                             .and(not(isDeclaredBy(Object.class))))
                     .intercept(MethodDelegation.to(this, AdviceFor.class))
                     .make()
-                    .load(tClass.isInterface()
-                            ? new ClassLoader(getClass().getClassLoader()) {}
-                            : getClass().getClassLoader(),
-                            ClassLoadingStrategy.Default.INJECTION)
+                    .load(getClass().getClassLoader(),
+                            ClassLoadingStrategy.Default.WRAPPER)
                     .getLoaded()
                     .newInstance();
+
         } catch (Exception propablyAConstructorIssue_tryInsteadToOnlySupportInterfaces) {
             this.methodInterceptor = (T) Proxy.newProxyInstance(
                     getClass().getClassLoader(),
