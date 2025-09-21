@@ -45,8 +45,9 @@ import static net.bytebuddy.matcher.ElementMatchers.*;
  */
 public abstract class AdviceFor<T> {
 
+    private final Class<T> templateClass = resolveTemplateClassFromGenericTypeParameter();
     private final Class<? extends T> classToAdvice;
-    private T methodInterceptor;
+    private transient T methodInterceptor;
     private Junction<MethodDescription> methods2advice;
 
     AdviceFor() {
@@ -54,15 +55,16 @@ public abstract class AdviceFor<T> {
     }
 
     protected AdviceFor(Class<? extends T> classToRedefine) {
-        Class<T> tClass = resolveClassToRedefineFromGenericTypeParameter();
-        this.classToAdvice = null != classToRedefine ? classToRedefine : tClass;
+        this.classToAdvice =
+                null != classToRedefine ? classToRedefine
+                : null != templateClass ? templateClass
+                : (Class<T>) Object.class;
+    }
 
-        if (null == tClass) {
-            tClass = (Class<T>) this.classToAdvice;
-        }
+    private T createMethodInterceptor() {
         try {
-            this.methodInterceptor = Object.class == tClass ? (T)"" : new ByteBuddy()
-                    .subclass(tClass,ConstructorStrategy.Default.DEFAULT_CONSTRUCTOR)
+            return null == templateClass ? (T)"" : new ByteBuddy()
+                    .subclass(templateClass,ConstructorStrategy.Default.DEFAULT_CONSTRUCTOR)
                     .method(isMethod()
                             .and(not(isDeclaredBy(Object.class))))
                     .intercept(MethodDelegation.to(this, AdviceFor.class))
@@ -73,15 +75,15 @@ public abstract class AdviceFor<T> {
                     .newInstance();
 
         } catch (Exception propablyAConstructorIssue_tryInsteadToOnlySupportInterfaces) {
-            this.methodInterceptor = (T) Proxy.newProxyInstance(
+            return (T) Proxy.newProxyInstance(
                     getClass().getClassLoader(),
                     collectInterfacesOf(this.classToAdvice).toArray(new Class[0]),
                     new InvocationHandler() {
-                @Override
-                public Object invoke(Object o, Method method, Object[] os) {
-                    return on(method);
-                }
-            });
+                        @Override
+                        public Object invoke(Object o, Method method, Object[] os) {
+                            return on(method);
+                        }
+                    });
         }
     }
 
@@ -152,11 +154,16 @@ public abstract class AdviceFor<T> {
         }
     }
 
-    private Class<T> resolveClassToRedefineFromGenericTypeParameter() {
+    private Class<T> resolveTemplateClassFromGenericTypeParameter() {
         Type superClass = getClass().getGenericSuperclass();
-        return superClass instanceof ParameterizedType
-                ? (Class<T>) ((ParameterizedType)superClass).getActualTypeArguments()[0]
-                : null;
+        if (superClass instanceof ParameterizedType) {
+            Type templatedType = ((ParameterizedType)superClass)
+                    .getActualTypeArguments()[0];
+            if (null != templatedType && Object.class != templatedType) {
+                return (Class<T>) templatedType;
+            }
+        }
+        return null;
     }
 
     protected Method[] getDeclaredMethods() {
@@ -201,6 +208,9 @@ public abstract class AdviceFor<T> {
     }
 
     protected final T on() {
+        if (null == methodInterceptor) {
+            methodInterceptor = createMethodInterceptor();
+        }
         return methodInterceptor;
     }
 }
