@@ -15,22 +15,12 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.security.ProtectionDomain;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
 
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.type.TypeDescription;
 import net.bytebuddy.dynamic.DynamicType;
-import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
-import net.bytebuddy.dynamic.scaffold.subclass.ConstructorStrategy;
-import net.bytebuddy.implementation.MethodDelegation;
-import net.bytebuddy.implementation.bind.annotation.BindingPriority;
-import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.matcher.ElementMatcher;
 import net.bytebuddy.matcher.ElementMatcher.Junction;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -59,32 +49,12 @@ public abstract class AdviceFor<T> {
                 null != classToRedefine ? classToRedefine
                 : null != templateClass ? templateClass
                 : (Class<T>) Object.class;
-    }
-
-    private T createMethodInterceptor() {
-        try {
-            return null == templateClass ? (T)"" : new ByteBuddy()
-                    .subclass(templateClass,ConstructorStrategy.Default.DEFAULT_CONSTRUCTOR)
-                    .method(isMethod()
-                            .and(not(isDeclaredBy(Object.class))))
-                    .intercept(MethodDelegation.to(this, AdviceFor.class))
-                    .make()
-                    .load(getClass().getClassLoader(),
-                            ClassLoadingStrategy.Default.WRAPPER)
-                    .getLoaded()
-                    .newInstance();
-
-        } catch (Exception propablyAConstructorIssue_tryInsteadToOnlySupportInterfaces) {
-            return (T) Proxy.newProxyInstance(
-                    getClass().getClassLoader(),
-                    collectInterfacesOf(this.classToAdvice).toArray(new Class[0]),
-                    new InvocationHandler() {
-                        @Override
-                        public Object invoke(Object o, Method method, Object[] os) {
-                            return on(method);
-                        }
-                    });
-        }
+        assert null == classToRedefine
+                || null == templateClass
+                || templateClass.isInterface()
+                && templateClass.isAssignableFrom(classToAdvice)
+                : "A non-null classToRedefine must have #templateClass as an"
+                + " implemented interface or the Object Class instance";
     }
 
     AgentBuilder append(AgentBuilder builder) {
@@ -143,17 +113,6 @@ public abstract class AdviceFor<T> {
         }
     }
 
-    private static Collection<Class> collectInterfacesOf(Class<?> classToRedefine) {
-        if (Object.class == classToRedefine) {
-            return new HashSet<Class>();
-        } else {
-            Collection<Class> interfaces = collectInterfacesOf(
-                    classToRedefine.getSuperclass());
-            Collections.addAll(interfaces, classToRedefine.getInterfaces());
-            return interfaces;
-        }
-    }
-
     private Class<T> resolveTemplateClassFromGenericTypeParameter() {
         Type superClass = getClass().getGenericSuperclass();
         if (superClass instanceof ParameterizedType) {
@@ -170,9 +129,7 @@ public abstract class AdviceFor<T> {
         return classToAdvice.getDeclaredMethods();
     }
 
-    @BindingPriority(Integer.MAX_VALUE)
-    @RuntimeType
-    public final Object on(@Origin Method m) {
+    protected final void on(Method m) {
 //        System.out.println("Intercepted: " + m);
         if (null == methods2advice) {
             methods2advice = none();
@@ -195,7 +152,6 @@ public abstract class AdviceFor<T> {
             }
             methods2advice = methods2advice.or(intercepted);
         }
-        return null;
     }
 
     private boolean hasGenericArguments(Method m) {
@@ -209,7 +165,15 @@ public abstract class AdviceFor<T> {
 
     protected final T on() {
         if (null == methodInterceptor) {
-            methodInterceptor = createMethodInterceptor();
+            methodInterceptor = (T) Proxy.newProxyInstance(
+                    getClass().getClassLoader(),
+                    new Class[] {templateClass},
+                    new InvocationHandler() {
+                @Override public Object invoke(Object __, Method m, Object[] ___) {
+                    on(m);
+                    return null;
+                }
+            });
         }
         return methodInterceptor;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -374,15 +374,30 @@ public enum ProvideJunitVintage {
         return false;
     }
 
+    Method notifierMethod() throws NoSuchMethodException {
+        try {
+            return RunNotifier.class.getMethod(name(),
+                    fireTestFailure == this || fireTestAssumptionFailed == this
+                    ? Failure.class : Description.class);
+        } catch (NoSuchMethodException ex) {
+            switch (this) {
+                /* These methods may be missing on a very old JUnit release ...*/
+                case fireTestSuiteFinished:
+                case fireTestAssumptionFailed:
+                    /* ... and we can do without them,
+                     * so problem is here worked around in an ugly manner:*/
+                    System.err.println(ex.getMessage());
+                    return fireTestFinished.notifierMethod();
+                default: throw ex;
+            }
+        }
+    }
+
     public static class NotifierAdvice extends AdviceFor<RunNotifier> {
-        NotifierAdvice() {
-            on().fireTestStarted(null);
-            on().fireTestFailure(null);
-            on().fireTestFinished(null);
-            try {
-                on().fireTestSuiteFinished(null);
-                on().fireTestAssumptionFailed(null);
-            } catch (Error perhapsAnEarlyVersionOfJunit) {}
+        NotifierAdvice() throws NoSuchMethodException {
+            for (ProvideJunitVintage each : values()) {
+                on(each.notifierMethod());
+            }
         }
 
         public static Description resolveScopeReferenceFor(
