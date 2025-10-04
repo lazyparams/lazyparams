@@ -1,5 +1,5 @@
 # LazyParams <a name="lazyparams"></a> [![javadoc](https://javadoc.io/badge2/org.lazyparams/lazyparams/javadoc.svg?bump=250817)](https://javadoc.io/doc/org.lazyparams/lazyparams/latest/org/lazyparams/package-summary.html)  [![maven](https://javadoc.io/badge2/org.lazyparams/lazyparams/mavencentral.svg?bump=250817)](https://central.sonatype.com/search?namespace=org.lazyparams)
-LazyParams is a powerful parametrization solution for JUnit (versions 4 and 5). It allows the test developer to easily convert a regular test into a parameterized test that can have one or many parameters. These parameters are seamlessly combined to facilitate pairwise testing.
+LazyParams is a powerful parametrization solution for JUnit (versions 4, 5 and 6). It allows the test developer to easily convert a regular test into a parameterized test that can have one or many parameters. These parameters are seamlessly combined to facilitate pairwise testing.
 
 Unlike traditional parametrization approaches that rely on annotations, LazyParams provides an imperative API during test execution. This approach allows for "lazy" parametrization, where a test can start as a regular test without parameters and then transition into a parameterized test as parameters are introduced during test execution.
 
