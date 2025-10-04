@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -19,17 +19,24 @@ abstract class ToStringKey {
     private final String toString;
     private final Object[] extras;
 
+    /**
+     * Pre-calculated to help performance of
+     * reused {@link ScopedLazyParameter} instances with many values.
+     */
+    private final int hash;
+
     ToStringKey(String toString, Object... extras) {
         this.toString = toString;
         this.extras = extras.clone();
+        int hash = 3;
+        hash = 89 * hash + (toString != null ? toString.hashCode() : 0);
+        hash = 89 * hash + getClass().getName().hashCode();
+        hash = 89 * hash + Arrays.hashCode(extras);
+        this.hash = hash;
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 89 * hash + (this.toString != null ? this.toString.hashCode() : 0);
-        hash = 89 * hash + getClass().getName().hashCode();
-        hash = 89 * hash + Arrays.hashCode(extras);
         return hash;
     }
 
