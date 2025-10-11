@@ -35,7 +35,7 @@ jobs:
       - name: Regular test on jdk-17
         run: mvn test | grep --line-buffered -v Download
       - name: Test on jdk-8 with recent release of JUnit-5.13.x
-        run: mvn test -P jdk_8 -P junit_5.13.4 | grep --line-buffered -v Download
+        run: mvn test -P jdk_8 -P junit_5.13 | grep --line-buffered -v Download
       - name: Test on jdk-21 - install-scenarios included
         run: mvn test -P jdk_21 -P enableInstallScenarios -P junit_latest
       - name: Test on jdk-25 - install-scenarios included

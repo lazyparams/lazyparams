@@ -173,7 +173,7 @@
         <!--
         This test dependency is for regression tests that verify LazyParams
         compatibility with "junit-jupiter-params". Need for this compatibility
-        concerns situations when an old "junit-jupiter-params" test is
+        concerns situations when a "junit-jupiter-params" test is
         enhanced with additional parameters from LazyParams.
         -->
         <dependency>
@@ -832,7 +832,7 @@ reevaluated once-in-while by running tests with this profile enabled!
                  current (possibly milestone or RC) release of JUnit-6. -->
         </profile>
         <profile>
-            <id>junit_5.13.4</id>
+            <id>junit_5.13</id>
             <properties>
                 <version.junit5or6>5.13.4</version.junit5or6>
                 <version.platform>1.13.4</version.platform>
@@ -840,7 +840,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.12.2</id>
+            <id>junit_5.12</id>
             <properties>
                 <version.junit5or6>5.12.2</version.junit5or6>
                 <version.platform>1.12.2</version.platform>
@@ -849,7 +849,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.11.4</id>
+            <id>junit_5.11</id>
             <properties>
                 <version.junit5or6>5.11.4</version.junit5or6>
                 <version.platform>1.11.4</version.platform>
@@ -858,7 +858,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.10.5</id>
+            <id>junit_5.10</id>
             <properties>
                 <version.junit5or6>5.10.5</version.junit5or6>
                 <version.platform>1.10.5</version.platform>
@@ -867,7 +867,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.9.3</id>
+            <id>junit_5.9</id>
             <properties>
                 <version.junit5or6>5.9.3</version.junit5or6>
                 <version.platform>1.9.3</version.platform>
@@ -876,7 +876,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.8.2</id>
+            <id>junit_5.8</id>
             <properties>
                 <version.junit5or6>5.8.2</version.junit5or6>
                 <version.platform>1.8.2</version.platform>
@@ -885,7 +885,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <profile>
-            <id>junit_5.7.2</id>
+            <id>junit_5.7</id>
             <properties>
                 <version.junit5or6>5.7.2</version.junit5or6>
                 <version.platform>1.7.2</version.platform>
