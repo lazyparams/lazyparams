@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2025 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -11,6 +11,7 @@ package org.lazyparams.demo;
 
 import java.text.DecimalFormat;
 import java.util.stream.IntStream;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,8 @@ import org.lazyparams.LazyParams;
 import org.lazyparams.LazyParamsCoreUtil;
 
 public class ManyByMany {
+
+    int count = 0;
 
     CharSequence timing = new CharSequence() {
 
@@ -36,8 +39,13 @@ public class ManyByMany {
         }
     };
 
+    @BeforeAll static void prefix() {
+        LazyParams.pickValue("prefix", 1,2);
+    }
+
     @BeforeEach void increaseMaxCount() {
         LazyParams.currentScopeConfiguration().setMaxTotalCount(3999);
+        LazyParamsCoreUtil.displayOnSuccess("count", "#" + ++count);
         LazyParamsCoreUtil.displayOnSuccess("timing", timing);
     }
 

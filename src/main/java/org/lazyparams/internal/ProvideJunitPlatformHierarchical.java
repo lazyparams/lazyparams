@@ -965,31 +965,25 @@ public class ProvideJunitPlatformHierarchical implements EngineExecutionListener
                     return toString();
                 }
                 pendingNotifications.updateAndGet(
-                        new UnaryOperator<Consumer<EngineExecutionListener>>() {
+                        new StackFriendlyConsumerAndthendum<EngineExecutionListener>() {
                     @Override
-                    public Consumer<EngineExecutionListener> apply(
-                            Consumer<EngineExecutionListener> current) {
-                        return current.andThen(new Consumer<EngineExecutionListener>() {
-                            @Override
-                            public void accept(EngineExecutionListener listener) {
-                                try {
-                                    listenerMethod.invoke(listener, arguments);
-                                } catch (InvocationTargetException ex) {
-                                    throwUnchecked(ex.getTargetException());
-                                } catch (Exception ex) {
-                                    throwUnchecked(ex);
-                                }
-                            }
-                            /** For debug purposes: */ @Override
-                            public String toString() {
-                                return listenerMethod.getName() + " ON " + (
-                                        null == arguments || 0 == arguments.length
-                                        ? "_void_"
-                                        : arguments[0] instanceof DescriptorContextGuard
-                                        ? ((DescriptorContextGuard)arguments[0]).getDisplayName()
-                                        : arguments[0].getClass().getSimpleName());
-                            }
-                        });
+                    void andThenAccept(EngineExecutionListener listener) {
+                        try {
+                            listenerMethod.invoke(listener, arguments);
+                        } catch (InvocationTargetException ex) {
+                            throwUnchecked(ex.getTargetException());
+                        } catch (Exception ex) {
+                            throwUnchecked(ex);
+                        }
+                    }
+                    /** For debug purposes: */ @Override
+                    public String toString() {
+                        return listenerMethod.getName() + " ON " + (
+                                null == arguments || 0 == arguments.length
+                                ? "_void_"
+                                : arguments[0] instanceof DescriptorContextGuard
+                                ? ((DescriptorContextGuard)arguments[0]).getDisplayName()
+                                : arguments[0].getClass().getSimpleName());
                     }
                 });
                 return null;
