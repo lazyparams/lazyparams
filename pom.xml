@@ -832,6 +832,14 @@ reevaluated once-in-while by running tests with this profile enabled!
                  current (possibly milestone or RC) release of JUnit-6. -->
         </profile>
         <profile>
+            <id>junit_5.14</id>
+            <properties>
+                <version.junit5or6>5.14.0</version.junit5or6>
+                <version.platform>1.14.0</version.platform>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+            </properties>
+        </profile>
+        <profile>
             <id>junit_5.13</id>
             <properties>
                 <version.junit5or6>5.13.4</version.junit5or6>
