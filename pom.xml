@@ -687,7 +687,7 @@ reevaluated once-in-while by running tests with this profile enabled!
         JDKs on above profiles are expected to be compatible with all Byte-Buddy
         editions that allow LazyParams to compile, i.e. Byte-Buddy version 1.7.4
         or later!
-        However, for JDK-12 or later the test-exeuction script
+        However, for JDK-12 to JDK-17 the test-exeuction script
         "clean_package_testall" has restricted compatibility to Byte-Buddy
         versions 1.11.x or later.
         -->
@@ -737,7 +737,7 @@ reevaluated once-in-while by running tests with this profile enabled!
             </properties>
         </profile>
         <!--
-        For JDK-18 or later the test-script "clean_package_testall" will only
+        For JDK-18 to JDK-21 the test-script "clean_package_testall" will only
         try compatibility with Byte-Buddy version 1.14.4 or later!
         -->
         <profile>
@@ -764,6 +764,10 @@ reevaluated once-in-while by running tests with this profile enabled!
                 <version.test.jdk>21</version.test.jdk>
             </properties>
         </profile>
+        <!--
+        For below JDK-22 or later the test-script "clean_package_testall" will only
+        try compatibility with Byte-Buddy version 1.17.5 or later!
+        -->
         <profile>
             <id>jdk_22</id>
             <properties>
