@@ -840,7 +840,6 @@ reevaluated once-in-while by running tests with this profile enabled!
             <properties>
                 <version.junit5or6>6.0.1</version.junit5or6>
                 <version.platform>6.0.1</version.platform>
-                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
             </properties>
         </profile>
         <profile>
