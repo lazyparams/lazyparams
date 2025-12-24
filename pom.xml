@@ -320,7 +320,27 @@
                 </includes>
             </resource>
         </resources>
+
         <plugins>
+            <plugin>
+                <groupId>org.simplify4u.plugins</groupId>
+                <artifactId>pgpverify-maven-plugin</artifactId>
+                <version>1.19.1</version>
+                <executions>
+                    <execution>
+                        <goals><goal>check</goal></goals>
+                        <configuration>
+                            <verifyPluginDependencies>true</verifyPluginDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <keysMapLocations>
+                        <keysMapLocation>https://raw.githubusercontent.com/s4u/pgp-keys-map/bd07fcca0cc992b12dde18da81700dba812e64c0/resources/pgp-keys-map.list</keysMapLocation>
+                        <keysMapLocation>${basedir}/extra-pgp-keys.list</keysMapLocation>
+                    </keysMapLocations>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>3.3.1</version>
@@ -348,31 +368,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>3.1.1</version>
-                <configuration>
-                    <useReleaseProfile>true</useReleaseProfile>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.1</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
-                <configuration>
-                    <legacyMode>true</legacyMode>
-                    <detectJavaApiLink>false</detectJavaApiLink>
-                    <doclet>org.lazyparams.demo.ge17.LazyparamsDoclet</doclet>
-                    <docletPath>${project.build.testOutputDirectory}</docletPath>
-                    <excludePackageNames>org.lazyparams.internal</excludePackageNames>
-                    <jdkToolchain>
-                        <version>17</version>
-                    </jdkToolchain>
-                </configuration>
-            </plugin>
+
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
@@ -460,6 +456,7 @@
                     </toolchains>
                 </configuration>
             </plugin>
+
             <plugin>
                 <!--
                 Use Surefire's sibling plugin ...
@@ -565,28 +562,35 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.1.1</version>
+                <configuration>
+                    <useReleaseProfile>true</useReleaseProfile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.6.3</version>
+                <configuration>
+                    <legacyMode>true</legacyMode>
+                    <detectJavaApiLink>false</detectJavaApiLink>
+                    <doclet>org.lazyparams.demo.ge17.LazyparamsDoclet</doclet>
+                    <docletPath>${project.build.testOutputDirectory}</docletPath>
+                    <excludePackageNames>org.lazyparams.internal</excludePackageNames>
+                    <jdkToolchain>
+                        <version>17</version>
+                    </jdkToolchain>
+                </configuration>
+            </plugin>
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.12.1</version>
-            </plugin>
-            <plugin>
-                <groupId>org.simplify4u.plugins</groupId>
-                <artifactId>pgpverify-maven-plugin</artifactId>
-                <version>1.19.1</version>
-                <executions>
-                    <execution>
-                        <goals><goal>check</goal></goals>
-                        <configuration>
-                            <verifyPluginDependencies>true</verifyPluginDependencies>
-                        </configuration>
-                    </execution>
-                </executions>
-                <configuration>
-                    <keysMapLocations>
-                        <keysMapLocation>https://raw.githubusercontent.com/s4u/pgp-keys-map/bd07fcca0cc992b12dde18da81700dba812e64c0/resources/pgp-keys-map.list</keysMapLocation>
-                        <keysMapLocation>${basedir}/extra-pgp-keys.list</keysMapLocation>
-                    </keysMapLocations>
-                </configuration>
             </plugin>
         </plugins>
     </build>
