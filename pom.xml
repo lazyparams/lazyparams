@@ -440,21 +440,46 @@
                 <version>3.2.0</version>
                 <executions>
                     <execution>
+                        <id>:
+&gt;&gt;&gt;
+Enforce toolchain-entry for JDK-8!
+It is required by goals "default-compile" and "compile-jdk6-tests"
+&lt;&lt;&lt;
+                        :</id>
                         <goals><goal>toolchain</goal></goals>
+                        <configuration><toolchains>
+                            <jdk><version>8</version></jdk>
+                        </toolchains></configuration>
+                    </execution>
+                    <execution>
+                        <id>-:
+&gt;&gt;&gt;
+Enforce toolchain-entry for JDK-17!
+It is required by goal "default-testCompile"
+&lt;&lt;&lt;
+                        :-</id>
+                        <goals><goal>toolchain</goal></goals>
+                        <configuration><toolchains>
+                            <jdk><version>17</version></jdk>
+                        </toolchains></configuration>
+                    </execution>
+                    <execution>
+                    <!--
+                    Force Surefire and Failsafe to run tests with toolchain JDK,
+                    which version can be overridden by profiles:
+                    -->
+                        <id>-:
+&gt;&gt;&gt;
+Setup JDK-${version.test.jdk} for test executions
+&lt;&lt;&lt;
+                        :-</id>
                         <phase>process-test-classes</phase>
+                        <goals><goal>toolchain</goal></goals>
+                        <configuration><toolchains>
+                            <jdk><version>${version.test.jdk}</version></jdk>
+                        </toolchains></configuration>
                     </execution>
                 </executions>
-                <!--
-                Force Surefire and Failsafe to run tests with toolchain JDK,
-                which version can be overridden by profiles.
-                -->
-                <configuration>
-                    <toolchains>
-                        <jdk>
-                            <version>${version.test.jdk}</version>
-                        </jdk>
-                    </toolchains>
-                </configuration>
             </plugin>
 
             <plugin>
