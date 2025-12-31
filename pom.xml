@@ -503,21 +503,21 @@ Setup JDK-${version.test.jdk} for test executions
                     </dependency>
                 </dependencies>
                 <!--
-                ... but adding this plugin dependency directly to the regular
+                ... whereas adding this plugin dependency directly to the regular
                 Surefire plugin would impact all its test executions, therewith
-                breaking all JUnit-5 tests.
+                breaking all JUnit-5/6 tests.
                 -->
                 <configuration>
                     <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-api</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.platform.:junit-platform-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.jupiter:junit-jupiter-api</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.platform:junit-platform-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.platform:junit-platform-commons</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.vintage:junit-vintage-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.platform:junit-platform-launcher</classpathDependencyExclude>
+                        <!--
+                        For reliable verification of LazyParams ability to execute
+                        JUnit-4 tests without any JUnit-5/6 presence on classpath,
+                        all JUnit-5/6 artifacts are here excluded from classpath.
+                        It is easily achieved after recognizing how the JUnit-4
+                        dependency artifact belongs to group "junit", whereas all
+                        JUnit-5/6 artifacts belong to some "org.junit.*" group:
+                        -->
+                        <classpathDependencyExclude>org.junit.*</classpathDependencyExclude>
                     </classpathDependencyExcludes>
                     <includes>
                         <include>AssertNoJUnit5onClasspath</include>
