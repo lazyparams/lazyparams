@@ -38,23 +38,6 @@
         <version.platform>[1.7.2,7)</version.platform>
         <version.junit5or6>[5.7.2,7)</version.junit5or6>
         <version.bytebuddy>1.17.7</version.bytebuddy>
-        <version.mockito>4.11.0</version.mockito>
-        <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
-            Reliable support for Jupiter @TestFactory starts at version 5.8.x
-        </exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
-        <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
-            Jupiter support for specifying parameter resolver on method
-            parameter annotation starts at version 5.8.x
-        </exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
-        <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
-            Class templates are intruduced at version 5.13.x
-        </exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
-        <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
-            It is PowerMock's Easymock-API that requires a fairly new
-            release of Byte-Buddy to support JDK-24 or later
-        </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
-        <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
-        <version.test.jdk>17</version.test.jdk>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -86,16 +69,6 @@
             <artifactId>junit</artifactId>
             <version>4.13.2</version>
             <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.hamcrest</groupId>
-                    <artifactId>hamcrest-core</artifactId>
-                    <!--
-                    Hamcrest is in fact used by this project but
-                    only with scope=test.
-                    -->
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!--
@@ -109,65 +82,13 @@
             <groupId>org.junit.platform</groupId>
             <artifactId>junit-platform-engine</artifactId>
             <version>${version.platform}</version>
-            <scope>test</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
             <version>${version.junit5or6}</version>
-            <scope>test</scope>
-        </dependency>
-        <!--
-        The above dependencies on JUnit Platform and Jupiter have version
-        ranges to keep track of compatibility with latest JUnit releases
-        in a coincidental but convenient manner.
-
-        But for the main compilation the JUnit depencencies below are used!
-        They are for compilation of LazyParams main sources only(!) and
-        therefore they dont have version ranges but instead rely on fixed
-        Platform and Jupiter versions. All LazyParams-1.0.x releases are
-        compiled with Platform-1.10.x and Jupiter-5.10.x but are so in a
-        mindful manner to maintain support for JUnit-5 engines that run on
-        JUnit Platform 1.7.2 or later.
-        -->
-        <dependency>
-            <groupId>org.junit.platform.</groupId>
-            <artifactId>junit-platform-engine</artifactId>
-            <version>1.10.5</version>
-            <scope>compile</scope>
             <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter.</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>5.10.5</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter.</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>5.10.5</version>
-            <scope>compile</scope>
-            <optional>true</optional>
-            <exclusions>
-                <exclusion>
-                    <groupId>*</groupId>
-                    <artifactId>*</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!--
@@ -236,9 +157,6 @@
                 <exclusion>
                     <groupId>org.hamcrest</groupId>
                     <artifactId>hamcrest-core</artifactId>
-                    <!--
-                    ... to avoid conflict with artifact "hamcrest-all" ...
-                    -->
                 </exclusion>
             </exclusions>
         </dependency>
@@ -325,7 +243,6 @@
             <plugin>
                 <groupId>org.simplify4u.plugins</groupId>
                 <artifactId>pgpverify-maven-plugin</artifactId>
-                <version>1.19.1</version>
                 <executions>
                     <execution>
                         <goals><goal>check</goal></goals>
@@ -334,39 +251,12 @@
                         </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <keysMapLocations>
-                        <keysMapLocation>https://raw.githubusercontent.com/s4u/pgp-keys-map/bd07fcca0cc992b12dde18da81700dba812e64c0/resources/pgp-keys-map.list</keysMapLocation>
-                        <keysMapLocation>${basedir}/extra-pgp-keys.list</keysMapLocation>
-                    </keysMapLocations>
-                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
-                <version>3.3.1</version>
                 <configuration>
                     <useBuildFilters>false</useBuildFilters>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <id>license_as_javadoc_metainf</id>
-                        <phase>process-resources</phase>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>${basedir}</directory>
-                                    <includes>
-                                        <include>LICENSE</include>
-                                    </includes>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
@@ -440,7 +330,7 @@
                 <version>3.2.0</version>
                 <executions>
                     <execution>
-                        <id>:
+                        <id>: ---
 &gt;&gt;&gt;
 Enforce toolchain-entry for JDK-8!
 It is required by goals "default-compile" and "compile-jdk6-tests"
@@ -452,7 +342,7 @@ It is required by goals "default-compile" and "compile-jdk6-tests"
                         </toolchains></configuration>
                     </execution>
                     <execution>
-                        <id>-:
+                        <id> :-) ---
 &gt;&gt;&gt;
 Enforce toolchain-entry for JDK-17!
 It is required by goal "default-testCompile"
@@ -468,7 +358,7 @@ It is required by goal "default-testCompile"
                     Force Surefire and Failsafe to run tests with toolchain JDK,
                     which version can be overridden by profiles:
                     -->
-                        <id>-:
+                        <id>-: @ lazyparams
 &gt;&gt;&gt;
 Setup JDK-${version.test.jdk} for test executions
 &lt;&lt;&lt;
@@ -487,7 +377,6 @@ Setup JDK-${version.test.jdk} for test executions
                 Use Surefire's sibling plugin ...
                 -->
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.22.2</version>
                 <!--
                 ... to execute JUnit tests that ensure compatibility with JDK-6.
                 Due to Surefire's JunitPlatformProvider dependency on JDK-8 or
@@ -527,11 +416,6 @@ Setup JDK-${version.test.jdk} for test executions
                         <include>org/lazyparams/EnsemblesLegacyTest*</include>
                         <include>org/lazyparams/demo/DependentOrNot*</include>
                     </includes>
-
-                    <reportNameSuffix>JUnit4provider_with_bytebuddy-${version.bytebuddy}_on_JDK-${version.test.jdk}</reportNameSuffix>
-                    <trimStackTrace>false</trimStackTrace>
-                    <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
-                    <failIfNoTests>true</failIfNoTests>
                 </configuration>
                 <executions>
                     <execution>
@@ -547,22 +431,13 @@ Setup JDK-${version.test.jdk} for test executions
 
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
                 <configuration>
-                    <skip>${profile.junit5or6.unsupported}</skip>
-                    <trimStackTrace>false</trimStackTrace>
-                    <failIfNoTests>true</failIfNoTests>
                     <excludes>
                         <exclude>${exclude.testfactory-tests.on.jupiter.5.7.or.earlier}</exclude>
                         <exclude>${exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier}</exclude>
                         <exclude>${exclude.classtemplate-tests.on.jupiter.5.12.or.earlier}</exclude>
                         <exclude>${exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier}</exclude>
                     </excludes>
-                    <classpathDependencyExcludes>
-                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-engine</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.jupiter.:junit-jupiter-api</classpathDependencyExclude>
-                        <classpathDependencyExclude>org.junit.platform.:junit-platform-engine</classpathDependencyExclude>
-                    </classpathDependencyExcludes>
                 </configuration>
                 <executions>
                     <execution>
@@ -589,38 +464,239 @@ Setup JDK-${version.test.jdk} for test executions
             </plugin>
 
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.7.3</version>
+                <configuration>
+                    <keepCommentsInPom>true</keepCommentsInPom>
+                    <flattenMode>resolveCiFriendliesOnly</flattenMode>
+                    <pomElements>
+                        <profiles>remove</profiles>
+                        <distributionManagement>remove</distributionManagement>
+                    </pomElements>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals><goal>flatten</goal></goals>
+                    </execution>
+                    <execution>
+                        <id>Clean-Up</id>
+                        <goals><goal>clean</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.1.1</version>
                 <configuration>
                     <useReleaseProfile>true</useReleaseProfile>
                 </configuration>
             </plugin>
-            <plugin>
-                <artifactId>maven-source-plugin</artifactId>
-                <version>3.3.1</version>
-            </plugin>
-            <plugin>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.6.3</version>
-                <configuration>
-                    <legacyMode>true</legacyMode>
-                    <detectJavaApiLink>false</detectJavaApiLink>
-                    <doclet>org.lazyparams.demo.ge17.LazyparamsDoclet</doclet>
-                    <docletPath>${project.build.testOutputDirectory}</docletPath>
-                    <excludePackageNames>org.lazyparams.internal</excludePackageNames>
-                    <jdkToolchain>
-                        <version>17</version>
-                    </jdkToolchain>
-                </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>3.12.1</version>
-            </plugin>
         </plugins>
     </build>
 
     <profiles>
+
+        <profile>
+            <properties>
+                <version.mockito>4.11.0</version.mockito>
+                <exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+                    Reliable support for Jupiter @TestFactory starts at version 5.8.x
+                </exclude.testfactory-tests.on.jupiter.5.7.or.earlier>
+                <exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+                    Jupiter support for specifying parameter resolver on method
+                    parameter annotation starts at version 5.8.x
+                </exclude.parameter-resolver.annotation.tests.on.jupiter.5.7.or.earlier>
+                <exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
+                    Class templates are intruduced at version 5.13.x
+                </exclude.classtemplate-tests.on.jupiter.5.12.or.earlier>
+                <exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
+                    It is PowerMock's Easymock-API that requires a fairly new
+                    release of Byte-Buddy to support JDK-24 or later
+                </exclude.powermock-tests.on.bytebuddy.1.12.15.or.earlier>
+                <profile.junit5or6.unsupported>false</profile.junit5or6.unsupported>
+                <version.test.jdk>17</version.test.jdk>
+            </properties>
+            <activation><jdk>!0</jdk></activation>
+            <id>
+            Main Build Profile that is implicitly activated on all builds.
+            It provides actual build configuration and properties, such as fixed
+            compile dependency versions, default test dependencies and toolchain.
+            Therewith it enforces a distinction between the build configurations
+            and the release consumer-pom that will only contain dependency and
+            plugin details that are of value when developing tests that use LazyParams.
+            </id>
+            <dependencies>
+                <dependency>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                    <version>4.13.2</version>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.hamcrest</groupId>
+                            <artifactId>hamcrest-core</artifactId>
+                            <!--
+                            Hamcrest is in fact used by this project but
+                            only with scope=test.
+                            -->
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>junit-platform-engine</artifactId>
+                    <version>${version.platform}</version>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                    <version>${version.junit5or6}</version>
+                    <scope>test</scope>
+                </dependency>
+                <!--
+                The above dependencies on JUnit Platform and Jupiter have version
+                ranges to keep track of compatibility with latest JUnit releases
+                in a coincidental but convenient manner.
+
+                But for the main compilation the JUnit depencencies below are used!
+                They are for compilation of LazyParams main sources only(!) and
+                therefore they dont have version ranges but instead rely on fixed
+                Platform and Jupiter versions. All LazyParams-1.0.x releases are
+                compiled with Platform-1.10.x and Jupiter-5.10.x - but are so in a
+                mindful manner to maintain support for JUnit-5 engines that run on
+                JUnit Platform 1.7.2 or later:
+                -->
+                <dependency>
+                    <groupId>org.junit.platform.</groupId>
+                    <artifactId>junit-platform-engine</artifactId>
+                    <version>1.10.5</version>
+                    <scope>compile</scope>
+                    <optional>true</optional>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.jupiter.</groupId>
+                    <artifactId>junit-jupiter-engine</artifactId>
+                    <version>5.10.5</version>
+                    <scope>compile</scope>
+                    <optional>true</optional>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+                <dependency>
+                    <groupId>org.junit.jupiter.</groupId>
+                    <artifactId>junit-jupiter-api</artifactId>
+                    <version>5.10.5</version>
+                    <scope>compile</scope>
+                    <optional>true</optional>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>*</groupId>
+                            <artifactId>*</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+            </dependencies>
+
+            <build><pluginManagement><plugins>
+
+                <plugin>
+                    <groupId>org.simplify4u.plugins</groupId>
+                    <artifactId>pgpverify-maven-plugin</artifactId>
+                    <version>1.19.1</version>
+                    <configuration>
+                        <keysMapLocations>
+                            <keysMapLocation>https://raw.githubusercontent.com/s4u/pgp-keys-map/bd07fcca0cc992b12dde18da81700dba812e64c0/resources/pgp-keys-map.list</keysMapLocation>
+                            <keysMapLocation>${basedir}/extra-pgp-keys.list</keysMapLocation>
+                        </keysMapLocations>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.3.1</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>copy-resources</goal>
+                            </goals>
+                            <id>license_as_javadoc_metainf</id>
+                            <phase>prepare-package</phase>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/apidocs/META-INF</outputDirectory>
+                                <resources>
+                                    <resource>
+                                        <directory>${basedir}</directory>
+                                        <includes>
+                                            <include>LICENSE</include>
+                                        </includes>
+                                    </resource>
+                                </resources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>2.22.2</version>
+                    <configuration>
+                        <reportNameSuffix>JUnit4provider_with_bytebuddy-${version.bytebuddy}_on_JDK-${version.test.jdk}</reportNameSuffix>
+                        <trimStackTrace>false</trimStackTrace>
+                        <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+                        <failIfNoTests>true</failIfNoTests>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                    <configuration>
+                        <skip>${profile.junit5or6.unsupported}</skip>
+                        <trimStackTrace>false</trimStackTrace>
+                        <failIfNoTests>true</failIfNoTests>
+                        <classpathDependencyExcludes>
+                            <classpathDependencyExclude>org.junit.jupiter.:*</classpathDependencyExclude>
+                            <classpathDependencyExclude>org.junit.platform.:*</classpathDependencyExclude>
+                        </classpathDependencyExcludes>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.3.1</version>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>3.6.3</version>
+                    <configuration>
+                        <legacyMode>true</legacyMode>
+                        <detectJavaApiLink>false</detectJavaApiLink>
+                        <doclet>org.lazyparams.demo.ge17.LazyparamsDoclet</doclet>
+                        <docletPath>${project.build.testOutputDirectory}</docletPath>
+                        <excludePackageNames>org.lazyparams.internal</excludePackageNames>
+                        <jdkToolchain>
+                            <version>17</version>
+                        </jdkToolchain>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.12.1</version>
+                </plugin>
+
+            </plugins></pluginManagement></build>
+        </profile>
 
         <profile>
             <id>test-report_name-suffix</id>
