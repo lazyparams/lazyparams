@@ -60,7 +60,7 @@
         <!--
         Dependency on JUnit-4 is optional.
         It is assumed projects with JUnit-3/4 tests will specify JUnit-4
-        or vintage dependency anyway. (LazyParams JUnit-5 compatibility
+        or vintage dependency anyway. (LazyParams JUnit-5/6 compatibility
         does not break if dependency on JUnit-4 is missing - as is
         verified by Surefire test execution "Test_without_JUnit-4".)
         -->
@@ -72,10 +72,10 @@
         </dependency>
 
         <!--
-        Dependency on JUnit-5 (platform engine and jupiter engine) is optional.
+        Dependency on JUnit-5/6 (platform engine and jupiter engine) is optional.
         It is assumed projects that use JUnit Jupiter will specify test
         dependencies properly anyway. (LazyParams JUnit-4 compatibility does
-        not break if dependency on JUnit-5 is missing - as is verified by
+        not break if dependency on JUnit-5/6 is missing - as is verified by
         Failsafe integration-test execution "Test_JUnit-4".)
         -->
         <dependency>
@@ -105,8 +105,8 @@
         </dependency>
 
         <!--
-        JUnit-5 technical test dependencies that Surefire require for running
-        tests with its default JUnit-5 provider. Classes from the
+        JUnit-5/6 technical test dependencies that Surefire require for running
+        tests with its default JUnit-5/6 provider. Classes from the
         junit-platform-launcher dependency are also explicitly used by
         regression tests that verify compatibility with JUnit Jupiter.
         -->
@@ -565,7 +565,7 @@ Setup JDK-${version.test.jdk} for test executions
                 therefore they dont have version ranges but instead rely on fixed
                 Platform and Jupiter versions. All LazyParams-1.0.x releases are
                 compiled with Platform-1.10.x and Jupiter-5.10.x - but are so in a
-                mindful manner to maintain support for JUnit-5 engines that run on
+                mindful manner to maintain support for JUnit-5/6 engines that run on
                 JUnit Platform 1.7.2 or later:
                 -->
                 <dependency>
