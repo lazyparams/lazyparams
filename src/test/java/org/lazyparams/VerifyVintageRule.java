@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -355,7 +355,7 @@ public class VerifyVintageRule implements TestRule {
 
         void verifyFailure(Failure failure) {
             if (null == messageRgx) {
-                throw new AssertionError(failure.toString());
+                throw new AssertionError(failure.toString(), failure.getException());
             }
             String expectedMessage = messageRgx;
             messageRgx = null;

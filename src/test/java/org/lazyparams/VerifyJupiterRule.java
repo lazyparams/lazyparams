@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2025 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -389,7 +389,7 @@ public class VerifyJupiterRule implements TestRule {
                 }
                 if (false == expectations.isEmpty()) {
                     throw new AssertionError("There are " + expectations.size()
-                            + " pending verifications!!");
+                            + " pending verifications:\n" + expectations);
                 }
                 assertGuardsAreCleaned();
             }
