@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -198,8 +198,8 @@ public enum StaticScopeParam {
 
     private void afterAllTweaksOn(VerifyJupiterRule builder,
             List<VerifyJupiterRule.ResultVerifier> original) {
-        String classDisplayRgx = builder.getTestClass().getSimpleName();
-        String classLegacyRgx = builder.getTestClass().getName();
+        String classDisplayRgx = builder.quoteTestClassToVerifySimpleName();
+        String classLegacyRgx = builder.quoteTestClassToVerifyName();
         final List<?> pickables = Stream
                 .of(pickables().orElse(new Object[] {""}))
                 .collect(Collectors.toList());

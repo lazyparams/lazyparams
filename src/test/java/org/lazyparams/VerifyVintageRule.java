@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import org.junit.internal.AssumptionViolatedException;
 import org.junit.rules.TestRule;
@@ -337,8 +338,12 @@ public class VerifyVintageRule implements TestRule {
                 displayNameRgx = methodName + displayNameRgx;
             }
             this.displayNameRgx =
-                    displayNameRgx + "(\\(" + getTestClass().getName() + "\\))?";
+                    displayNameRgx + "(\\(" + quoteTestClass() + "\\))?";
             this.messageRgx = messageRgx;
+        }
+
+        private String quoteTestClass() {
+            return Pattern.quote(getTestClass().getName());
         }
 
         String getMessageRgx() {

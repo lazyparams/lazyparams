@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -11,6 +11,7 @@ package org.lazyparams.demo.ge17;
 
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.regex.Pattern;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.jupiter.api.condition.JRE;
@@ -43,7 +44,7 @@ public class SprouterTest {
          */
         @Override protected void customizeBeforeLaunch() {
             pass(Sprouter.Sprinner.class.getSimpleName(),
-                    Sprouter.Sprinner.class.getName().replace("$", "\\$"));
+                    Sprouter.Sprinner.class.getName());
             pass(Sprouter.class.getSimpleName(), Sprouter.class.getName());
 
             List<VerifyJupiterRule.ResultVerifier> expects = getExpectations();
@@ -57,8 +58,8 @@ public class SprouterTest {
                      * for which an undesirable default fallback verification
                      * would otherwise be appended further downstream!
                      */
-                    Sprouter.Sprinner.class.getSimpleName(),
-                    Sprouter.Sprinner.class.getName(), null) {
+                    Pattern.quote(Sprouter.Sprinner.class.getSimpleName()),
+                    Pattern.quote(Sprouter.Sprinner.class.getName()), null) {
                 @Override
                 public Consumer<TestExecutionResult> apply(
                         String actualDisplayName, String actualLegacyName) {

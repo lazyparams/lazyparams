@@ -110,6 +110,13 @@ public class VerifyJupiterRule implements TestRule {
         }
     }
 
+    String quoteTestClassToVerifySimpleName() {
+        return Pattern.quote(testClassToVerify.getSimpleName());
+    }
+    String quoteTestClassToVerifyName() {
+        return Pattern.quote(testClassToVerify.getName());
+    }
+
     public NextResult methodParameterTypes(Class<?>... parameterTypes) {
         String parameterTypesText = Stream.of(parameterTypes)
                 .map(Class::getName)
@@ -184,15 +191,15 @@ public class VerifyJupiterRule implements TestRule {
                     iter.next().setResultNumber(iter.nextIndex());
                 }
                 if (expectations.isEmpty()) {
-                    fail(testClassToVerify.getSimpleName(),
-                            testClassToVerify.getName());
-                } else if (false == testClassToVerify.getName()
+                    fail(quoteTestClassToVerifySimpleName(),
+                            quoteTestClassToVerifyName());
+                } else if (false == quoteTestClassToVerifyName()
                         .equals(iter.previous().legacyNameRgx)) {
-                    String classLegacyStart = testClassToVerify.getName() + ' ';
+                    String startOfClassLegacyRgx = quoteTestClassToVerifyName() + ' ';
                     /* Setup expected class summary: */
                     int expectedFails = 0, expectedTotal = 0;
                     for (ResultVerifier verifier : expectations) {
-                        if (verifier.legacyNameRgx.startsWith(classLegacyStart)) {
+                        if (verifier.legacyNameRgx.startsWith(startOfClassLegacyRgx)) {
                             ++expectedTotal;
                             if (null != verifier.getMessageRgx()) {
                                 ++expectedFails;
@@ -200,16 +207,16 @@ public class VerifyJupiterRule implements TestRule {
                         }
                     }
                     if (expectedFails <= 0) {
-                        pass(testClassToVerify.getSimpleName(),
-                                testClassToVerify.getName());
+                        pass(quoteTestClassToVerifySimpleName(),
+                                quoteTestClassToVerifyName());
                     } else if (2 <= expectedTotal) {
-                        fail(testClassToVerify.getSimpleName(),
-                                testClassToVerify.getName())
+                        fail(quoteTestClassToVerifySimpleName(),
+                                quoteTestClassToVerifyName())
                                 .withMessage(expectedFails + " test"
                                 + ".*total " + expectedTotal + "\\D*");
                     } else {
-                        fail(testClassToVerify.getSimpleName(),
-                                testClassToVerify.getName());
+                        fail(quoteTestClassToVerifySimpleName(),
+                                quoteTestClassToVerifyName());
                     }
                     expectations.get(expectations.size() - 1)
                             .setResultNumber(expectations.size());
@@ -436,9 +443,16 @@ public class VerifyJupiterRule implements TestRule {
     protected void customizeBeforeLaunch() {}
 
     private String prefixAdjusted(String appendix) {
-        return null == appendix || 1 <= appendix.length() && ' ' != appendix.charAt(0)
-                ? appendix
-                : defaultPrefix + appendix;
+        return null == appendix ? null
+                : appendix.length() <= 0 || ' ' == appendix.charAt(0)
+                ? defaultPrefix + appendix
+                : appendix.startsWith(testClassToVerify.getName())
+                ? quoteTestClassToVerifyName()
+                        + appendix.substring(testClassToVerify.getName().length())
+                : appendix.startsWith(testClassToVerify.getSimpleName())
+                ? quoteTestClassToVerifySimpleName()
+                        + appendix.substring(testClassToVerify.getSimpleName().length())
+                : appendix;
     }
 
     public NextResult pass(String nameRgx) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -144,7 +144,7 @@ public enum MaxCountsTweak implements InvocationInterceptor {
 
     void modifyAfterAllExpectations(VerifyJupiterRule verifierRule) {
         int failCount = 0, totalCount = 0;
-        String staticPrefix = verifierRule.testClassToVerify.getName() + " ";
+        String staticPrefix = verifierRule.quoteTestClassToVerifyName() + ' ';
         Iterator<VerifyJupiterRule.ResultVerifier> iter =
                 verifierRule.getExpectations().iterator();
         while (iter.hasNext()) {
