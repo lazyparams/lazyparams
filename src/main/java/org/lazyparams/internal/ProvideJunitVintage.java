@@ -1,5 +1,5 @@
 /*
- * Copyright 2024-2025 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -89,7 +89,7 @@ public enum ProvideJunitVintage {
         }
         @Override
         boolean handleInterception(RunNotifier notifier, Description base, Failure ___) {
-            if (RunNotifier.class == notifier.getClass()) {
+            if (notifier.getClass().getName().startsWith("org.junit.")) {
                 try {
                     Description suiteCloser = base.childlessCopy();
                     if (false == lifecycleFacade.closeExecutionScope(suiteCloser, null)) {
