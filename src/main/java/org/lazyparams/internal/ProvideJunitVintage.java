@@ -89,6 +89,8 @@ public enum ProvideJunitVintage {
         }
         @Override
         boolean handleInterception(RunNotifier notifier, Description base, Failure ___) {
+            testIdentifierBackup.remove();/*no longer needed after test has ended*/
+
             if (notifier.getClass().getName().startsWith("org.junit.")) {
                 try {
                     Description suiteCloser = base.childlessCopy();
