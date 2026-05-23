@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -20,8 +20,8 @@ import org.lazyparams.config.Configuration;
  */
 class BasicToDisplayFunction<T> implements ToDisplayFunction<T> {
 
-    /** Used by {@link ScopedLazyParameter.FactoryHandler#parameterId(java.util.List,String,ToDisplayFunction)}*/
-    final String parameterName;
+    /** @see #toString() */
+    private final String parameterName;
 
     private final String valuePrefix;
 
@@ -53,5 +53,17 @@ class BasicToDisplayFunction<T> implements ToDisplayFunction<T> {
     @Override
     public CharSequence apply(T value) {
         return valuePrefix + toPrettyString(value);
+    }
+
+    /**
+     * Used by
+     * {@link ScopedLazyParameter.FactoryHandler#parameterId(
+     *                                    java.util.List,
+     *                                    ScopedLazyParameter.CombiningCollector,
+     *                                    ToDisplayFunction)}
+     */
+    @Override
+    public String toString() {
+        return this.parameterName;
     }
 }

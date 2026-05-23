@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -372,6 +372,18 @@ public abstract class ScopedLazyParameter<T> {
         static final Map<Class<?>,Map<Class<?>,Class<? extends BasicFactory>>>
                 factoryProgressionPaths = resolveProgressionPathsFor(FactoryRoot.class);
 
+        /**
+         * Default combining collector is the most basic intuitive implementation
+         * that simply uses one to determine index for value-to-pick.
+         * @see #asParameter(ToDisplayFunction)
+         */
+        private static final CombiningCollector defaultCombiningCollector = new CombiningCollector() {
+            @Override public Object applyOn(
+                    List parameterValues, CombiningCollector.Seeds combinedSeeds) {
+                return parameterValues.get(combinedSeeds.next(parameterValues.size()));
+            }
+        };
+
         private final T[] paramValues;
         private final Class<? extends BasicFactory> progressiveFactoryType;
 
@@ -429,7 +441,8 @@ public abstract class ScopedLazyParameter<T> {
 
         /* **** Basic Factory stuff ... *****/
         private Object parameterId(List<T> valuesInOrder,
-                String combinerDetail, ToDisplayFunction<?> toDisplayDetail) {
+                CombiningCollector combiningCollector,
+                ToDisplayFunction<?> toDisplayDetail) {
             if (null != explicitParamId) {
                 extraIdDetails.clear();
                 return explicitParamId;
@@ -439,30 +452,34 @@ public abstract class ScopedLazyParameter<T> {
             buildIdLogPart.add(combined);
             buildIdLogPart.add(verbosity);
             buildIdLogPart.add(valuesInOrder.toArray());
-            buildIdLogPart.add(toDisplayDetail.getClass());
+            if (defaultCombiningCollector != combiningCollector) {
+                buildIdLogPart.add(combiningCollector.getClass());
+            }
             if (null != pocket) {
                 buildIdLogPart.add(pocket);
             }
             IdDetail idLogPart = new IdDetail(buildIdLogPart.toArray());
 
             if (BasicToDisplayFunction.class == toDisplayDetail.getClass()) {
-                String idToString = ((BasicToDisplayFunction)toDisplayDetail).parameterName
-                        + "(" + valuesInOrder.size() + " values)";
-                return new ToStringKey(idToString, combinerDetail, idLogPart) {};
+                return new ToStringKey(
+                        toDisplayDetail.toString(),
+                        valuesInOrder.size(), idLogPart) {};
+
+            } else if (toDisplayDetail.getClass().isSynthetic()) {
+                return new ToStringKey(IdDetail.reliablePartOfSyntheticClassName(
+                        toDisplayDetail.getClass().getName()),
+                        valuesInOrder.size(), idLogPart) {};
+
             } else {
-                return new ToStringKey(combinerDetail, idLogPart) {};
+                return new ToStringKey(
+                        toDisplayDetail.getClass().getName(),
+                        valuesInOrder.size(), idLogPart) {};
             }
         }
 
         @Override
         public ScopedLazyParameter<T> asParameter(final ToDisplayFunction<? super T> toDisplay) {
-            return asParameter(toDisplay, new CombiningCollector<T,T>() {
-                @Override
-                public T applyOn(List<? extends T> parameValues,
-                        CombiningCollector.Seeds combinedSeeds) {
-                    return parameValues.get(combinedSeeds.next(parameValues.size()));
-                }
-            });
+            return asParameter(toDisplay, defaultCombiningCollector);
         }
 
         @Override
@@ -485,7 +502,7 @@ public abstract class ScopedLazyParameter<T> {
             final List<T> valuesOnList = new ArrayList<T>(paramValues.length);
             Collections.addAll(valuesOnList, paramValues);
             final Object paramId = parameterId(valuesOnList,
-                    combiningCollector.getClass().getName(), toDisplay);
+                    combiningCollector, toDisplay);
             final Object scopeKey = new Object();
 
             return new ScopedLazyParameter<C>() {
@@ -640,7 +657,7 @@ public abstract class ScopedLazyParameter<T> {
             return hash;
         }
 
-        private static String reliablePartOfSyntheticClassName(String className) {
+        static String reliablePartOfSyntheticClassName(String className) {
             int dollarIndex = className.indexOf('$');
             return 0 <= dollarIndex
                     ? className.substring(0, dollarIndex)
