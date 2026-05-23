@@ -30,6 +30,14 @@ public class PowermockedScopedContextFeatures {
                     -> new StringBuilder(values.get(seeds.next(values.size()))));
 
     @Test
+    public void threeParamsFullyCombined() {
+        FullyCombined.pickFullyCombined("a", 1,2);
+        Integer b = FullyCombined.pickFullyCombined("b", 1,2);
+        FullyCombined.pickFullyCombined("c", 1,2);
+        assertEquals("Repeat b", b, FullyCombined.pickFullyCombined("b", 1,2));
+    }
+
+    @Test
     public void scopeCachedValue() {
         StringBuilder starter = stringBuilderParam.pickValue();
         starter.append(" start");

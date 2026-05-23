@@ -22,6 +22,19 @@ public class PowermockedScopedContextFeaturesTest {
     public VerifyVintageRule expect = new VerifyVintageRule(PowermockedScopedContextFeatures.class);
 
     @Test
+    public void threeParamsFullyCombined() {
+        expect.pass(" a=1 b=1 c=1")
+                .pass(" a=2 b=2 c=2")
+                .pass(" a=1 b=2 c=2")
+                .pass(" a=1 b=1 c=2")
+                .pass(" a=2 b=1 c=1")
+                .pass(" a=2 b=2 c=1")
+                .pass(" a=1 b=2 c=1")
+                .pass(" a=2 b=1 c=2")
+                .pass("");
+    }
+
+    @Test
     public void scopeCachedValue() {
         expect.pass(" built=first").pass(" built=second").pass("");
     }

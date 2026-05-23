@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 the original author or authors.
+ * Copyright 2024-2026 the original author or authors.
  *
  * All rights reserved. This program and the accompanying materials are
  * made available under the terms of the Eclipse Public License v2.0 which
@@ -148,5 +148,17 @@ class ConfigurationOnOtherClassloader extends Configuration {
     public void setMaxFailureCount(int maxFailureCountOrZeroToForceParentScope) {
         invokeOnProviderClassLoader("setMaxFailureCount",
                 new Class[] {int.class}, maxFailureCountOrZeroToForceParentScope);
+    }
+
+    @Override
+    public int hashCode() {
+        return 930178151 + configOnProviderClassLoader.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof ConfigurationOnOtherClassloader
+                && this.configOnProviderClassLoader
+                == ((ConfigurationOnOtherClassloader)obj).configOnProviderClassLoader;
     }
 }
