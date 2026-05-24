@@ -365,11 +365,11 @@ Setup JDK-${version.test.jdk} for test executions
                         :-</id>
                         <phase>process-test-classes</phase>
                         <goals><goal>toolchain</goal></goals>
-                        <configuration><toolchains>
-                            <jdk><version>${version.test.jdk}</version></jdk>
-                        </toolchains></configuration>
                     </execution>
                 </executions>
+                <configuration><toolchains>
+                    <jdk><version>${version.test.jdk}</version></jdk>
+                </toolchains></configuration>
             </plugin>
 
             <plugin>
