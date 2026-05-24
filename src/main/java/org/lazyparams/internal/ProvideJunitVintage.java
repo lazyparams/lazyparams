@@ -91,7 +91,8 @@ public enum ProvideJunitVintage {
         boolean handleInterception(RunNotifier notifier, Description base, Failure ___) {
             testIdentifierBackup.remove();/*no longer needed after test has ended*/
 
-            if (notifier.getClass().getName().startsWith("org.junit.")) {
+            if (notifier.getClass().getName().startsWith("org.junit.")
+                    || false == RepeatDescription.isOnRepeat(base)) {
                 try {
                     Description suiteCloser = base.childlessCopy();
                     if (false == lifecycleFacade.closeExecutionScope(suiteCloser, null)) {
@@ -180,7 +181,12 @@ public enum ProvideJunitVintage {
                     pendingRepeatFailures.clear();
                     RepeatNotifier repeatNotifier = newRepeatNotifier(
                             base, pendingRepeatFailures, recordedEvents);
-                    repeatRunner.run(repeatNotifier);
+                    try {
+                        RepeatDescription.setOnRepeat(base);
+                        repeatRunner.run(repeatNotifier);
+                    } finally {
+                        RepeatDescription.discardOnRepeat();
+                    }
 
                     if (recordedEvents.isEmpty()) {
                         Iterator<Throwable> iterRepeatProblems =
@@ -689,6 +695,37 @@ public enum ProvideJunitVintage {
 
     private enum RepeatDescription implements Annotation {
         INSTANCE;
+
+        /**
+         * Is used by {@link #fireTestFinished} to inform {@link #fireTestSuiteFinished}
+         * about ongoing repetition to avoid premature closing of scope, in case
+         * a 3rd-party runner somehow replaces or wraps the {@link RepeatNotifier},
+         * which otherwise would enforce the intended repetition scope lifecycle.
+         */
+        private static final ThreadLocal<String> onRepeat = new ThreadLocal<String>();
+
+        static boolean isOnRepeat(Description suiteDescription) {
+            try {
+                try {
+                    return classOf(suiteDescription).getName().equals(onRepeat.get());
+                } catch (NullPointerException __someRunnersHaveClassOnDescriptionChild__) {
+                    return classOf(suiteDescription.getChildren().get(0))
+                            .getName().equals(onRepeat.get());
+                }
+            } catch (Throwable __whatever__) {
+                return false;
+            }
+        }
+
+        static void setOnRepeat(Description suiteDescription) {
+            try {
+                onRepeat.set(classOf(suiteDescription).getName());
+            } catch (Throwable __ignore__) {}
+        }
+
+        static void discardOnRepeat() {
+            onRepeat.remove();
+        }
 
         @Override public Class<? extends Annotation> annotationType() {
             return RepeatDescription.class;
