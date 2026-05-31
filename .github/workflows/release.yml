@@ -15,10 +15,11 @@ jobs:
         with:
           java-version: 6
           distribution: 'zulu'
-      - name: 'Set up Java 8 & 17 & 21 & 25'
+      - name: 'Set up Java 8 & 17 & 21 & 25 & 26'
         uses: actions/setup-java@v4
         with:
           java-version: |
+            26
             25
             21
             17
@@ -42,6 +43,8 @@ jobs:
         run: mvn test -P jdk_21 -P enableInstallScenarios -P junit_latest
       - name: Test on jdk-25 - install-scenarios included
         run: mvn test -P jdk_25 -P enableInstallScenarios -P junit_latest
+      - name: Test on jdk-26 - install-scenarios included
+        run: mvn test -P jdk_26 -P enableInstallScenarios -P junit_latest
       - name: Test on jdk-6 - with recent bytebuddy
         run: mvn test -o -P jdk_6
       - name: Test on jdk-6 - with old bytebuddy
